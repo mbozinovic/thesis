@@ -1,0 +1,9 @@
+"0","left_join(CCES2018_Tracks, BB_1hz, by = c(""yyyy-mm-ddTHH:MM:SSZ"" = ""UTC""))
+"
+"1","[1m[33mError[39m in [38;5;255m`left_join()`[39m:[22m
+[38;5;255m[33m![38;5;255m Join columns must be present in data.
+[31m✖[38;5;255m Problem with `yyyy-mm-ddTHH:MM:SSZ`.[39m
+Backtrace:
+[90m 1. [39m[1mdplyr[22m::left_join(CCES2018_Tracks, BB_1hz, by = c(`yyyy-mm-ddTHH:MM:SSZ` = ""UTC""))
+[90m 2. [39m[38;5;255m[1m[94mdplyr:::left_join.data.frame([38;5;255m[22m[39mCCES2018_Tracks, BB_1hz, by = c(`yyyy-mm-ddTHH:MM:SSZ` = ""UTC"")[38;5;255m[1m[94m)[38;5;255m[22m[39m
+"

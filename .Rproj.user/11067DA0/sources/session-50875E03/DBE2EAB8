@@ -1,0 +1,30 @@
+{
+    "id": "DBE2EAB8",
+    "path": "~/GitHub thesis/thesis/test.qmd",
+    "project_path": "test.qmd",
+    "type": "quarto_markdown",
+    "hash": "790435565",
+    "contents": "",
+    "dirty": false,
+    "created": 1667427531917.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "rmdVisualMode": "false",
+        "rmdVisualWrapConfigured": "true",
+        "source_window_id": "",
+        "Source": "Source",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "cursorPosition": "29,0",
+        "scrollLine": "14"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1667429179,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1667429179562,
+    "read_only": false,
+    "read_only_alternatives": []
+}
