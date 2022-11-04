@@ -1,0 +1,27 @@
+"0","library(dplyr)"
+"0","library(zoo)"
+"2","
+Attaching package: ‘zoo’
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+"
+"0","alltracks <- read.csv(""AllTracks.csv"")"
+"0","BB_1hz <- read_csv(""CCES_08_1Hz_1s_BB_2min.csv"")"
+"2","[1mRows: [22m[34m3323[39m [1mColumns: [22m[34m2[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[32mdbl[39m  (1): BB_20-24000
+[34mdttm[39m (1): yyyy-mm-ddTHH:MM:SSZ"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","BB_interp <- BB_1hz %>%"
+"0","        mutate(yyyy-mm-ddTHH:MM:SSZ = na.approx(yyyy-mm-ddTHH:MM:SSZ))"
+"2","Error: unexpected '=' in:
+""BB_interp <- BB_1hz %>%
+        mutate(yyyy-mm-ddTHH:MM:SSZ =""
+"

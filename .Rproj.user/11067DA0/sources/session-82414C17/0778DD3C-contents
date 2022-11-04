@@ -13,10 +13,13 @@ Quarto enables you to weave together content and executable code into a finished
 When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
 ```{r}
-1 + 1
+library(dplyr)
+library(zoo)
+alltracks <- read.csv("AllTracks.csv")
+BB_1hz <- read_csv("CCES_08_1Hz_1s_BB_2min.csv")
+BB_interp <- BB_1hz %>%
+        mutate(yyyy-mm-ddTHH:MM:SSZ = na.approx(yyyy-mm-ddTHH:MM:SSZ))
 ```
-
-You can add options to executable code like this
 
 ```{r}
 #| echo: false
