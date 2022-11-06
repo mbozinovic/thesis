@@ -1,0 +1,27 @@
+{
+    "id": "75736D66",
+    "path": "~/GitHub thesis/thesis/test.Rmd",
+    "project_path": "test.Rmd",
+    "type": "r_markdown",
+    "hash": "1007867710",
+    "contents": "",
+    "dirty": false,
+    "created": 1667755388631.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "8,0",
+        "scrollLine": "1"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1667762669,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1667762669740,
+    "read_only": false,
+    "read_only_alternatives": []
+}
