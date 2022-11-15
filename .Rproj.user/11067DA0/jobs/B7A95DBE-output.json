@@ -1,0 +1,3 @@
+[2,"\n"]
+[1,"pandoc \n  to: latex\n  output-file: coastAbstract.tex\n  standalone: true\n  pdf-engine: xelatex\n  variables:\n    graphics: true\n    tables: true\n  default-image-extension: pdf\n  \nmetadata\n  documentclass: scrartcl\n  classoption:\n    - DIV=11\n    - numbers=noendperiod\n  papersize: letter\n  header-includes:\n    - '\\KOMAoption{captions}{tableheading}'\n  block-headings: true\n  title: COAST Award Abstract\n  editor: visual\n  \n"]
+[1,"running xelatex - 1\n\nNo TeX installation was detected.\n\nPlease run 'quarto install tool tinytex' to install TinyTex.\nIf you prefer, you may install TexLive or another TeX distribution.\n\n"]
