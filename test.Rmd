@@ -6,31 +6,58 @@ date: "2022-11-06"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-```
-
-## R Markdown
-
-```{r, echo = FALSE}
-library(dplyr)
-library(zoo)
-alltracks <- read.csv("AllTracks.csv")
-BB_1hz <- read_csv("CCES_08_1Hz_1s_BB_2min.csv")
-BB_interp <- BB_1hz %>%
-        mutate(yyyy-mm-ddTHH:MM:SSZ = na.approx(yyyy-mm-ddTHH:MM:SSZ))
-               
-
-```
-
-```{r,  echo = FALSE}
-#Doesn't work yet
-
 library(tidyverse)
-library(igisci)
-BB_1hz <- read_csv("CCES_08_1Hz_1s_BB_2min.csv")
-View(BB_1hz)
-View(CCES2018_Tracks)
+library(lubridate)
+```
 
-left_join(CCES2018_Tracks, BB_1hz, by = c("yyyy-mm-ddTHH:MM:SSZ" = "UTC")))
+## Read in data
+
+```{r}
+# Read in soundscape data, round to nearest 20 min
+BB_08_csv <- read_csv("Data/CCES_08_1Hz_1s_BB_2min.csv")
+BB_08 <- BB_08_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+BB_08 <- BB_08 %>%
+  mutate(dateTime = round_date(ymd_hms(BB_08$dateTime),"20 minutes"))
+```
+
+### Read in Tracks
+```{r}
+# Read in tracks, filter out lost buoys
+tracks_csv <- read_csv("Data/AllTracks.csv")
+tracks <- tracks_csv %>%
+  dplyr::filter(station == "4"| station == "7"| station =="8" |station == "10"| 
+                station == "12"|station == "13"| station == "14"| station == "16"|
+                station == "17"|station == "18"| station == "19"| station == "20"| 
+                station == "21"|station == "22"| station == "23")
+
+# Filter by CCES_08 buoy
+tracks_08 <- tracks %>% dplyr::filter(station == "8")
+
+# Round CCES_08 to nearest 20 min
+tracks_08 <- tracks_08 %>% 
+  mutate(dateTime = ceiling_date(ymd_hms(tracks_08$dateTime), "20 minutes"))
+
+```
+
+### Read in OL
+```{r}
+# Read in OL data, round to nearest 20 min
+OL_08_csv <- read_csv("Data/CCES_08_1Hz_1s_OL_2min.csv")
+OL_08 <- OL_08_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+OL_08 <- OL_08 %>%
+  mutate(dateTime = round_date(ymd_hms(OL_08$dateTime),"20 minutes"))
+OL_08
+
+```
+
+Joining tables
+```{r}
+# Join tables
+track_BB_08 <- left_join(tracks_08_rnd, BB_08, by = "dateTime")
+track_BB_OL_08 <- left_join(track_BB_08, OL_08, by="dateTime")
+
+write_csv(track_BB_OL_08, "Data/track_bb_OL_08.csv")
 ```
 
