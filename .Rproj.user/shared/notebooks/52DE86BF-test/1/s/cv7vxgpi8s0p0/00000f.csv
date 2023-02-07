@@ -1,0 +1,7 @@
+"0","# Read in soundscape data, round to nearest 20 min"
+"0","BB_08_csv <- read_csv(""Data/CCES_08_1Hz_1s_BB_2min.csv"", show_col_types = FALSE)"
+"0","BB_08 <- BB_08_csv %>% "
+"0","  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)"
+"0","BB_08 <- BB_08 %>%"
+"0","  mutate(dateTime = round_date(ymd_hms(BB_08$dateTime),""20 minutes""))"
+"0",""

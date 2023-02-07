@@ -8,23 +8,28 @@ date: "2022-11-06"
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
+library(sf)
+library(rerddap)
+library(terra)
 ```
 
-## Read in data
+## Read in CCES08 data
 
 ```{r}
 # Read in soundscape data, round to nearest 20 min
-BB_08_csv <- read_csv("Data/CCES_08_1Hz_1s_BB_2min.csv")
+BB_08_csv <- read_csv("Data/CCES_08_1Hz_1s_BB_2min.csv", show_col_types = FALSE)
 BB_08 <- BB_08_csv %>% 
   rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
 BB_08 <- BB_08 %>%
   mutate(dateTime = round_date(ymd_hms(BB_08$dateTime),"20 minutes"))
+
 ```
 
 ### Read in Tracks
+
 ```{r}
 # Read in tracks, filter out lost buoys
-tracks_csv <- read_csv("Data/AllTracks.csv")
+tracks_csv <- read_csv("Data/AllTracks.csv", show_col_types = FALSE)
 tracks <- tracks_csv %>%
   dplyr::filter(station == "4"| station == "7"| station =="8" |station == "10"| 
                 station == "12"|station == "13"| station == "14"| station == "16"|
@@ -35,14 +40,15 @@ tracks <- tracks_csv %>%
 tracks_08 <- tracks %>% dplyr::filter(station == "8")
 
 # Round CCES_08 to nearest 20 min
-tracks_08 <- tracks_08 %>% 
-  mutate(dateTime = ceiling_date(ymd_hms(tracks_08$dateTime), "20 minutes"))
-
+tracks_08_rnd <- tracks_08 %>% 
+  mutate(dateTime = round_date(ymd_hms(tracks_08$dateTime), "20 minutes"))
+tracks_08_rnd
 ```
 
-### Read in OL
+### Read in OL, round to nearest 20 min
+
 ```{r}
-# Read in OL data, round to nearest 20 min
+# CCES_08
 OL_08_csv <- read_csv("Data/CCES_08_1Hz_1s_OL_2min.csv")
 OL_08 <- OL_08_csv %>% 
   rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
@@ -50,14 +56,364 @@ OL_08 <- OL_08 %>%
   mutate(dateTime = round_date(ymd_hms(OL_08$dateTime),"20 minutes"))
 OL_08
 
+# CCES_10
+OL_10_csv <- read_csv("Data/CCES_10_1Hz_1s_OL_2min.csv")
+OL_10 <- OL_10_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+OL_10 <- OL_10 %>%
+  mutate(dateTime = round_date(ymd_hms(OL_10$dateTime),"20 minutes"))
+OL_10
 ```
 
-Joining tables
+### Read in CCES_10
+
 ```{r}
-# Join tables
+# Read in CCES_10 soundscape metrics
+BB_10_csv <- read_csv("Data/CCES_10_1Hz_1s_BB_2min.csv")
+BB_10 <- BB_10_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+BB_10 <- BB_10 %>%
+  mutate(dateTime = round_date(ymd_hms(BB_10$dateTime),"20 minutes"))
+
+# Filter by CCES_10 buoy
+tracks_10 <- tracks %>% dplyr::filter(station == "10")
+
+# Round CCES_10 to nearest 20 min
+tracks_10_rnd <- tracks_10 %>% 
+  mutate(dateTime = ceiling_date(ymd_hms(tracks_10$dateTime), "20 minutes"))
+
+```
+
+### Read in whale detections
+
+```{r}
+# Read in whale detections from CCES_08 and CCES_10
+whales <- read_csv("Data/EventInfo.csv")
+whales_sf <- whales %>%
+  dplyr::filter(Deployment == "8"| Deployment == "10") %>%
+  st_as_sf(coords = c("Longitude","Latitude"), crs=4326) %>%
+  mutate(bestNumber = as.numeric(bestNumber)) %>%
+  mutate(nClicks = as.numeric(nClicks))
+
+```
+
+## Read in AIS Data
+```{r}
+rawAIS<- read_csv("Data/AIS_072518_072918.csv")
+# need to figure out where to store data
+```
+
+
+### Joining tables with soundscape metrics
+
+```{r}
+# CCES_08
 track_BB_08 <- left_join(tracks_08_rnd, BB_08, by = "dateTime")
 track_BB_OL_08 <- left_join(track_BB_08, OL_08, by="dateTime")
-
 write_csv(track_BB_OL_08, "Data/track_bb_OL_08.csv")
+
+# CCES_10
+track_BB_10 <- left_join(tracks_10_rnd, BB_10, by = "dateTime")
+track_BB_OL_10 <- left_join(track_BB_10, OL_10, by="dateTime")
+write_csv(track_BB_OL_10, "Data/track_bb_OL_10.csv")
 ```
 
+### Map Animations
+```{r}
+# Install
+#devtools::install_github("ropenscilabs/rnaturalearth")
+#install.packages("rnaturalearth",
+                 #repos = "http://packages.ropensci.org",
+                 #type = "source")
+#install.packages("gganimate")
+#install.packages("gifski")
+#install.packages("marmap")
+
+# Libraries
+library(sf)
+library(tidyverse)
+library(marmap)
+library(gifski)
+library(gganimate)
+library(rnaturalearth)
+```
+
+### New ggplot wtih bplot as basemap 
+```{r}
+library(mapproj)
+# Get bathymetry (code from Ocean Tracking Network https://www.youtube.com/watch?v=xT2F-Y9bKLk)
+bgo <- getNOAA.bathy(lon1 = min(df_all$lon-0.7), lon2 = max(df_all$lon + 0.7),
+                     lat1 = min(df_all$lat-0.7), lat2=max(df_all$lat + 0.7), resolution = 1)
+
+# Create basemap
+bf <- fortify.bathy(bgo, geom=c("r", "c")) + scale_fill_etopo() # converts bathy object to data frame
+bplot <- autoplot(bgo, geom = c("raster", "contour"), coast = TRUE) + 
+  scale_fill_etopo() #creates ggplot object
+
+# Plot
+p <- bplot + 
+  geom_path(data = track_BB_OL_10, 
+            aes(x=long,y=lat,group=spotID), 
+            alpha = 0.5,
+            linewidth = 3) + # line width parameter is ignored for some reason
+  geom_point(data = track_BB_OL_10, 
+             aes(x=long,y=lat,group=spotID, size = OL_125, color = OL_125),
+             shape=19, stroke = 4) +
+  #formatting  
+  scale_color_viridis_c(option = "inferno") +
+  scale_size_continuous(range = c(0.1,10)) +
+  labs(x=NULL, y=NULL, 
+       fill = 'Depth',
+       color = 'OL 125')+
+  theme(panel.grid = element_blank())
+```
+
+
+```{r}
+# Animate
+anim = p +
+  transition_reveal(along = dateTime)+
+  ease_aes('linear')+
+  shadow_wake(0.1) +
+  ggtitle("Date: {frame_along}")
+
+# Animate with control over frames per second and number of frames
+animate(anim, nframes = 70, fps = 3)
+
+```
+
+
+Linear Regression Model
+
+```{r}
+# Does sound vary with latitude?
+lm(formula = OL_63 ~ lat, data = track_BB_OL_08)
+fit10 <- lm(formula = lat ~ OL_63, data = track_BB_OL_10)
+plot(fit10)
+ggplot(track_BB_OL_08, aes(x = lat, y = `BB_20-24000`)) + scale_y_continuous() +
+   geom_point() + geom_smooth()
+
+# Does sound vary with date/time?
+summary(lm(formula = `BB_20-24000`~ dateTime, data = track_BB_OL_10))
+
+ggplot(track_BB_OL_08, aes(x = dateTime, y = `BB_20-24000`)) +
+  geom_point() +
+  geom_smooth() +
+  ggtitle("Buoy 08 - Sound levels by date")
+
+ggplot(track_BB_OL_10, aes(x = dateTime, y = `BB_20-24000`)) +
+  geom_point() +
+  geom_smooth() +
+  ggtitle("Buoy 10 - Sound levels by date")
+
+plot(lm(formula = `BB_20-24000`~ dateTime, data = track_BB_OL_08))
+
+ggplot() +
+  geom_point(data = track_BB_OL_08, aes(x = dateTime, y = `BB_20-24000`, color = "red")) +
+  geom_point(data = track_BB_OL_10, aes(x = dateTime, y = `BB_20-24000`, color = "blue"))
+
+
+
+```
+
+CCES Broadband and OL Map
+
+```{r}
+library(tmap); library(maptiles); library(sf)
+tmap_mode("plot")
+trackssf <- st_as_sf(tracks, coords = c("long", "lat"), crs=4326)
+tracks08sf <- st_as_sf(track_BB_OL_08, coords = c("long", "lat"), crs=4326)
+tracks10sf <- st_as_sf(track_BB_OL_10, coords = c("long", "lat"), crs=4326)
+trackBase <- get_tiles(whales_sf, provider = "Esri.OceanBasemap")
+allTrackbase <- get_tiles(trackssf, provider = "Esri.OceanBasemap")
+
+#Map all tracks
+tm_shape(allTrackbase) + tm_rgb() +
+  tm_shape(trackssf) + 
+  tm_dots(col = "black")
+
+# Map tracks 08 and 10 only
+tm_shape(trackBase) + tm_rgb() + 
+  tm_shape(tracks08sf) + tm_dots(col = "red", 
+                                 legend.show = TRUE) +
+  tm_shape(tracks10sf) + tm_dots(col = "green")
+
+# CCES_08 + CCES_10 Broadband
+tm_shape(trackBase) + tm_rgb() + 
+  tm_shape(tracks08sf) + 
+  tm_symbols(col = "BB_20-24000", 
+             border.lwd = NA, 
+             size = 0.4, 
+             sizes.legend = 0.7, 
+             n = 10) +
+  tm_shape(tracks10sf) + 
+  tm_symbols(col = "BB_20-24000",
+             border.lwd = NA, 
+             size = 0.4,
+             n = 10) +
+  tm_layout(legend.width = 0.5, 
+            legend.position = c("right","top"),
+            legend.bg.color = "lightblue")
+
+#CCES_08 Octave Level
+tm_shape(trackBase) + tm_rgb() + 
+  tm_shape(tracks08sf) + 
+  tm_symbols(col = "OL_63", 
+             border.lwd = NA, 
+             size = 0.5, 
+             n = 10) + 
+  tm_layout(legend.width = 0.5, 
+            legend.position = c("right","top")) + 
+  tm_legend()
+
+```
+
+### Sea Surface Temp with rerddap
+
+```{r}
+# Looking at one day, Aug 23 2018
+
+library(rerddap)
+SSTInfo <- info('jplMURSST41')
+murSST <- griddap(sstInfo, latitude = c(22., 51.), longitude = c(-140., -105), time = c("2018-08-23", "2018-08-23"), fields = 'analysed_sst')
+ggplot(data = murSST$data, aes(x = longitude, y = latitude, fill = analysed_sst))
+
+# needs fixing!
+
+# Trying SST here again...
+library(terra)
+SST <- terra::rast("Data/SST.tif")
+track_rast <- rasterize(tracks08sf, SST)
+
+plot(SST)
+plot(track_rast)
+```
+
+### Bathymetry Analysis
+
+```{r}
+# Increase cell size by 30x to be visible
+bathy <- rast("Data/gebco_bathy.tif")
+agg <- terra::aggregate(bathy, 30)
+plot(agg)
+
+# Rasterize track with agg as the template
+track_rast <- rasterize(tracks08sf, agg, field = "BB_20-24000")
+plot(track_rast)
+  
+bathy_df <- as.data.frame(bathy, xy = TRUE)
+
+# Map the coastline
+cont <- st_as_sf(as.contour(bathy))
+coast <- cont %>% filter(level == 0)
+cont_slope <- cont %>% filter(level == -2000)
+cont_slope_rast <- rasterize(cont_slope, agg, field = "level")
+plot(cont_slope_rast, col = "red")
+cont_slope_rast <- rasterize(cont_slope, agg)
+plot(cont_slope_rast, col = "red")
+  
+ggplot() + 
+  geom_raster(data = bathy_df, 
+              mapping = aes(x=x, y=y, 
+                            alpha = 0.8,
+                            fill = `gebco_bathy`))+
+  geom_sf(data = cont, col="black") + 
+  geom_sf(data = coast, col = "red") +
+  geom_sf(data = cont_slope, col = "purple") +
+  geom_sf(data = tracks08sf, mapping = aes(col= `BB_20-24000`)) +
+  geom_sf(data = tracks10sf, mapping = aes(col= `BB_20-24000`)) +
+  scale_color_gradient(low="green", high="red") 
+
+# Distance to continental slope
+
+BB_dist <- terra::distance(track_rast, vect(cont_slope))
+dist_ex08 <- terra::extract(BB_dist, vect(tracks08sf))
+pts08 <- cbind(tracks08sf,dist_ex08) %>%
+  dplyr::select(-ID) %>%
+  rename("Distance to Continental Slope" = gebco_bathy)
+
+dist_ex10 <- terra::extract(BB_dist, vect(tracks10sf))
+pts10 <- cbind(tracks10sf,dist_ex10) %>%
+  dplyr::select(-ID) %>%
+  rename("Distance to Continental Slope" = gebco_bathy)
+
+# Map distance to continental slope by color
+ggplot() +
+  geom_sf(data = pts08, 
+          mapping = aes(col = `Distance to Continental Slope`)) +
+  geom_sf(data = pts10, 
+          mapping = aes(col = `Distance to Continental Slope`)) +
+  geom_sf(data = cont_slope)
+
+# Plot distance by BB 
+ggplot(data = pts08, aes(x = `Distance to Continental Slope`, y = `BB_20.24000`)) + geom_boxplot()
+
+summary(lm(formula = BB_20.24000 ~ `Distance to Continental Slope`, data = pts08))
+
+```
+
+Does hour of day affect sound levels?
+
+```{r}
+# CCES_08
+hr_08 <- track_BB_OL_08 %>%
+  mutate(Hr = hour(track_BB_OL_08$dateTime)) %>%
+  group_by(Hr) %>%
+  summarize(meanBB = mean(`BB_20-24000`)) %>%
+  rename(`Buoy 08 Broadband` = `meanBB`)
+ggplot(data = hr_08, mapping = aes(x = Hr, y = `Buoy 08 Broadband`)) + 
+  geom_point() + geom_smooth()
+
+#CCES_10
+hr_10 <- track_BB_OL_10 %>%
+  mutate(Hr = hour(track_BB_OL_10$dateTime)) %>%
+  group_by(Hr) %>%
+  summarize(meanBB = mean(`BB_20-24000`)) %>%
+  rename(`Buoy 10 Broadband` = `meanBB`)
+ggplot(data = hr_10, mapping = aes(x = Hr, y = `Buoy 10 Broadband`)) + 
+  geom_point() + geom_smooth()
+
+# Join and graph
+hr_join <- left_join(hr_08, hr_10, by = "Hr")
+hr_piv <- hr_join %>%
+  pivot_longer(col=c(`Buoy 08 Broadband`,`Buoy 10 Broadband`), names_to = "buoys", values_to = "BB")
+
+ggplot(data = hr_piv, mapping = aes(Hr, BB, col=buoys)) +
+  geom_point() + geom_smooth()
+```
+
+### Are sound levels affected by species composition or number of clicks?
+
+```{r}
+# Plot
+library(tmap); library(maptiles)
+tmap_mode("plot")
+oceanBase <- get_tiles(whales_sf, provider="Esri.OceanBasemap", crop = TRUE)
+tm_shape(oceanBase) + tm_rgb() +
+  tm_shape(whales_sf) + 
+  tm_symbols(col="species", size = "nClicks") +
+  tm_layout(legend.width = 0.5, 
+            legend.position = c("right","top"))
+
+# CCES 08
+BB_whales08 <- st_join(pts08, whales_sf) %>%
+  filter(!is.na(`species`))
+
+summary(glm(`BB_20.24000` ~ species + `Distance to Continental Slope` + nClicks, data = BB_whales08))
+
+# CCES 10
+BB_whales10 <- st_join(pts10, whales_sf) %>%
+  filter(!is.na(`species`))
+
+summary(glm(`BB_20.24000` ~ species + `Distance to Continental Slope` + nClicks, data = BB_whales10))
+
+#Raster base map
+tmap_mode("plot")
+oceanBase <- get_tiles(BB_whales10, provider="Esri.OceanBasemap")
+tm_shape(bathy) + tm_raster() +
+  tm_shape(BB_whales10) + 
+  tm_symbols(col="species", size = "nClicks", style = "jenks") +
+  tm_layout(legend.width = 0.5)
+
+
+```

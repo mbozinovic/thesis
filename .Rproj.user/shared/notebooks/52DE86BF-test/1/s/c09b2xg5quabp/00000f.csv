@@ -1,0 +1,22 @@
+"0","# Read in CCES_10 soundscape metrics"
+"0","BB_10_csv <- read_csv(""Data/CCES_10_1Hz_1s_BB_2min.csv"")"
+"2","[1mRows: [22m[34m4398[39m [1mColumns: [22m[34m2[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m─────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[32mdbl[39m  (1): BB_20-24000
+[34mdttm[39m (1): yyyy-mm-ddTHH:MM:SSZ"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","BB_10 <- BB_10_csv %>% "
+"0","  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)"
+"0","BB_10 <- BB_10 %>%"
+"0","  mutate(dateTime = round_date(ymd_hms(BB_10$dateTime),""20 minutes""))"
+"0",""
+"0","# Filter by CCES_10 buoy"
+"0","tracks_10 <- tracks %>% dplyr::filter(station == ""10"")"
+"0",""
+"0","# Round CCES_10 to nearest 20 min"
+"0","tracks_10_rnd <- tracks_10 %>% "
+"0","  mutate(dateTime = ceiling_date(ymd_hms(tracks_10$dateTime), ""20 minutes""))"
+"0",""

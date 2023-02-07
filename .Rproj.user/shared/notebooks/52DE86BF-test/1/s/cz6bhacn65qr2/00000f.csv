@@ -1,0 +1,10 @@
+"0","whales_sf <- whales %>%
+  dplyr::filter(Deployment == ""8""| Deployment == ""10"") %>%
+  st_as_sf(coords = c(""Longitude"",""Latitude""), crs=4326) %>%
+  mutate(bestNumber = as.numeric(bestNumber)) %>%
+  mutate(nClicks = as.numeric(nClicks)) %>%
+  show_col_types = FALSE
+"
+"2","Error in whales_sf <- whales %>% dplyr::filter(Deployment == ""8"" | Deployment ==  : 
+  could not find function ""<-<-""
+"

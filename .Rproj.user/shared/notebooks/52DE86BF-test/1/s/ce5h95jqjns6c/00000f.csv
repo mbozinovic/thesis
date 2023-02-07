@@ -1,0 +1,6 @@
+"0","library(rerddap)"
+"0","SSTInfo <- info('jplMURSST41')"
+"0","murSST <- griddap(sstInfo, latitude = c(22., 51.), longitude = c(-140., -105), time = c(""2018-08-23"", ""2018-08-23""), fields = 'analysed_sst')"
+"2","info() output passed to x; setting base url to: https://upwell.pfeg.noaa.gov/erddap
+"
+"0","ggplot(data = murSST$data, aes(x = longitude, y = latitude, fill = analysed_sst))"
