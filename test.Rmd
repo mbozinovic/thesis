@@ -99,8 +99,29 @@ whales_sf <- whales %>%
 
 ## Read in AIS Data
 ```{r}
-rawAIS<- read_csv("Data/AIS_072518_072918.csv")
-# need to figure out where to store data
+options(readr.show_col_types = FALSE) # quiet the message
+rawAIS<- read_csv("Data/AIS_100118_101018.csv") # Vessel data from 10-01-18 to 10-10-18
+
+# Filter by vessels over 100m in length, remove unnecessary columns
+AIS <- rawAIS %>%
+  filter(Length >= 100) %>%
+  dplyr::select(-SOG,-COG, -CallSign, -IMO, -Cargo, -Draft, -Status)
+
+bbox <- st_bbox(c(xmin = min(drift$lat-0.7), 
+            xmax = max(drift$lat + 0.7), 
+            ymax = max(drift$long + 0.7), 
+            ymin = min(drift$long-0.7)), crs = st_crs(4326))
+
+AIS_sf <- AIS %>%
+  st_as_sf(coords = c("LON", "LAT"), crs=4326, remove=F) #%>%
+  #st_crop(y = bbox)
+
+
+# Plot + crop to drift area
+ggplot() + 
+  geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT)) + 
+  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
+  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7)))
 ```
 
 
@@ -117,6 +138,7 @@ track_BB_10 <- left_join(tracks_10_rnd, BB_10, by = "dateTime")
 track_BB_OL_10 <- left_join(track_BB_10, OL_10, by="dateTime")
 write_csv(track_BB_OL_10, "Data/track_bb_OL_10.csv")
 ```
+
 
 ### Map Animations
 ```{r}
@@ -141,24 +163,26 @@ library(rnaturalearth)
 ### New ggplot wtih bplot as basemap 
 ```{r}
 library(mapproj)
+drift <- track_BB_OL_10
+
 # Get bathymetry (code from Ocean Tracking Network https://www.youtube.com/watch?v=xT2F-Y9bKLk)
-bgo <- getNOAA.bathy(lon1 = min(df_all$lon-0.7), lon2 = max(df_all$lon + 0.7),
-                     lat1 = min(df_all$lat-0.7), lat2=max(df_all$lat + 0.7), resolution = 1)
+bgo <- getNOAA.bathy(lon1 = min(drift$long-0.7), lon2 = max(drift$long + 0.7),
+                     lat1 = min(drift$lat-0.7), lat2=max(drift$lat + 0.7), resolution = 1)
 
 # Create basemap
 bf <- fortify.bathy(bgo, geom=c("r", "c")) + scale_fill_etopo() # converts bathy object to data frame
 bplot <- autoplot(bgo, geom = c("raster", "contour"), coast = TRUE) + 
   scale_fill_etopo() #creates ggplot object
 
-# Plot
+# Plot drift
 p <- bplot + 
-  geom_path(data = track_BB_OL_10, 
+  geom_path(data = drift, 
             aes(x=long,y=lat,group=spotID), 
-            alpha = 0.5,
-            linewidth = 3) + # line width parameter is ignored for some reason
-  geom_point(data = track_BB_OL_10, 
+            alpha = 0.5) +
+  geom_point(data = drift, 
              aes(x=long,y=lat,group=spotID, size = OL_125, color = OL_125),
-             shape=19, stroke = 4) +
+             shape=19, stroke = 1) +
+
   #formatting  
   scale_color_viridis_c(option = "inferno") +
   scale_size_continuous(range = c(0.1,10)) +
@@ -166,11 +190,21 @@ p <- bplot +
        fill = 'Depth',
        color = 'OL 125')+
   theme(panel.grid = element_blank())
+
+# Plot AIS
+q <- bplot +
+  #geom_path(data = AIS_sf, aes(x=LON,y=LAT, group = "VesselName")) + 
+  geom_sf(data = AIS_sf, aes(x=LON, y=LAT, color = `VesselName`, size = 0.1), show.legend = FALSE) +
+  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
+  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7))) +
+  labs(x=NULL, y=NULL, 
+       fill = 'Depth') +
+  theme(panel.grid = element_blank())
 ```
 
 
 ```{r}
-# Animate
+# Animate drift
 anim = p +
   transition_reveal(along = dateTime)+
   ease_aes('linear')+
@@ -179,6 +213,17 @@ anim = p +
 
 # Animate with control over frames per second and number of frames
 animate(anim, nframes = 70, fps = 3)
+anim_save("drift10.gif")
+
+
+# Animate AIS
+anim = q +
+  transition_reveal(along = BaseDateTime)+
+  ease_aes('linear') +
+  ggtitle("Date: {frame_along}")
+
+# Animate with control over frames per second and number of frames
+animate(anim, nframes = 400, fps = 3)
 
 ```
 

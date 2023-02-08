@@ -1,0 +1,15 @@
+"0","# Get bathymetry (code from Ocean Tracking Network https://www.youtube.com/watch?v=xT2F-Y9bKLk)
+bgo <- getNOAA.bathy(lon1 = min(drift$long-0.7), lon2 = max(drift$long + 0.7),
+                     lat1 = min(drift$lat-0.7), lat2=max(drift$lat + 0.7), resolution = 1)
+"
+"2","Querying NOAA database ...
+"
+"2","This may take seconds to minutes, depending on grid size
+
+"
+"2","trying URL 'https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer/exportImage?bbox=-125.8,35.1,-122,37.5&bboxSR=4326&size=227,141&imageSR=4326&format=tiff&pixelType=F32&interpolation=+RSP_NearestNeighbor&compression=LZ77&renderingRule={%22rasterFunction%22:%22none%22}&mosaicRule={%22where%22:%22Name=%27ETOPO_2022_v1_60s_bed%27%22}&f=image'
+"
+"2","Warning: URL 'https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer/exportImage?bbox=-125.8,35.1,-122,37.5&bboxSR=4326&size=227,141&imageSR=4326&format=tiff&pixelType=F32&interpolation=+RSP_NearestNeighbor&compression=LZ77&renderingRule={%22rasterFunction%22:%22none%22}&mosaicRule={%22where%22:%22Name=%27ETOPO_2022_v1_60s_bed%27%22}&f=image': Timeout of 60 seconds was reached"
+"2","Error in download.file(url = WEB.REQUEST, destfile = ""tmp.tif"", mode = ""wb"") : 
+  cannot open URL 'https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer/exportImage?bbox=-125.8,35.1,-122,37.5&bboxSR=4326&size=227,141&imageSR=4326&format=tiff&pixelType=F32&interpolation=+RSP_NearestNeighbor&compression=LZ77&renderingRule={%22rasterFunction%22:%22none%22}&mosaicRule={%22where%22:%22Name=%27ETOPO_2022_v1_60s_bed%27%22}&f=image'
+"
