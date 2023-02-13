@@ -11,6 +11,8 @@ library(lubridate)
 library(sf)
 library(rerddap)
 library(terra)
+library(marmap)
+library(rnaturalearth)
 ```
 
 ## Read in CCES08 data
@@ -43,6 +45,26 @@ tracks_08 <- tracks %>% dplyr::filter(station == "8")
 tracks_08_rnd <- tracks_08 %>% 
   mutate(dateTime = round_date(ymd_hms(tracks_08$dateTime), "20 minutes"))
 tracks_08_rnd
+
+# Tracks on a map
+tracks_sf <- tracks %>% # make tracks an sf object
+  st_as_sf(coords= c("long", "lat"), crs=4326, remove=F)
+
+# Get basemap
+lon2 <- -129.04666
+lon1 <- -115.78247
+lat1 <- 28.21790
+lat2 <- 45.09226
+
+basemap <- ne_countries(scale = "medium", returnclass = "sf")
+
+driftmap <- ggplot(data = basemap) +
+  geom_sf(fill = "antiquewhite") +
+  coord_sf(xlim = c(lon2 - 0.5, lon1 + 0.5), ylim = c(lat1 - 0.5, lat2 + 0.5), expand = FALSE) +
+  geom_path(data = tracks_sf, mapping = aes(x=long,y=lat, color = as.factor(station))) +
+  theme(panel.grid.major = element_line(), panel.background = element_rect(fill = "aliceblue"))
+
+
 ```
 
 ### Read in OL, round to nearest 20 min

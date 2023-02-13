@@ -1,0 +1,10 @@
+"0","driftmap <- ggplot(data = basemap) +
+  geom_sf(fill = ""antiquewhite"") +
+  coord_sf(xlim = c(lon2 - 0.5, lon1 + 0.5), ylim = c(lat1 - 0.5, lat2 + 0.5), expand = FALSE) +
+  geom_path(data = tracks_sf, mapping = aes(x=long,y=lat, color = as.factor(station))) +
+  theme(panel.grid.major = element_line(), panel.background = element_rect(fill = ""aliceblue"")) %>%
+  save.image(file = ""driftmap"")
+"
+"2","Error in save(list = names(.GlobalEnv), file = outfile, version = version,  : 
+  'list' object cannot be coerced to type 'double'
+"
