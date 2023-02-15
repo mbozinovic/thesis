@@ -1,9 +1,0 @@
----
-title: "COAST Award Abstract"
-format: docx
-editor: visual
----
-
-### Abstract
-
-The ocean is becoming noisier with increased shipping and offshore human activity. Beaked whales (Ziphiidae) and sperm whales (Physeteroidea) are among the species at risk of harm from noise pollution. They rely on acoustic signaling for basic life functions like communication and foraging, but the extent of harm from anthropogenic activity is unclear as little is known about these deep diving whales and their distribution. Passive acoustic monitoring (PAM) is a non-invasive tool that can provide insight to these species where visual data collection methods fall short. This research will characterize the extent of spatiotemporal noise exposure in relation to acoustic beaked and sperm whale detections in the California Current Ecosystem. Drifting passive acoustic recorders were deployed in twenty-two offshore locations from southern Canada to northern Mexico in the summer of 2018 to record whale echolocation pulses, GPS point data, broadband levels, octave band levels, third octave levels, and power spectral density for a total of 1,910 recording hours. Soundscape metrics were analyzed in space and time in relation to whale detections. Preliminary results show that the presence of whales is not necessarily associated with a louder soundscape, and higher intensities of sound do not only occur near shipping routes. I will further investigate the variables that are associated with various soundscapes, such as environmental factors, species composition, and distance from shore. In exploring these data, I can better characterize the spatiotemporal relationship between noise pollution and beaked and sperm whale habitats using soundscape metrics.
