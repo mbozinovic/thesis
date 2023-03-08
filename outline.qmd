@@ -1,0 +1,59 @@
+---
+title: "Thesis outline"
+format: docx
+editor: visual
+---
+
+## Goal 1: Characterize the soundscape
+
+#### Explore the relationship between soundscape metrics and environmental variables, and beaked whale (BW) detections
+
+-   Create histograms, scatterplots, time series, facet graphs of:
+    -   A soundscape metric/BW presence + absence/env variable
+        -   Comparing TOL intensities between drift 8 and 10
+        -   Broadband levels, Third-octave levels at 63, 125, 2000, 5000, 20000 Hz
+        -   Probability of detecting BW is highest when soundscape is \_\_\_.
+        -   Which frequencies had the most loudness?
+    -   Enviromental variables (source from PAMpal for events or ERDAPP)
+        -   Bottom depth (**depth for whale detections in drift 8**)
+
+        -   Bottom slope (**done for drift 8**)
+
+        -   Distance from shore **(done for drift 8)**
+
+        -   Distance from continental shelf (**done for drift 8**)
+
+        -   Sea surface temperature (**in progress)**
+
+        -   Sea surface height (need help sourcing, can only find SSH anomalies for 2018)
+
+        -   Sea surface slope
+
+        -   Chlorophyll-a (**mapped for drift 8)**
+
+        -   Mixed layer depth (MLD), thermocline temperature (TTemp), temperature at 400 m, salinity (**Taiki's code)**
+    -   Other variables: seasonality, hour of the day (create time series for avg daily env.variable)
+    -   Questions: Does soundscape change when conditions change? Is sound seasonal?
+-   Plug into model (GAM, zero-inflated, GLM)
+
+## Goal 2: Influence from vessels
+
+#### Explore how vessel presence influences the soundscape
+
+-   Find instances of vessel in vicinity of drift vs. drift alone and compare
+
+    -   Number of ship passages
+
+        -   Create buffer around whale detections (unsure of buffer size)
+        -   Find AIS vessels by lat/long that lie within buffer
+        -   Quantify number of vessels that pass for each drift
+
+    -   Closest ship passage (When a ship has a close encounter with a drift, how close is it on average? How is soundscape affected?)
+
+-   Is vessel presence = loud soundscape?
+
+    -   Compare TOL125 intensities vs. ship presence
+
+-   Chronic vs. acute sound events
+
+    -   Instances where drifts and vessels overlap, plot time on x-axis and TOL125 dB on y
