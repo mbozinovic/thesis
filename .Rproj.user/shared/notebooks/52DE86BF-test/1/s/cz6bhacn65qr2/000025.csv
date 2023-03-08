@@ -1,9 +1,0 @@
-"0","# Read in whale detections from CCES_08 and CCES_10
-whales <- read_csv(""Data/EventInfo.csv"") %>%
-  mutate(lat = as.numeric(Latitude)) %>%
-  mutate(lon = as.numeric(Longitude))
-"
-"2","New names:"
-"2","Warning: One or more parsing issues, see `problems()` for details"
-"2","Warning: NAs introduced by coercion"
-"2","Warning: NAs introduced by coercion"
