@@ -13,17 +13,64 @@ library(rerddap)
 library(terra)
 library(marmap)
 library(rnaturalearth)
+library(mapproj)
+library(raster)
+library("rerddapXtracto")
+library(PAMpal)
+library(maptiles)
+library(tmap)
+library(spData)
+library(tmaptools)
+library(grid)
+library(ggspatial)
 ```
 
-## Read in CCES08 data
+## Read in soundscape data, NEED TO MAKE THIS A FUNCTION
 
 ```{r}
-# Read in soundscape data, round to nearest 20 min
+# Round to nearest 20 minutes, create dateTime data type
+# Drift 8: Broadband
 BB_08_csv <- read_csv("Data/CCES_08_1Hz_1s_BB_2min.csv", show_col_types = FALSE)
 BB_08 <- BB_08_csv %>% 
   rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
 BB_08 <- BB_08 %>%
   mutate(dateTime = round_date(ymd_hms(BB_08$dateTime),"20 minutes"))
+
+# Drift 8: Octave Level
+OL_08_csv <- read_csv("Data/CCES_08_1Hz_1s_OL_2min.csv",show_col_types = FALSE)
+OL_08 <- OL_08_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+OL_08 <- OL_08 %>%
+  mutate(dateTime = round_date(ymd_hms(OL_08$dateTime),"20 minutes"))
+
+# Drift 8: TOL
+TOL_08_csv<- read_csv("data/CCES_08_1Hz_1s_TOL_2min.csv", show_col_types = FALSE)
+TOL_08 <- TOL_08_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+TOL_08 <- TOL_08 %>%
+  mutate(dateTime = round_date(ymd_hms(TOL_08$dateTime),"20 minutes"))
+
+# Drift 10: Broadband
+BB_10_csv <- read_csv("Data/CCES_10_1Hz_1s_BB_2min.csv", show_col_types = FALSE)
+BB_10 <- BB_10_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+BB_10 <- BB_10 %>%
+  mutate(dateTime = round_date(ymd_hms(BB_10$dateTime),"20 minutes"))
+
+# Drift 10: TOL
+TOL_10_csv<- read_csv("data/CCES_10_1Hz_1s_TOL_2min.csv", show_col_types = FALSE)
+TOL_10 <- TOL_10_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+TOL_10 <- TOL_10 %>%
+  mutate(dateTime = round_date(ymd_hms(TOL_10$dateTime),"20 minutes"))
+
+
+# Drift 10: Octave level
+OL_10_csv <- read_csv("Data/CCES_10_1Hz_1s_OL_2min.csv", show_col_types = FALSE)
+OL_10 <- OL_10_csv %>% 
+  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
+OL_10 <- OL_10 %>%
+  mutate(dateTime = round_date(ymd_hms(OL_10$dateTime),"20 minutes"))
 
 ```
 
@@ -31,109 +78,84 @@ BB_08 <- BB_08 %>%
 
 ```{r}
 # Read in tracks, filter out lost buoys
-tracks_csv <- read_csv("Data/AllTracks.csv", show_col_types = FALSE)
-tracks <- tracks_csv %>%
-  dplyr::filter(station == "4"| station == "7"| station =="8" |station == "10"| 
+tracks <- read_csv("Data/AllTracks.csv", show_col_types = FALSE) %>%
+  dplyr::filter(station == "4"| station == "7"| station =="8" |station == "10"|          # filter out lost buoys
                 station == "12"|station == "13"| station == "14"| station == "16"|
                 station == "17"|station == "18"| station == "19"| station == "20"| 
-                station == "21"|station == "22"| station == "23")
+                station == "21"|station == "22"| station == "23") %>%
+  mutate(dateTime = round_date(ymd_hms(tracks$dateTime), "20 minutes"))                 
+  # round to nearest 20 minutes
 
-# Filter by CCES_08 buoy
+# Filter by buoy 8 and 10
 tracks_08 <- tracks %>% dplyr::filter(station == "8")
-
-# Round CCES_08 to nearest 20 min
-tracks_08_rnd <- tracks_08 %>% 
-  mutate(dateTime = round_date(ymd_hms(tracks_08$dateTime), "20 minutes"))
-tracks_08_rnd
+tracks_10 <- tracks %>% dplyr::filter(station == "10")
 
 # Tracks on a map
 tracks_sf <- tracks %>% # make tracks an sf object
   st_as_sf(coords= c("long", "lat"), crs=4326, remove=F)
-
-# Get basemap
-lon2 <- -129.04666
-lon1 <- -115.78247
-lat1 <- 28.21790
-lat2 <- 45.09226
-
-basemap <- ne_countries(scale = "medium", returnclass = "sf")
-
-driftmap <- ggplot(data = basemap) +
-  geom_sf(fill = "antiquewhite") +
-  coord_sf(xlim = c(lon2 - 0.5, lon1 + 0.5), ylim = c(lat1 - 0.5, lat2 + 0.5), expand = FALSE) +
-  geom_path(data = tracks_sf, mapping = aes(x=long,y=lat, color = as.factor(station))) +
-  theme(panel.grid.major = element_line(), panel.background = element_rect(fill = "aliceblue"))
-
-
-```
-
-### Read in OL, round to nearest 20 min
-
-```{r}
-# CCES_08
-OL_08_csv <- read_csv("Data/CCES_08_1Hz_1s_OL_2min.csv")
-OL_08 <- OL_08_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-OL_08 <- OL_08 %>%
-  mutate(dateTime = round_date(ymd_hms(OL_08$dateTime),"20 minutes"))
-OL_08
-
-# CCES_10
-OL_10_csv <- read_csv("Data/CCES_10_1Hz_1s_OL_2min.csv")
-OL_10 <- OL_10_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-OL_10 <- OL_10 %>%
-  mutate(dateTime = round_date(ymd_hms(OL_10$dateTime),"20 minutes"))
-OL_10
-```
-
-### Read in CCES_10
-
-```{r}
-# Read in CCES_10 soundscape metrics
-BB_10_csv <- read_csv("Data/CCES_10_1Hz_1s_BB_2min.csv")
-BB_10 <- BB_10_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-BB_10 <- BB_10 %>%
-  mutate(dateTime = round_date(ymd_hms(BB_10$dateTime),"20 minutes"))
-
-# Filter by CCES_10 buoy
-tracks_10 <- tracks %>% dplyr::filter(station == "10")
-
-# Round CCES_10 to nearest 20 min
-tracks_10_rnd <- tracks_10 %>% 
-  mutate(dateTime = ceiling_date(ymd_hms(tracks_10$dateTime), "20 minutes"))
 
 ```
 
 ### Read in whale detections
 
 ```{r}
-# Read in whale detections from CCES_08 and CCES_10
-whales <- read_csv("Data/EventInfo.csv") %>%
+# All whale detections
+whales <- read_csv("Data/EventInfo.csv", show_col_types = FALSE) %>%
   mutate(lat = as.numeric(Latitude)) %>%
-  mutate(lon = as.numeric(Longitude))
-
-whales10_sf <- whales %>%                             # as sf
-  dplyr::filter(Deployment == "10") %>%
-  st_as_sf(coords = c("Longitude","Latitude"), crs=4326) %>%
+  mutate(long = as.numeric(Longitude)) %>%
   mutate(bestNumber = as.numeric(bestNumber)) %>%   #convert nClicks from character to numeric
   mutate(nClicks = as.numeric(nClicks)) %>%      # convert nClicks from character to numeric
   mutate(StartTime = mdy_hm(StartTime)) %>%      #convert time from character to datetime
-  mutate(EndTime = mdy_hm(EndTime))         # convert time from character to datetime
+  mutate(EndTime = mdy_hm(EndTime)) %>%
+  drop_na(...1)%>%                                 # remove NAs in column labeled "...1"
+  dplyr::select(-Project)
 
+BWsf <- whales %>% st_as_sf(coords = c("long","lat"), crs=4326)   # whales as sf
+
+# Drift 10 whales as sf
+whales10_sf <- BWsf %>%                            
+  dplyr::filter(Deployment == "10")
+
+whales08_sf <- BWsf %>%                            
+  dplyr::filter(Deployment == "8")
+
+# Drift 10 whales
 whales10 <- whales %>%
-  dplyr::filter(Deployment == "10") %>%
-  mutate(bestNumber = as.numeric(bestNumber)) %>%   #convert nClicks from character to numeric
-  mutate(nClicks = as.numeric(nClicks)) %>%      # convert nClicks from character to numeric
-  mutate(StartTime = mdy_hm(StartTime)) %>%      #convert time from character to datetime
-  mutate(EndTime = mdy_hm(EndTime))              # convert time from character to datetime  
+  dplyr::filter(Deployment == "10")
+
+# Drift 8 whales
+whales8 <- whales %>%
+  dplyr::filter(Deployment == "8")
 ```
 
-## Read in AIS Data
+### Joining tracks with soundscape metrics with whale detections
+
 ```{r}
-options(readr.show_col_types = FALSE) # quiet the message
-rawAIS<- read_csv("Data/AIS_100118_101018.csv") # Vessel data from 10-01-18 to 10-10-18
+# Drift 08
+tracks_SS_08 <- left_join(tracks_08, BB_08, by = "dateTime") %>%   # join tracks with BB 08
+  left_join(., TOL_08, by = "dateTime") %>%                        # join TOL
+  left_join(., whales8, by = "long") %>%                           # join whales 
+  filter(spotID == "0-2571609") %>%                                # filter by one SPOT
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%           # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(dateTime, lat.x, long, station, `BB_20-24000`, TOL_63, 
+                TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
+
+#Drift 10
+tracks_SS_10 <- left_join(tracks_10, BB_10, by = "dateTime") %>%    # join tracks with BB 10
+  left_join(., TOL_10, by = "dateTime") %>%                         # join tracks with TOL 10 
+  left_join(., whales10, by = "long") %>%                           # join whales 
+  filter(spotID == "0-2572490") %>%                                 # filter by one SPOT
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%           # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(dateTime, lat.x, long, station, `BB_20-24000`, TOL_63, 
+                TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
+```
+
+## AIS
+
+For 10-01-18 to 10-10-18
+
+```{r}
+rawAIS <- read_csv("Data/AIS_100118_101018.csv", show_col_types = FALSE) # Vessel data from 10-01-18 to 10-10-18
 drift <- track_BB_OL_10
 
 
@@ -142,6 +164,7 @@ AIS <- rawAIS %>%
   filter(Length >= 100) %>%
   dplyr::select(-SOG,-COG, -CallSign, -IMO, -Cargo, -Draft, -Status)
 
+# Currently unused
 bbox <- st_bbox(c(xmin = min(drift$lat-0.7), 
             xmax = max(drift$lat + 0.7), 
             ymax = max(drift$long + 0.7), 
@@ -153,190 +176,23 @@ AIS_sf <- AIS %>%
 
 AIS_sf <- AIS_sf %>% 
   filter(BaseDateTime > "2018-10-05 00:00:00")  # Shorten time range to 10/05/2018 to 10/10/2018
-
-# Plot + crop to drift area
-b <- ggplot() + 
-  #geom_path(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName), show.legend = F) + 
-  geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName)) +
-  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
-  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7))) +
-  # animate
-  transition_reveal(BaseDateTime) +
-  ease_aes('linear') +
-  shadow_wake(wake_length = 0.7) +
-  exit_fade() +
-  ggtitle("Date: {frame_along}")
-
-animate(b, nframes = 400, fps = 3)
-  
 ```
 
+#### AIS
 
-### Joining tables with soundscape metrics
+For 08-10-18 to 08-17-18
 
 ```{r}
-# CCES_08
-track_BB_08 <- left_join(tracks_08_rnd, BB_08, by = "dateTime")
-track_BB_OL_08 <- left_join(track_BB_08, OL_08, by="dateTime")
-write_csv(track_BB_OL_08, "Data/track_bb_OL_08.csv")
+rawAIS <- read_csv("Data/AIS_081018_081718.csv", show_col_types = FALSE) # Vessel data from 08-10-18 to 08-17-18
 
-# CCES_10
-track_BB_10 <- left_join(tracks_10_rnd, BB_10, by = "dateTime")
-track_BB_OL_10 <- left_join(track_BB_10, OL_10, by="dateTime")
-write_csv(track_BB_OL_10, "Data/track_bb_OL_10.csv")
-```
-
-
-### Map Animations
-```{r}
-# Install
-#devtools::install_github("ropenscilabs/rnaturalearth")
-#install.packages("rnaturalearth",
-#                 repos = "http://packages.ropensci.org",
-#                 type = "source")
-#install.packages("gganimate")
-#install.packages("gifski")
-#install.packages("marmap")
-
-# Libraries
-library(sf)
-library(tidyverse)
-library(marmap)
-library(gifski)
-library(gganimate)
-library(rnaturalearth)
-```
-
-### New ggplot wtih bplot as basemap 
-```{r}
-library(mapproj)
-drift <- track_BB_OL_10
-
-# Get bathymetry (code from Ocean Tracking Network #https://www.youtube.com/watch?v=xT2F-Y9bKLk)
-bgo <- getNOAA.bathy(lon1 = min(drift$long-0.7), lon2 = max(drift$long + 0.7),
-                     lat1 = min(drift$lat-0.7), lat2=max(drift$lat + 0.7), resolution = 1)
-
-# Create basemap
-#bf <- fortify.bathy(bgo, geom=c("r", "c")) + scale_fill_etopo() # converts bathy object to data frame 
-# ABOVE DOESNT WORK
-bplot <- autoplot(bgo, geom = c("raster", "contour"), coast = TRUE) + 
-  scale_fill_etopo() #creates ggplot object
-
-# Plot drift
-p <- bplot + 
-  geom_path(data = drift, 
-            aes(x=long,y=lat,group=spotID), 
-            alpha = 0.5) +
-  geom_point(data = drift, 
-             aes(x=long,y=lat,group=spotID, size = OL_125, color = OL_125),
-             shape=19, stroke = 1) +
-
-  #formatting  
-  scale_color_viridis_c(option = "inferno") +
-  scale_size_continuous(range = c(0.1,10)) +
-  labs(x=NULL, y=NULL, 
-       fill = 'Depth',
-       color = 'OL 125')+
-  theme(panel.grid = element_blank())
-
-# Plot AIS
-b <- bplot + 
-  geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName)) +
-  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
-  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7))) +
-  theme(panel.grid = element_blank())
-
-# Plot AIS + drift
-z <- bplot +
-  geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName)) +
-  geom_path(data = drift, 
-            aes(x=long,y=lat,group=spotID), 
-            alpha = 0.5) +
-  geom_point(data = drift, 
-             aes(x=long,y=lat,group=spotID, size = OL_125, color = OL_125),
-             shape=19, stroke = 1) +
-  #formatting  
-  scale_color_viridis_c(option = "inferno") +
-  scale_size_continuous(range = c(0.1,10)) +
-  labs(x=NULL, y=NULL, 
-       fill = 'Depth',
-       color = 'OL 125')+
-  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
-  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7)))
-```
-
-
-```{r}
-# Animate drift
-anim <- p +
-  transition_reveal(along = dateTime)+
-  ease_aes('linear')+
-  shadow_wake(0.1) +
-  ggtitle("Date: {frame_along}") +
-
-# Animate with control over frames per second and number of frames
-animate(anim, nframes = 70, fps = 3)
-anim_save("gifs/drift10.gif")
-
-
-# Animate AIS. Need to continue working on this.
-anim <-  b +
-  transition_reveal(BaseDateTime) +
-  ease_aes('linear') +
-  shadow_wake(wake_length = 0.5) +
-  ggtitle("Date: {frame_along}")
-
-# Animate with control over frames per second and number of frames
-animate(anim, nframes = 400, fps = 3)
+augAIS <- rawAIS %>% filter(Length >= 100) %>%
+  dplyr::select(-SOG,-COG, -CallSign, -IMO, -Cargo, -Draft, -Status)
 
 ```
 
-Plotting whale data
-```{r}
-# shorten time range
-#whales10 <- whales10 %>% filter(StartTime > "2018-10-05 00:00:00")
+### Exploratory analysis
 
-# too smooth, doesnt work.
-d <- bplot +
-  geom_point(data = whales10, aes(x = as.numeric(Longitude), y = as.numeric(Latitude)), color = "cyan") +
-  ggtitle("Drift 10: Whale detections")
-  
-
-anim <-  d +
-  transition_reveal(along = StartTime) +
-  exit_shrink() +
-  ggtitle("Date: {frame_along}")
-
-animate(anim, nframes = 400, fps = 3)
-
-## The issue with showing drift path and whale detections is that gganimate only allows one type of transition for the whole plot. May need to join drift and whale detections and include null values?
-```
-
-Join whale detections with drift 10
-```{r}
-w_d <- left_join(drift, whales10, by = "lat", keep = TRUE)
-
-w_d_plt <- ggplot() +
-  geom_path(data = w_d, aes(x=lon, y=lat.x)) +
-  geom_point(data = w_d, aes(x=lon, y = lat.x, color = "species"))
-
-w_d_plt + 
-  transition_reveal(along = dateTime) +
-  ease_aes() +
-  shadow_trail(distance = 0.7) +
-  ggtitle("Date:{frame_along}")
-
-## Needs shorter time frame
-
-```
-
-
-
-
-
-
-
-Linear Regression Model
+#### Not important: sound by latitude and dateTime
 
 ```{r}
 # Does sound vary with latitude?
@@ -364,12 +220,9 @@ plot(lm(formula = `BB_20-24000`~ dateTime, data = track_BB_OL_08))
 ggplot() +
   geom_point(data = track_BB_OL_08, aes(x = dateTime, y = `BB_20-24000`, color = "red")) +
   geom_point(data = track_BB_OL_10, aes(x = dateTime, y = `BB_20-24000`, color = "blue"))
-
-
-
 ```
 
-CCES Broadband and OL Map
+#### Not important: tracks as sf and basemaps
 
 ```{r}
 library(tmap); library(maptiles); library(sf)
@@ -377,86 +230,80 @@ tmap_mode("plot")
 trackssf <- st_as_sf(tracks, coords = c("long", "lat"), crs=4326)
 tracks08sf <- st_as_sf(track_BB_OL_08, coords = c("long", "lat"), crs=4326)
 tracks10sf <- st_as_sf(track_BB_OL_10, coords = c("long", "lat"), crs=4326)
-trackBase <- get_tiles(whales_sf, provider = "Esri.OceanBasemap")
-allTrackbase <- get_tiles(trackssf, provider = "Esri.OceanBasemap")
-
-#Map all tracks
-tm_shape(allTrackbase) + tm_rgb() +
-  tm_shape(trackssf) + 
-  tm_dots(col = "black")
-
-# Map tracks 08 and 10 only
-tm_shape(trackBase) + tm_rgb() + 
-  tm_shape(tracks08sf) + tm_dots(col = "red", 
-                                 legend.show = TRUE) +
-  tm_shape(tracks10sf) + tm_dots(col = "green")
-
-# CCES_08 + CCES_10 Broadband
-tm_shape(trackBase) + tm_rgb() + 
-  tm_shape(tracks08sf) + 
-  tm_symbols(col = "BB_20-24000", 
-             border.lwd = NA, 
-             size = 0.4, 
-             sizes.legend = 0.7, 
-             n = 10) +
-  tm_shape(tracks10sf) + 
-  tm_symbols(col = "BB_20-24000",
-             border.lwd = NA, 
-             size = 0.4,
-             n = 10) +
-  tm_layout(legend.width = 0.5, 
-            legend.position = c("right","top"),
-            legend.bg.color = "lightblue")
-
-#CCES_08 Octave Level
-tm_shape(trackBase) + tm_rgb() + 
-  tm_shape(tracks08sf) + 
-  tm_symbols(col = "OL_63", 
-             border.lwd = NA, 
-             size = 0.5, 
-             n = 10) + 
-  tm_layout(legend.width = 0.5, 
-            legend.position = c("right","top")) + 
-  tm_legend()
-
+trk_TOL_08 <- st_as_sf(tracks_SS_08, coords = c("long", "lat.x"), crs=4326)
+trk_TOL_10 <- st_as_sf(tracks_SS_10, coords = c("long", "lat.x"), crs=4326)
+trackBase <- get_tiles(whales_sf, provider = "Esri.WorldShadedRelief")
+allTrackbase <- get_tiles(trackssf, provider = "Stamen.TonerLite", zoom = 5)
 ```
 
-### Sea Surface Temp with rerddap
-
+### Sea Surface Temp with rerddap, Drift 8 only
 ```{r}
-# Looking at one day, Aug 23 2018
+SSTInfo <- info('jplMURSST41')  # Multi-scale Ultra-high Resolution (MUR) SST Analysis fv04.1, Global, 0.01°, 2002-present, Daily 
+murSST <- griddap(sstInfo, latitude = c(35, 39), longitude = c(-122, -130), time = c("2018-08-16", "2018-10-01"), fields = 'analysed_sst') # drift8 dates only
+SST <- murSST$data
 
-library(rerddap)
-SSTInfo <- info('jplMURSST41')
-murSST <- griddap(sstInfo, latitude = c(22., 51.), longitude = c(-140., -105), time = c("2018-08-23", "2018-08-23"), fields = 'analysed_sst')
-ggplot(data = murSST$data, aes(x = longitude, y = latitude, fill = analysed_sst))
-
-# needs fixing!
-
-# Trying SST here again...
-library(terra)
-SST <- terra::rast("Data/SST.tif")
-track_rast <- rasterize(tracks08sf, SST)
-
-plot(SST)
-plot(track_rast)
+# Raster of SST
+ggplot() + 
+  geom_tile(data = SST, aes(x = longitude, y = latitude, fill = analysed_sst)) +
+  scale_fill_gradient(low = "darkblue", high = "yellow") +
+  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill = NA),
+        legend.position = "none")
 ```
 
-### Bathymetry Analysis
+### SST from NOAA CoastWatch : https://coastwatch.pfeg.noaa.gov/projects/r/xyt-matchup.html
+```{r}
+xcoord <- tracks_08$long
+ycoord <- tracks_08$lat
+tcoord <- tracks_08$dateTime
+xlen <- 0.2
+ylen <- 0.2
+parameter <- "analysed_sst"
+dataset <- 'jplMURSST41'
+#dataInfo <- rerddap::info(dataset, url= "https://coastwatch.pfeg.noaa.gov/erddap/")
+
+#swchl <- rxtracto(dataInfo, 
+#                  parameter=parameter, 
+#                  xcoord=xcoord, ycoord=ycoord, 
+#                  tcoord=tcoord, xlen=xlen, ylen=ylen)
+
+#plotTrack(swchl, xcoord, ycoord, tcoord, plotColor = 'thermal')
+```
+
+### SST from PAMPal
+```{r}
+# Downloads data from servers
+# tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'jplMURSST41', fileName = "analysedSST")
+
+# from file 
+tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'analysedSST.nc')
+tracks_SS_08
+```
+
+
+### Distance to continental slope
 
 ```{r}
 # Increase cell size by 30x to be visible
-bathy <- rast("Data/gebco_bathy.tif")
-agg <- terra::aggregate(bathy, 30)
+bathy <- rast("data/gebco_bathy.tif")
+agg <- terra::aggregate(bathy, 20)
 plot(agg)
 
 # Rasterize track with agg as the template
-track_rast <- rasterize(tracks08sf, agg, field = "BB_20-24000")
-plot(track_rast)
-  
+#track_rast <- rasterize(tracks08sf, agg, field = "BB_20-24000")
+#TOL_rast <- rasterize(trk_TOL_08, agg, field = "TOL_125")
+sf08 <- st_as_sf(tracks_SS_08, coords = c("long", "lat.x"), crs=4326, remove=F)
+sf10 <- st_as_sf(tracks_SS_10, coords = c("long", "lat.x"), crs=4326, remove=F)
+trkraster08 <- rasterize(vect(sf08), agg)
+trkraster10 <- rasterize(vect(sf10), agg)
+
 bathy_df <- as.data.frame(bathy, xy = TRUE)
 
-# Map the coastline
+# Map the coastline and cont. slope
 cont <- st_as_sf(as.contour(bathy))
 coast <- cont %>% filter(level == 0)
 cont_slope <- cont %>% filter(level == -2000)
@@ -476,21 +323,30 @@ ggplot() +
   geom_sf(data = tracks08sf, mapping = aes(col= `BB_20-24000`)) +
   geom_sf(data = tracks10sf, mapping = aes(col= `BB_20-24000`)) +
   scale_color_gradient(low="green", high="red") 
+```
 
-# Distance to continental slope
+### Distance to continental slope
 
-BB_dist <- terra::distance(track_rast, vect(cont_slope))
-dist_ex08 <- terra::extract(BB_dist, vect(tracks08sf))
-pts08 <- cbind(tracks08sf,dist_ex08) %>%
+```{r}
+# Drift 8
+slopedist <- terra::distance(trkraster08, vect(cont_slope))     # measure distance from track to slope
+extdist <- terra::extract(slopedist, vect(sf08))       # extract this distance into a df
+tracks_SS_08 <- cbind(sf08,extdist) %>%                     # bind to main df
   dplyr::select(-ID) %>%
-  rename("Distance to Continental Slope" = gebco_bathy)
+  rename("dist_slope" = gebco_bathy)
 
-dist_ex10 <- terra::extract(BB_dist, vect(tracks10sf))
-pts10 <- cbind(tracks10sf,dist_ex10) %>%
+#Drift 10
+slopedist <- terra::distance(trkraster10, vect(cont_slope))     # measure distance from track to slope
+extdist <- terra::extract(slopedist, vect(sf10))       # extract this distance into a df
+tracks_SS_10 <- cbind(sf10,extdist) %>%                     # bind to main df
   dplyr::select(-ID) %>%
-  rename("Distance to Continental Slope" = gebco_bathy)
+  rename("dist_slope" = gebco_bathy)
+```
 
-# Map distance to continental slope by color
+#### Plot distance to continental slope
+
+```{r}
+# By color
 ggplot() +
   geom_sf(data = pts08, 
           mapping = aes(col = `Distance to Continental Slope`)) +
@@ -498,14 +354,120 @@ ggplot() +
           mapping = aes(col = `Distance to Continental Slope`)) +
   geom_sf(data = cont_slope)
 
-# Plot distance by BB 
-ggplot(data = pts08, aes(x = `Distance to Continental Slope`, y = `BB_20.24000`)) + geom_boxplot()
+# Plot distance by OL/TOL 
+ggplot(data = pts08, aes(x = `Distance to Continental Slope`, y = `OL_125`)) + geom_point()
+ggplot(data = TOL08, aes(x = `Distance to Continental Slope`, y = `TOL_125`)) + geom_point() + geom_smooth()
+   # what are the units for distance? Meters
+
+ggplot() +
+  geom_raster(data = bathy_df, 
+              mapping = aes(x=x, y=y,
+                            fill = `gebco_bathy`)) +
+  geom_sf(data = TOL08, 
+          mapping = aes(col = `Distance to Continental Slope`)) +
+  geom_sf(data = cont_slope) + scale_fill_continuous(low = "lightblue", high = "darkblue")
 
 summary(lm(formula = BB_20.24000 ~ `Distance to Continental Slope`, data = pts08))
+  
+
+# PLOT distance by TOL with whales
+ggplot(data = TOL_whale_08, aes(x = `Distance to Continental Slope`, y = `TOL_125`)) + 
+  geom_point() + 
+  geom_smooth(color = "green") +
+  theme_classic()
+
+# SAME PLOT with size as whale detections
+ggplot(data = TOL_whale_08, aes(x = `Distance to Continental Slope`, y = `TOL_125`)) + 
+  geom_point(aes(size = minNumber)) + 
+  geom_smooth() +
+  theme_classic()
+```
+
+### Third octave levels histograms
+
+```{r}
+# Drift 8 - all TOL bands, facet wrap
+pivot <- tracks_SS_08 %>%
+  pivot_longer(cols = starts_with("TOL"), names_to = "TOL", values_to = "Hz")    # Pivot longer for histogram facet grid
+
+ggplot(data = pivot, aes(Hz, fill = factor(BWpresence))) +
+  geom_histogram(binwidth = 1, color = "black") +
+  theme_classic() +
+  ggtitle("Distribution of third octave level intensities: Drift 8") +
+  labs(x = "Sound Intensity (dB)") +
+  guides(fill = guide_legend(title = "Beaked Whale Presence")) +
+  scale_fill_manual(values = c("0" = "bisque1",
+                               "1" = "brown4")) +
+  theme(legend.position = c(0.85,0.2)) +
+  facet_wrap(~TOL)
+
+# Drift 10 - all TOL bands, facet grid
+pivot2 <- tracks_SS_10 %>%
+  pivot_longer(cols = starts_with("TOL"), names_to = "TOL", values_to = "Hz")    # Pivot longer for histogram facet grid
+
+ggplot(data = pivot2, aes(Hz, fill = factor(BWpresence))) +
+  geom_histogram(binwidth = 5, color = "black") +
+  theme_classic() +
+  ggtitle("Distribution of third octave level intensities: Drift 10") +
+  scale_x_continuous(name = "Sound Intensity (dB)", breaks=seq(50,110,20)) +
+  guides(fill = guide_legend(title = "Beaked Whale Presence")) +
+  scale_fill_manual(values = c("0" = "bisque1",
+                               "1" = "brown4")) +
+  theme(legend.position = c(0.6,0.76)) +
+  facet_grid(~TOL)
+  
+# Drift 8 - TOL bands 125 and 2000 only
+pivot3 <- tracks_SS_08 %>%
+  dplyr::select(-TOL_63, -TOL_20000, -TOL_5000) %>%
+  pivot_longer(cols = starts_with("TOL"), names_to = "TOL", values_to = "Hz")    # Pivot longer for histogram facet grid
+
+TOL.labs <- c(`TOL_125` = "TOL at 125 Hz", 
+              `TOL_2000` = "TOL at 2000 Hz")
+
+
+ggplot(data = pivot3, aes(Hz, fill = factor(BWpresence))) +
+  geom_histogram(binwidth = 1, color = "black") +
+  theme_classic() +
+  ggtitle("DASBR 8: Distribution of Third-Octave Level (TOL) Intensities") +
+  scale_x_continuous(name = "Sound Intensity (dB)") +
+  guides(fill = guide_legend(title = "Beaked Whale Presence")) +
+  scale_fill_manual(values = c("0" = "bisque1",
+                               "1" = "brown4")) +
+  theme(legend.position = c(0.6,0.7)) +
+  facet_wrap(~TOL, labeller = as_labeller(TOL.labs))
+
+
+
+# Drift 10 - TOL bands 125 and 2000 only
+pivot4 <- tracks_SS_10 %>%
+  dplyr::select(-TOL_63, -TOL_20000, -TOL_5000) %>%
+  pivot_longer(cols = starts_with("TOL"), names_to = "TOL", values_to = "Hz")    # Pivot longer for histogram facet grid
+
+
+ggplot(data = pivot4, aes(Hz, fill = factor(BWpresence))) +
+  geom_histogram(binwidth = 1, color = "black") +
+  theme_classic() +
+  #ggtitle("DASBR 10: Distribution of Third-Octave Level (TOL) Intensities") +
+  scale_x_continuous(name = "Sound Intensity (dB)") +
+  guides(fill = guide_legend(title = "Beaked Whale Presence")) +
+  scale_fill_manual(values = c("0" = "bisque1",
+                               "1" = "brown4")) +
+  theme(legend.position = c(0.6,0.7)) +
+  facet_wrap(~TOL, labeller = as_labeller(TOL.labs))
+
+
+# TOL linear model plots
+#plot(lm(formula = `Distance to Continental Slope` ~ bestNumber, data = TOL_whale_08))
+
+#ggplot(TOL_whale_08) +
+#  geom_point(aes(x = TOL_125, y = nClicks), color = "blue") #+
+#  geom_point(aes(x = TOL_63, y =  nClicks), color = "hotpink") +
+#  geom_point(aes(x = TOL_5000, y =  nClicks), color = "limegreen") +
+#  geom_point(aes(x = TOL_2000, y =  nClicks), color = "yellow")
 
 ```
 
-Does hour of day affect sound levels?
+### Does hour of day affect sound levels?
 
 ```{r}
 # CCES_08
@@ -541,7 +503,7 @@ ggplot(data = hr_piv, mapping = aes(Hr, BB, col=buoys)) +
 # Plot
 library(tmap); library(maptiles)
 tmap_mode("plot")
-oceanBase <- get_tiles(whales_sf, provider="Esri.OceanBasemap", crop = TRUE)
+oceanBase <- get_tiles(whales_sf, provider="Esri.NatGeoWorldMap", crop = TRUE)
 tm_shape(oceanBase) + tm_rgb() +
   tm_shape(whales_sf) + 
   tm_symbols(col="species", size = "nClicks") +
@@ -562,11 +524,363 @@ summary(glm(`BB_20.24000` ~ species + `Distance to Continental Slope` + nClicks,
 
 #Raster base map
 tmap_mode("plot")
-oceanBase <- get_tiles(BB_whales10, provider="Esri.OceanBasemap")
+oceanBase <- get_tiles(BB_whales10, provider="Esri.NatGeoWorldMap")
 tm_shape(bathy) + tm_raster() +
   tm_shape(BB_whales10) + 
   tm_symbols(col="species", size = "nClicks", style = "jenks") +
   tm_layout(legend.width = 0.5)
 
+```
 
+### Explore environmental variables
+
+#### Bathymetry
+
+```{r}
+library(raster)
+bgo <- getNOAA.bathy(lon1 = -121, lon2 = -131,
+                     lat1 = 34, lat2= 40, resolution = 1)  # plot bounding box around drift 8 and 10
+# As raster
+bgo_rast <- marmap::as.raster(bgo)
+
+# Get depth of whale detections in drift 8
+depth08 <- get.depth(bgo, TOL_whale_08[,4:3], locator = FALSE)
+
+# Get depth of tracks
+trkdepth08 <- get.depth(bgo, TOL_whale_08[,4:3], locator = FALSE)
+trkjoin <- left_join(TOL_whale_08, trkdepth08, by = c("long"= "lon")) %>%
+  mutate(depth = depth*-1)%>%     # remove the negative sign
+  mutate(nClicks = coalesce(nClicks, 0))   # replace NAs with zeros
+
+#Plot
+bplot + geom_point(data = depth08, aes(x = lon, y = lat, color = depth, size = 2)) +
+  scale_color_gradient(low = "red", high = "beige") +
+  ggtitle("Depth of Drfit 8 whale detections")
+
+# Join depth08 with TOL_whale_08 on long
+join <- left_join(TOL_whale_08, depth08, by = c("long" = "lon"))
+
+ggplot(trkjoin) + geom_point(aes(x = depth, y = nClicks))
+
+summary(glm(formula = nClicks ~ TOL_125 + `Distance to Continental Slope` + depth + TOL_63 + TOL_2000 + TOL_5000, data = trkjoin, family = poisson))
+```
+
+#### Bathymetric slope
+
+```{r}
+# Slope
+bgo_slope <- terrain(bgo_rast, v = "slope")
+plot(bgo_slope, axes = FALSE)
+
+# Extract slope values at points along drift 8
+slope <- raster::extract(bgo_slope, tracks_SS_08[,4:3])
+tracks_SS_08 <- cbind(tracks_SS_08, slope)
+
+#ggplot() +
+#  geom_raster(data = bgo_slope, mapping = aes(x=x, y=y, fill=slope)) + 
+#  geom_point(data = depth08, aes(x = lon, y = lat, color = depth, size = 2))
+
+# Roughness (different from rugosity?)
+plot(terrain(bgo_rast, opt = "roughness"))    # what are the units on this?
+```
+
+#### Distance from coast - PAMPal
+
+```{r}
+# PAMpal function
+tracks_SS_08 <- as.data.frame(tracks_SS_08) %>% 
+  mutate(Latitude = lat.x, 
+         Longitude = long, 
+         UTC = as.POSIXct(dateTime, format='%Y-%m-%d %H:%M:%S', tz='UTC'))
+
+dist2shore <- erddapToEdinfo(dataset='dist2coast_1deg',
+                             baseurl='https://pae-paha.pacioos.hawaii.edu/erddap/')
+# Downloads nc file
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc=dist2shore, fileName='Dist2Shore.nc')  
+
+tracks_SS_08 <- matchEnvData(tracks_SS_08, nc='Dist2Shore.nc')  
+```
+
+#### Chlorophyll-a: NOAA Coastwatch
+
+```{r}
+# Code chunk taken from NOAA CoastWatch : https://coastwatch.pfeg.noaa.gov/projects/r/xyt-matchup.html
+xcoord <- tracks_08_rnd$long
+ycoord <- tracks_08_rnd$lat
+tcoord <- tracks_08_rnd$dateTime
+xlen <- 0.2
+ylen <- 0.2
+parameter <- "chlorophyll"
+dataset <- 'erdMH1chlamday'
+dataInfo <- rerddap::info(dataset, url= "https://coastwatch.pfeg.noaa.gov/erddap/")
+
+swchl <- rxtracto(dataInfo, 
+                  parameter=parameter, 
+                  xcoord=xcoord, ycoord=ycoord,
+                  tcoord=tcoord, xlen=xlen, ylen=ylen)
+
+plotTrack(swchl, xcoord, ycoord, tcoord, plotColor = 'algae')
+
+```
+
+### Chlorophyll from PAMPal
+```{r}
+# Downloads from server
+tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'erdMH1chlamday', fileName='chlorophyll.nc')
+
+# Pulls from downloaded file
+tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'chlorophyll.nc')
+tracks_SS_08
+```
+
+
+#### Sea surface height anomalies - NOAA Coastwatch
+```{r}
+# Code chunk taken from NOAA CoastWatch : https://coastwatch.pfeg.noaa.gov/projects/r/xyt-matchup.html
+xcoord <- tracks_08_rnd$long
+ycoord <- tracks_08_rnd$lat
+tcoord <- tracks_08_rnd$dateTime
+xlen <- 0.2
+ylen <- 0.2
+parameter <- 'sla'
+dataset <- 'nesdisSSH1day'
+dataInfo <- rerddap::info(dataset, url= "https://coastwatch.pfeg.noaa.gov/erddap/")
+
+swssh <- rxtracto(dataInfo, 
+                  parameter=parameter, 
+                  xcoord=xcoord, ycoord=ycoord, 
+                  tcoord=tcoord, xlen=xlen, ylen=ylen)
+
+plotTrack(swssh, xcoord, ycoord, tcoord, plotColor = 'deep')
+```
+
+#### Sea Surface Height Anomalies from PAMPal
+```{r}
+# Downloaded from server
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'nesdisSSH1day', fileName='sshanomalies.nc')
+
+# Pulled from downloaded nc file
+tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'sshanomalies.nc')
+tracks_SS_08
+```
+
+
+#### HyCom Data - MLDepth, MLTemp, TTemp, TDepth, Salinity
+```{r}
+hycomData <- matchEnvData(tracks_SS_08, nc=PAMmisc::hycomList, raw=TRUE, depth = 0:1000, fileName = 'hycomData')
+
+
+```
+
+
+### Plot maps for Powerpoint images
+
+Map of whole study area
+```{r}
+# Establish bounding box
+bbox <- st_bbox(c(xmin = -110, 
+            xmax = -128, 
+            ymax = 44, 
+            ymin = 30), crs = st_crs(4326))
+
+#Establish basemap
+allTrackbase <- get_tiles(bbox, provider = "Esri.WorldGrayCanvas", zoom = 5)
+
+# Establish inset map
+us_region <- st_bbox(c(xmin = -90,
+            xmax = -120, 
+            ymax = 48, 
+            ymin = 25), crs = st_crs(4326))
+usa <- get_tiles(us_region, provider = "Esri.WorldGrayCanvas", zoom = 4)
+
+sg <- bb_poly(bb(tracks_sf))
+inset <- tm_shape(usa) + tm_rgb() + tm_shape(sg) + tm_borders(col = "red")
+
+
+#Map all tracks
+main <- tm_shape(allTrackbase) + tm_rgb() +
+  tm_shape(trackssf) +
+  tm_grid(alpha = 0.6, col = "grey") +
+  tm_dots(col = "darkblue", size = 0.001, legend.show = TRUE) +
+  tm_scale_bar(width = 0.3, text.size = 3, position = c(0.2, 0.03)) +
+  tm_compass(type = "arrow", position = c(0.05, 0.05), color.light = "white") +
+  tm_add_legend('symbol',
+                type = "line",
+                col = "darkblue",
+                labels = "Drifting buoy tracks",
+                size = 1,
+                lwd = 2)
+
+vp <- viewport(x=0.66, y=0.8, width = 0.26, height=0.4)
+main
+print(inset,vp=vp)
+
+
+# Map all tracks - ggplot
+basemap2 <- as.data.frame(allTrackbase, xy = TRUE)
+#ggplot() +
+#  geom_tile(data = basemap, aes(x=x, y=y, fill = "basemap")) +
+#  geom_sf(data = trackssf, mapping = aes(), color = "red")
+
+
+# Map tracks 08 and 10 only
+tm_shape(trackBase) + tm_rgb() + 
+  tm_shape(tracks08sf) + tm_dots(col = "red", 
+                                 legend.show = TRUE) +
+  tm_shape(tracks10sf) + tm_dots(col = "green")
+
+# Bounding box of drift tracks on map
+lon2 <- -129.04666
+lon1 <- -115.78247
+lat1 <- 28.21790
+lat2 <- 45.09226
+
+basemap3 <- ne_countries(scale = "medium", type = "map_units", returnclass = "sf")
+
+# Drift tracks
+ggplot(data = basemap3) +
+  geom_sf(fill = "antiquewhite") +
+  coord_sf(xlim = c(lon2 - 1, lon1 + 1), ylim = c(lat1 - 1, lat2 + 1), expand = FALSE) +
+  theme(panel.grid.major = element_blank()) +
+  geom_path(data = tracks_sf, mapping = aes(x=long,y=lat, group = factor(station)), color = "deeppink") +
+  theme(panel.background = element_rect(fill = "aliceblue"), 
+        axis.text = element_blank(), axis.ticks = element_blank(), 
+        axis.title = element_blank())
+```
+
+Map of soundscapes
+```{r}
+# CCES_08 + CCES_10 Broadband
+tm_shape(trackBase) + tm_rgb() + 
+  tm_shape(tracks08sf) + 
+  tm_symbols(col = "BB_20-24000", 
+             border.lwd = NA, 
+             size = 0.4, 
+             sizes.legend = 0.7, 
+             n = 10) +
+  tm_shape(tracks10sf) + 
+  tm_symbols(col = "BB_20-24000",
+             border.lwd = NA, 
+             size = 0.4,
+             n = 10) +
+  tm_layout(legend.width = 0.5, 
+            legend.position = c("right","top"),
+            legend.bg.color = "lightblue")
+
+#CCES_08 Octave Level
+tm_shape(trackBase) + tm_rgb() + 
+  tm_shape(tracks08sf) + 
+  tm_symbols(col = "OL_63", 
+             border.lwd = NA, 
+             size = 0.5, 
+             n = 10) + 
+  tm_layout(legend.width = 0.5, 
+            legend.position = c("right","top")) + 
+  tm_legend()
+
+ggplot() + 
+  geom_sf(data = trk_TOL_08, aes(color = TOL_125, size = TOL_125), show.legend = FALSE) +
+  geom_sf(data = trk_TOL_10, aes(color = TOL_125, size = TOL_125)) +
+  scale_x_continuous(limits = c(-130,-122)) + 
+  scale_y_continuous(limits = c(35,39)) +
+  scale_color_gradient(low = "navy", high = "yellow")+
+  scale_size(range = c(1,12)) +
+  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
+  theme(panel.border = element_rect(fill = NA),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "none")
+```
+
+Map of whale detections
+```{r}
+# Whale detections
+ggplot() +
+  geom_point(data = whales8, mapping = aes(x=long, y=lat), shape = 21, color = "black", fill = "green4", size = 4) +
+  geom_point(data = whales10, mapping = aes(x=long, y=lat), shape = 21, color = "black", fill = "green4", size = 4) +
+  scale_x_continuous(limits = c(-130,-122)) + 
+  scale_y_continuous(limits = c(35,39)) +
+  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
+  theme(panel.border = element_rect(fill = NA),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        panel.background = element_blank()
+        )
+#ggsave("BWdetect.png")
+
+
+```
+
+Map of bathymetry
+```{r}
+# Bathymetry
+bathym <- ggplot() +
+    geom_raster(data = bathy_df, 
+              mapping = aes(x=x, y=y,
+                            fill = `gebco_bathy`)) +
+  annotation_scale(location = "bl", width_hint = 0.4) +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill = NA))
+
+
+# Alternative Bathymetry (code from Ocean Tracking Network #https://www.youtube.com/watch?v=xT2F-Y9bKLk)
+bgo <- getNOAA.bathy(lon1 = -122, lon2 = -130,
+                     lat1 = 35, lat2= 39, resolution = 1)  # plot bounding box around drift 8 and 10
+autoplot(bgo, geom = c("raster", "contour"), coast = TRUE, show.legend = FALSE) + 
+  scale_fill_etopo() + #creates ggplot object
+  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        panel.background = element_blank())
+
+# Soundscape + bathymetry
+ggplot() +
+  geom_raster(data = bathy_df, 
+              mapping = aes(x=x, y=y,
+                            fill = `gebco_bathy`), show.legend = FALSE) +
+  #geom_contour(data = bathy_df, mapping = aes(x=x, y=y, z=gebco_bathy, linewidth = 0.1), color = "blue", linewidth = 0.01,) +
+  geom_sf(data = trk_TOL_08, aes(color = TOL_125, size = TOL_125), show.legend = FALSE) +
+  geom_sf(data = tracks10sf, aes(color = TOL_125, size = TOL_125)) +
+  geom_sf(data = whales08_sf, aes(), color = "black") +
+  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
+  scale_color_gradient(low = "beige", high = "hotpink") +
+  scale_fill_etopo() +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill = NA))
+#ggsave("soundscape.png")
+```
+
+Map of AIS
+```{r}
+# Plot + crop to drift area
+basemap <- ne_countries(scale = "medium", returnclass = "sf")
+ggplot() + 
+  geom_sf(aes(), basemap) +
+  geom_path(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName), show.legend = F) + 
+  #geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName)) +
+  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
+  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7)))
+
+
+# AIS data
+ggplot() + 
+  geom_path(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName, linewidth = 1), show.legend = F) +
+  scale_x_continuous(limits = c(-131,-121)) + 
+  scale_y_continuous(limits = c(34,40)) +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill = NA))
+#ggsave("AIS.png")
 ```
