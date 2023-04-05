@@ -1,1 +1,0 @@
-{"height":392.45982694684798,"width":635.0,"size_behavior":0,"conditions":[[0,"`geom_smooth()` using method = 'loess' and formula 'y ~ x'\n"],[1,"Warning: Removed 2 rows containing non-finite values (stat_smooth)."],[1,"Warning: Removed 2 rows containing missing values (geom_point)."]]}

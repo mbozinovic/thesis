@@ -1,8 +1,0 @@
-"0","anim <-  d +
-  transition_(along = StartTime) +
-  ease_aes() +
-  ggtitle(""Date: {frame_along}"")
-"
-"2","Error in transition_(along = StartTime) : 
-  could not find function ""transition_""
-"
