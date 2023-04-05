@@ -1,0 +1,27 @@
+{
+    "id": "6F2C471E",
+    "path": "~/GitHub/thesis/01_readin.R",
+    "project_path": "01_readin.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1678312550691.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "140,31",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1680557072,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1680557072296,
+    "read_only": false,
+    "read_only_alternatives": []
+}
