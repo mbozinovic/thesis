@@ -1,0 +1,28 @@
+"0","# Plot + crop to drift area"
+"0","basemap <- ne_countries(scale = ""medium"", returnclass = ""sf"")"
+"0","ggplot() + "
+"0","  geom_sf(aes(), basemap) +"
+"0","  geom_path(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName), show.legend = F) + "
+"0","  #geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName)) +"
+"0","  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + "
+"0","  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7)))"
+"2","Warning: Unknown or uninitialised column: `lat`."
+"2","Warning: no non-missing arguments to min; returning Inf"
+"2","Warning: Unknown or uninitialised column: `lat`."
+"2","Warning: no non-missing arguments to max; returning -Inf"
+"1","[1m[33mError[39m in `calc_limits_bbox()`:[22m
+[38;5;232m[33m![38;5;232m Scale limits cannot be mapped onto spatial coordinates in `coord_sf()`
+[36mℹ[38;5;232m Consider setting `lims_method = ""geometry_bbox""` or `default_crs = NULL`.[39m
+Backtrace:
+[90m  1. [39m[1mbase[22m (local) `<fn>`(x)
+[90m  2. [39mggplot2:::print.ggplot(x)
+[90m  4. [39mggplot2:::ggplot_build.ggplot(x)
+[90m  5. [39mlayout$setup_panel_params()
+[90m  6. [39mggplot2 (local) setup_panel_params(..., self = self)
+     ...
+[90m  8. [39mbase::mapply(FUN = f, ..., SIMPLIFY = FALSE)
+[90m  9. [39mggplot2 (local) `<fn>`(dots[[1L]][[1L]], dots[[2L]][[1L]])
+[90m 10. [39mself$coord$setup_panel_params(scale_x, scale_y, params = self$coord_params)
+[90m 11. [39mggplot2 (local) setup_panel_params(..., self = self)
+[90m 12. [39m[1m[94mggplot2:::calc_limits_bbox([39m[22mself$lims_method, scale_xlim, scale_ylim, params$crs, params$default_crs[1m[94m)[39m[22m
+"

@@ -1,0 +1,6 @@
+"0",""
+"0","# Mixed Layer Depth over time"
+"0","ggplot(tracks_SS_08, aes(x = dateTime, y = mldDepth*(-1))) +"
+"0","  geom_line() +"
+"0","  geom_point(aes(color = species)) +"
+"0","  scale_color_discrete(na.translate=FALSE)"

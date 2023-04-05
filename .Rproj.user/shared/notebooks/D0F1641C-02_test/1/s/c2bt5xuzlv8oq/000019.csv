@@ -1,0 +1,4 @@
+"0",""
+"0","# Mixed layer depth Depth"
+"0","ggplot(data = tracks_SS_08, aes(mldDepth, fill = factor(BWpresence))) +"
+"0","  geom_histogram(binwidth = 0.25, color = ""black"")"

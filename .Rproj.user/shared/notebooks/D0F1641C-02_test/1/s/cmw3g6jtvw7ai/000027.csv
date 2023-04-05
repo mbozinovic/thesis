@@ -1,0 +1,4 @@
+"0","# Increase cell size by 30x to be visible"
+"0","bathy <- rast(""data/gebco_bathy.tif"")"
+"0","agg <- terra::aggregate(bathy, 20)"
+"0","plot(agg)"

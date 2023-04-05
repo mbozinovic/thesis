@@ -1,0 +1,3 @@
+"0","# Slope"
+"0","bgo_slope <- terrain(bgo_rast, v = ""slope"")"
+"0","plot(bgo_slope, axes = FALSE)"

@@ -1,0 +1,2 @@
+"0","tracks10sf <- st_as_sf(track_BB_OL_10, coords = c(""long"", ""lat""), crs=4326)"
+"0",""

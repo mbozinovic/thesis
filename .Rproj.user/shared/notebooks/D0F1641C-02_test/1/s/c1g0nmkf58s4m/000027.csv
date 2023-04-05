@@ -1,0 +1,8 @@
+"0","  "
+"0","# Drift 8 - TOL bands 125 and 2000 only"
+"0","pivot3 <- tracks_SS_08 %>%"
+"0","  dplyr::select(-TOL_63, -TOL_20000, -TOL_5000) %>%"
+"0","  pivot_longer(cols = starts_with(""TOL""), names_to = ""TOL"", values_to = ""Hz"")    # Pivot longer for histogram facet grid"
+"0",""
+"0","TOL.labs <- c(`TOL_125` = ""TOL at 125 Hz"", "
+"0","              `TOL_2000` = ""TOL at 2000 Hz"")"

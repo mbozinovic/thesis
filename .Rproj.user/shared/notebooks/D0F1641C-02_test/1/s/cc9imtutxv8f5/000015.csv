@@ -1,0 +1,35 @@
+"0","bgo <- getNOAA.bathy(lon1 = -121, lon2 = -131,"
+"0","                     lat1 = 34, lat2= 40, resolution = 1)  # plot bounding box around drift 8 and 10"
+"2","Querying NOAA database ...
+"
+"2","This may take seconds to minutes, depending on grid size
+
+"
+"2","trying URL 'https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer/exportImage?bbox=-131,34,-121,40&bboxSR=4326&size=600,360&imageSR=4326&format=tiff&pixelType=F32&interpolation=+RSP_NearestNeighbor&compression=LZ77&renderingRule={%22rasterFunction%22:%22none%22}&mosaicRule={%22where%22:%22Name=%27ETOPO_2022_v1_60s_bed%27%22}&f=image'
+"
+"2","Content type 'image/tiff'"
+"2"," length 780361 bytes (762 KB)
+"
+"2","downloaded 762 KB
+
+"
+"2","Building bathy matrix ...
+"
+"0","# As raster"
+"0","bgo_rast <- marmap::as.raster(bgo)"
+"0",""
+"0","# Convert sf to dataframe for this operation"
+"0","tracks_SS_08 <- st_set_geometry(tracks_SS_08, value = NULL)"
+"0",""
+"0","# Get depth of whale detections in drift 8"
+"0","depth08 <- get.depth(bgo, tracks_SS_08[,3:2], locator = FALSE)"
+"0",""
+"0","# Get depth of tracks"
+"0","trkdepth08 <- get.depth(bgo, tracks_SS_08[,3:2], locator = FALSE)"
+"0","trkjoin <- left_join(tracks_SS_08, trkdepth08, by = c(""long""= ""lon"")) %>%"
+"0","  mutate(depth = depth*-1)         # remove the negative sign"
+"0",""
+"0","#Plot"
+"0","ggplot() + geom_point(data = tracks_SS_08, aes(x = long, y = lat.x, size = 2)) +"
+"0","  scale_color_gradient(low = ""red"", high = ""beige"") +"
+"0","  ggtitle(""Depth of Drift 8 whale detections"")"

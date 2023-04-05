@@ -1,0 +1,38 @@
+"0","# Bathymetry"
+"0","bathym <- ggplot() +"
+"0","    geom_raster(data = bathy_df, "
+"0","              mapping = aes(x=x, y=y,"
+"0","                            fill = `gebco_bathy`)) +"
+"0","  annotation_scale(location = ""bl"", width_hint = 0.4) +"
+"0","  theme(axis.text = element_blank(), "
+"0","        axis.ticks = element_blank(), "
+"0","        axis.title = element_blank(),"
+"0","        panel.background = element_blank(),"
+"0","        panel.border = element_rect(fill = NA))"
+"0",""
+"0",""
+"0","# Alternative Bathymetry (code from Ocean Tracking Network #https://www.youtube.com/watch?v=xT2F-Y9bKLk)"
+"0","bgo <- getNOAA.bathy(lon1 = -122, lon2 = -130,"
+"0","                     lat1 = 35, lat2= 39, resolution = 1)  # plot bounding box around drift 8 and 10"
+"2","Querying NOAA database ...
+"
+"2","This may take seconds to minutes, depending on grid size
+
+"
+"2","trying URL 'https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer/exportImage?bbox=-130,35,-122,39&bboxSR=4326&size=480,240&imageSR=4326&format=tiff&pixelType=F32&interpolation=+RSP_NearestNeighbor&compression=LZ77&renderingRule={%22rasterFunction%22:%22none%22}&mosaicRule={%22where%22:%22Name=%27ETOPO_2022_v1_60s_bed%27%22}&f=image'
+"
+"2","Content type 'image/tiff'"
+"2"," length 409322 bytes (399 KB)
+"
+"2","downloaded 399 KB
+
+"
+"2","Building bathy matrix ...
+"
+"0","autoplot(bgo, geom = c(""raster"", ""contour""), coast = TRUE, show.legend = FALSE) + "
+"0","  scale_fill_etopo() + #creates ggplot object"
+"0","  annotation_scale(location = ""br"", width_hint = 0.2, plot_unit = ""km"") +"
+"0","  theme(axis.text = element_blank(), "
+"0","        axis.ticks = element_blank(), "
+"0","        axis.title = element_blank(),"
+"0","        panel.background = element_blank())"

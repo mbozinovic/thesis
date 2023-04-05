@@ -1,0 +1,4 @@
+"0","# Install"
+"0","devtools::install_github(""ropenscilabs/rnaturalearth"")"
+"2","Error in loadNamespace(x) : there is no package called ‘devtools’
+"

@@ -1,0 +1,8 @@
+"0",""
+"0",""
+"0","v <- ggplot(data = track08Long3, aes(x = `Date (2018)`, y = value)) +"
+"0","  geom_line() + "
+"0","  geom_point(aes(color = species))# + "
+"0","  #scale_color_discrete(labels = c(""ZC"" = ""Cuvier's"", ""BW43"" = ""BW43""))"
+"0",""
+"0","v + facet_grid(parameter ~ ., scales = ""free_y"")"

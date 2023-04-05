@@ -1,0 +1,4 @@
+"0",""
+"0","ggplot() + "
+"0","  geom_histogram(data = BW0, aes(TOL_5000), binwidth = 0.5, fill = ""black"", color = ""white"") +"
+"0","  geom_histogram(data = BW1, aes(TOL_5000), binwidth = 0.5, fill = ""yellow"", color = ""black"")"

@@ -1,0 +1,10 @@
+"0","# Plot"
+"0","library(tmap); library(maptiles)"
+"0","tmap_mode(""plot"")"
+"2","tmap mode set to plotting
+"
+"0","oceanBase <- get_tiles(tracks_SS_08, provider=""Esri.NatGeoWorldMap"", crop = TRUE)"
+"0","tm_shape(oceanBase) + tm_rgb() +"
+"0","  tm_shape(tracks_SS_08) +  tm_symbols(col=""species"", size = 1) +"
+"0","  tm_layout(legend.width = 0.5, "
+"0","            legend.position = c(""right"",""top""))"
