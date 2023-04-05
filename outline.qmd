@@ -1,21 +1,22 @@
 ---
 title: "Thesis outline"
+author: Marina Bozinovic
 format: docx
 editor: visual
 ---
 
-## Goal 1: Characterize the soundscape
+## Goal 1: Characterize the soundscape/acoustic habitat
 
-#### Explore the relationship between soundscape metrics and environmental variables, and beaked whale (BW) detections
+#### Explore the relationship (spatial/temporal variation?) between soundscape metrics and environmental variables, and beaked whale (BW) detections. (Alternative: Describe the acoustic environment where deep-diving species are present/absent.)
 
--   Create histograms, scatterplots, time series, facet graphs of:
+-   Exploratory: Create histograms, scatterplots, time series, facet graphs of:
     -   A soundscape metric/BW presence + absence/env variable
-        -   Comparing TOL intensities between drift 8 and 10
+        -   Comparing TOL intensities between drift 8 and 10 (**only two drifts for now**)
         -   Broadband levels, Third-octave levels at 63, 125, 2000, 5000, 20000 Hz
-        -   Probability of detecting BW is highest when soundscape is \_\_\_.
-        -   Which frequencies had the most loudness?
-    -   Enviromental variables (source from PAMpal for events or ERDAPP)
-        -   Bottom depth (**depth for whale detections in drift 8**)
+            -   Are we interested in high frequencies (20 kHz)?
+        -   Which frequencies had the most loudness? What does the soundscape look like when there are high BW detections?
+    -   Oceanographic characteristics
+        -   Bottom depth (**done for drift 8**)
 
         -   Bottom slope (**done for drift 8**)
 
@@ -23,37 +24,51 @@ editor: visual
 
         -   Distance from continental shelf (**done for drift 8**)
 
-        -   Sea surface temperature (**in progress)**
+        -   Sea surface temperature **(done for drift 8**)
 
-        -   Sea surface height (need help sourcing, can only find SSH anomalies for 2018)
+        -   Sea surface height anomalies **(done for drift 8)**
 
-        -   Sea surface slope
+        -   Sea surface height slope (in progress)
 
-        -   Chlorophyll-a (**mapped for drift 8)**
+        -   Curl of wind stress (in progress)
 
-        -   Mixed layer depth (MLD), thermocline temperature (TTemp), temperature at 400 m, salinity (**Taiki's code)**
-    -   Other variables: seasonality, hour of the day (create time series for avg daily env.variable)
+        -   Mixed layer depth (MLD) **(done for drift 8**)
+
+        -   Mixed layer depth Temperature **(done for drift 8**)
+
+        -   Thermocline temperature (TTemp) **(done for drift 8**)
+
+        -   Thermocline depth **(done for drift 8**)
+
+        -   Temperature at 400 m **(done for drift 8**)
+
+        -   Salinity at 400 m **(done for drift 8**)
+
+        -   Chlorophyll-a **(done for drift 8**)
+    -   Other potential variables: seasonality, hour of the day (create time series for avg daily env.variable)
     -   Questions: Does soundscape change when conditions change? Is sound seasonal?
--   Plug into model (GAM, zero-inflated, GLM)
+-   Fit a model (GAM, possibly zero-inflated, GLM, random forest, AIC)
 
-## Goal 2: Influence from vessels
+## Goal 2: Influence from vessels (connect sound to a source)
 
-#### Explore how vessel presence influences the soundscape
+#### Explore how vessel presence influences and contributes to the soundscape
 
 -   Find instances of vessel in vicinity of drift vs. drift alone and compare
 
-    -   Number of ship passages
+    -   Number of ship passages, types of ships (**IN PROGRESS**)
 
-        -   Create buffer around whale detections (unsure of buffer size)
+        -   Create buffer around whale detections (using 50nmi)
+
         -   Find AIS vessels by lat/long that lie within buffer
-        -   Quantify number of vessels that pass for each drift
+
+        -   Identify number of vessels that pass each drift
 
     -   Closest ship passage (When a ship has a close encounter with a drift, how close is it on average? How is soundscape affected?)
 
--   Is vessel presence = loud soundscape?
+-   Does vessel presence create a louder soundscape?
 
-    -   Compare TOL125 intensities vs. ship presence
+    -   Compare TOL 63 and125 intensities vs. ship presence
 
 -   Chronic vs. acute sound events
 
-    -   Instances where drifts and vessels overlap, plot time on x-axis and TOL125 dB on y
+    -   Instances where drifts and vessels overlap, plot time on x-axis and TOL125 on y axis
