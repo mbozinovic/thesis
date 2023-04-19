@@ -1,0 +1,101 @@
+---
+title: "AIS"
+author: "Marina Bozinovic"
+date: "2023-04-11"
+output: html_document
+---
+```{r}
+#Required Packages
+
+library(tidyverse)
+library(sf)
+```
+
+
+
+```{r}
+#########
+# AIS
+#########
+
+# Need to add more AIS dates in data folder
+AISlist <- list.files(path = paste0("data/"), pattern = "AIS_", recursive = TRUE)
+
+for (v in AISlist) {
+  Adata <- read_csv(paste0("data/", v), show_col_types = FALSE) %>%
+    filter(Length >= 100) %>%                  # Filter out vessels over 100m in length
+    dplyr::select(-SOG,-COG, -CallSign, -IMO, -Cargo, -Draft, -Status) %>%  #Remove unnecessary columns
+    mutate(variable = paste0(substr(v, 16, 17), substr(v, 6, 7)))
+  
+  assign(paste0("AIS_", substr(v, 5, 10)), Adata)
+}
+
+
+AIS_sf <- AIS %>%
+  st_as_sf(coords = c("LON", "LAT"), crs=4326, remove=F)
+```
+
+```{r}
+##################################
+# Create 10 km buffer around buoys (taken from M. McKenna's code)
+# Should be malleable for each buoy's number to easily plug in.
+##################################
+trk8 <- tracks %>% 
+  dplyr::filter(station == "8") %>%
+  st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
+
+pois <- st_transform(trk8, crs = 4326)    # Specify a crs
+pts_buff <- st_buffer(pois, dist = 10000)  # Buffer all points in trk to 10 km (10000m)
+buff <- st_transform(pts_buff, crs = 4326)  # Specify crs for new buffer
+
+### Crop full AIS to 10km buffer around drift 8 ###
+AIS_crop <- st_crop(x = AIS_sf, y = buff)
+
+# Intersect buffer with AIS. Starting this on first 10 rows to see how slowly it goes. 
+## FIX ME
+#inters <- st_intersection(buff, AIS_crop[1:140,])
+
+
+#Another way to view with TRUE/FALSE if AIS points fall within buffer
+intersect <- st_intersects(buff, AIS_crop)
+lgth <- lengths(st_intersects(buff, AIS_crop)) > 0
+
+# Speeding up st_intersection (from https://github.com/r-spatial/sf/issues/801)
+
+st_intersection_faster <- function(x,y,...){
+#faster replacement for st_intersection(x, y,...)
+
+  y_subset <-
+    st_intersects(x, y) %>%
+    unlist() %>%
+    unique() %>%
+    sort() %>%
+    {y[.,]}
+
+  st_intersection(x, y_subset,...)
+}
+inters <- st_intersection_faster(buff, AIS_crop[1:140,])
+inters2 <- st_intersection_faster(buff, AIS_crop[141:200,])
+inters3 <- st_intersection_faster(buff, AIS_crop[201:300,])
+
+```
+```{r}
+# Plot showing 10km buffer around drift 8
+#tmap_mode("plot")
+#tm_shape(buff) + tm_symbols(col = "blue", border.col = NA) +
+#  tm_shape(trk) + tm_dots(col = "red")
+```
+
+
+
+```{r}
+# Plot
+ggplot(tracks_SS_08, aes(x = long, y = lat.x)) + geom_point() 
+ + geom_sf(data = bbox8, aes(col = "red"))
+
+# Plot showing AIS bounding box around drift 8 tracks
+ggplot() + geom_sf(data = AIS_crop,color = "red")
+
+ggplot() +
+  geom_sf(data = calif) + coord_sf(default_crs = sf::st_crs(4326)) + theme_bw()
+ # geom_sf(data = AIS_sf)
