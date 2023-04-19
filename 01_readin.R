@@ -4,35 +4,20 @@
 # Look into https://bookdown.org/yihui/rmarkdown-cookbook/managing-projects.html for info on 
 # managing projects with multiple Rmds and scripts
 
-###########################
-# Required packages
-###########################
+# libraries ##########
 
 library(tidyverse)
 library(lubridate)
 library(sf)
-library(rerddap)
-library(terra)
-library(marmap)
 library(rnaturalearth)
-library(mapproj)
-library(raster)
-library("rerddapXtracto")
-library(PAMpal)
-library(maptiles)
 library(tmap)
-library(spData)
-library(tmaptools)
-library(grid)
-library(ggspatial)
 library(here)
-library(leaflet)
 
-##########################
-# Read in soundscape data, NEED TO MAKE THIS A FUNCTION
-# look at http://ohi-science.org/data-science-training/programming.html#automation-with-for-loops for help on automation.
-##########################
+# set up #####
+
 here()
+#Remove global environment if needed
+#rm(list=ls()) 
 
 # Set system time zone to UTC
 Sys.setenv(TZ='UTC')
@@ -53,191 +38,247 @@ tmap_options(basemaps=c(Terrain = "Esri.WorldTerrain",
                         Ortho="GeoportailFrance.orthos"))
 
 
-# Round to nearest 20 minutes, create dateTime data type
-# Drift 8: Broadband
-BB_08_csv <- read_csv("Data/CCES_08_1Hz_1s_BB_2min.csv", show_col_types = FALSE)
-BB_08 <- BB_08_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-BB_08 <- BB_08 %>%
-  mutate(dateTime = round_date(ymd_hms(BB_08$dateTime),"20 minutes"))
+##########################
+# Read in soundscape data, NEED TO MAKE THIS A FUNCTION
+# look at http://ohi-science.org/data-science-training/programming.html#automation-with-for-loops for help on automation.
+##########################
 
-# Drift 8: Octave Level
-OL_08_csv <- read_csv("Data/CCES_08_1Hz_1s_OL_2min.csv",show_col_types = FALSE)
-OL_08 <- OL_08_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-OL_08 <- OL_08 %>%
-  mutate(dateTime = round_date(ymd_hms(OL_08$dateTime),"20 minutes"))
+#dlist <- c(4,7,8,10,12,13,14,16,17,18,19,20,21,22,23)
+sslist <- list.files(path = paste0("data-raw/"), pattern = "CCES_", recursive = TRUE)
 
-# Drift 8: TOL
-TOL_08_csv<- read_csv("data/CCES_08_1Hz_1s_TOL_2min.csv", show_col_types = FALSE)
-TOL_08 <- TOL_08_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-TOL_08 <- TOL_08 %>%
-  mutate(dateTime = round_date(ymd_hms(TOL_08$dateTime),"20 minutes"))
-write.csv(TOL_08, "TOL_08.csv", row.names=FALSE)
+#code doesnt work, can delete
+#for (i in sslist) {
+#  read_csv(paste0("data-raw/",i), show_col_types = FALSE)%>%
+#  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`) %>%
+#  mutate(dateTime = round_date(ymd_hms(.$dateTime),"20 minutes")) %>%
+#  assign(., value = paste0((substr(sslist[i], 16, 17)), substr(sslist[i], 6, 7)))
+#}
 
-# Drift 10: Broadband
-BB_10_csv <- read_csv("Data/CCES_10_1Hz_1s_BB_2min.csv", show_col_types = FALSE)
-BB_10 <- BB_10_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-BB_10 <- BB_10 %>%
-  mutate(dateTime = round_date(ymd_hms(BB_10$dateTime),"20 minutes"))
-
-# Drift 10: TOL
-TOL_10_csv<- read_csv("data/CCES_10_1Hz_1s_TOL_2min.csv", show_col_types = FALSE)
-TOL_10 <- TOL_10_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-TOL_10 <- TOL_10 %>%
-  mutate(dateTime = round_date(ymd_hms(TOL_10$dateTime),"20 minutes"))
-
-
-# Drift 10: Octave level
-OL_10_csv <- read_csv("Data/CCES_10_1Hz_1s_OL_2min.csv", show_col_types = FALSE)
-OL_10 <- OL_10_csv %>% 
-  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`)
-OL_10 <- OL_10 %>%
-  mutate(dateTime = round_date(ymd_hms(OL_10$dateTime),"20 minutes"))
+#From ChatGPT, edited from above
+for (i in sslist) {
+  data <- read_csv(here(paste0("data-raw/", i)), show_col_types = FALSE) %>%
+    rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`) %>%
+    mutate(dateTime = round_date(ymd_hms(dateTime), "20 minutes")) %>%
+    mutate(variable = paste0(substr(i, 16, 17), substr(i, 6, 7)))
+  
+  assign(paste0(substr(i, 16, 17), "_", substr(i, 6, 7)), data)
+}
 
 
 ##################
 # Read in Tracks
 ##################
 
-# Read in tracks, filter out lost buoys
-tracks <- read_csv("Data/AllTracks.csv", show_col_types = FALSE) %>%
-  dplyr::filter(station == "4"| station == "7"| station =="8" |station == "10"|          # filter out lost buoys
-                  station == "12"|station == "13"| station == "14"| station == "16"|
-                  station == "17"|station == "18"| station == "19"| station == "20"| 
-                  station == "21"|station == "22"| station == "23") %>%
-  mutate(dateTime = round_date(ymd_hms(.$dateTime), "20 minutes"))                       # round to nearest 20 minutes
+# Load raw rda file
+load("data-raw/CCES2018_DriftTracks_Modified_03Nov2022.rda")
 
-# Filter by buoy 8 and 10
-tracks_08 <- tracks %>% dplyr::filter(station == "8")
-tracks_10 <- tracks %>% dplyr::filter(station == "10")
+# Read in tracks, filter out lost buoys (1,2,3,5,6,9,11) and corrupted buoys (4,17)
+tracks <- AllTracks %>%
+  dplyr::select(-dist, -speed) %>%
+  mutate(dateTime = round_date(.$dateTime, "20 minutes")) %>%      # round to nearest 20 minutes, will create duplicated in the data
+  filter(!station %in% c('1','2','3','4','5','6','9','11', '17')) %>%
+  rename(Longitude = long,                                 # Need these columns to specifically say this for ERDDAP matching
+         Latitude = lat,
+         UTC = dateTime)
+tracks <- tracks[!duplicated(tracks[c('UTC', 'station')]),]    # Remove duplicates
+
+# Save as RDS
+saveRDS(tracks, 'tracks.rds')
+
+# Filter by buoy
+#tracks_08 <- tracks %>% dplyr::filter(station == "8") 
+track4 <- AllTracks %>% dplyr::filter(station == "4")
 
 # Tracks on a map
-tracks_sf <- tracks %>% # make tracks an sf object
-  st_as_sf(coords= c("long", "lat"), crs=4326, remove=F)
+#tracks_sf <- tracks %>% # make tracks an sf object
+#  st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
 
-tracks08sf <- tracks_08 %>%
-  st_as_sf(coords= c("long", "lat"), crs=4326, remove=F)
+#tracks08sf <- tracks_08 %>%
+#  st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
 
-tracks10sf <- tracks_10 %>%
-  st_as_sf(coords= c("long", "lat"), crs=4326, remove=F)
+#tracks10sf <- tracks_10 %>%
+#  st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
 
 
 ##########################
 # Read in whale detections
 ##########################
 
+# Load raw RDA file
+#load("data-raw/CCES2018_BW_Detections.rda")             # Beaked whales only
+load("data-raw/CCES2018_BW_and_PM_Detections.rda")       # Beaked  + sperm whales
 
-# All whale detections
-whales <- read_csv("Data/EventInfo.csv", show_col_types = FALSE) %>%
-  mutate(lat = as.numeric(Latitude)) %>%
-  mutate(long = as.numeric(Longitude)) %>%
-  mutate(bestNumber = as.numeric(bestNumber)) %>%   #convert nClicks from character to numeric
-  mutate(nClicks = as.numeric(nClicks)) %>%      # convert nClicks from character to numeric
-  mutate(StartTime = mdy_hm(StartTime)) %>%      #convert time from character to datetime
-  mutate(EndTime = mdy_hm(EndTime)) %>%
-  drop_na(...1)%>%                                 # remove NAs in column labeled "...1"
-  dplyr::select(-Project) %>%
-  subset(species!= "?BW")
+# Change EventInfo object name to "whales" and edit columns
+whales <- EventInfo %>%
+  dplyr::select(-Project, -UID, -Id) %>%            # remove unnecessary columns
+  subset(species!= "?BW") %>%                    # remove rows containing ?BW and BW
+  subset(species!= "BW") %>%
+  mutate(dateTimeRound = round_date(.$StartTime, "20 minutes")) %>%   # Round to nearest 20 min
+  rename(station = Deployment)                    # Rename for common join column name next
 
-BWsf <- whales %>% st_as_sf(coords = c("long","lat"), crs=4326)   # whales as sf
+## NEED TO CHANGE STATION 15 TO STATION 14 HERE. Drift 15 and 14 are the same.
+whales$station[whales$station == 15] <- 14
 
-# Drift 10 whales as sf
-whales10_sf <- BWsf %>%                            
-  dplyr::filter(Deployment == "10")
+# Create common UTC field and remove unnecessary fields
+whales <- left_join(whales, tracks, by = join_by(station, closest("dateTimeRound" <= UTC))) %>%
+  dplyr::select(-Latitude.y, -Longitude.y, -spotID, -minNumber, -maxNumber, -bestNumber)
 
-whales08_sf <- BWsf %>%                            
-  dplyr::filter(Deployment == "8")
+# Whales data as sf
+BWsf <- whales %>% st_as_sf(coords = c("Longitude.x","Latitude.x"), crs=4326)   # whales as sf
 
-# Drift 10 whales
-whales10 <- whales %>%
-  dplyr::filter(Deployment == "10")
+######################
+# Join TRACKS with WHALES
+######################
 
-# Drift 8 whales
-whales8 <- whales %>%
-  dplyr::filter(Deployment == "8")
+trk_whale <- left_join(tracks, whales, by = c("station","UTC")) #%>%
+#  filter(!station %in% c('4','17'))  ## Can filter out buoys 4 and 17 here
+View(trk_whale)
 
-whales_8_10sf <- BWsf %>%                            
-  dplyr::filter(Deployment == "8" | Deployment == "10")
+#Show duplicates (none??)
+trk_whale <- trk_whale[!duplicated(trk_whale[c('UTC', 'station')]),]
+View(trk_whale)
+
+# Save object
+saveRDS(trk_whale, 'trk_whale.rds')
+
+###############
+# Filter whales by drift
+##############
+
+# Create list of drifts
+d <- unique(trk_whale$station)
+
+# Filter by drifts and assign to new variable
+for (drift in d) {
+  assign(paste0("trk_whales", drift), trk_whale %>% dplyr::filter(station == drift))
+}
+
 
 ##############################################################
 # Joining tracks with soundscape metrics with whale detections
+# Make loop if possible
 ##############################################################
 
+### Objects for forloop if I can figure it out.
+#bblist <- c(BB08, BB10)
+#tolist <- c(TO08, TO10)
+#whlist <- c(whales8, whales10)
+
+# to include when I have more BB metrics in my environment       
+#BB12, BB13, BB14, BB15, BB16, BB18, BB19, BB20, BB21, BB22, BB23)
+#TO12, TO13, TO14, TO15, TO16, TO18, TO19, TO20, TO21, TO22, TO23)
+
+#for (bb in bblist) {
+#  for (ww in whlist) {
+#    left_join(ww, bb, by = c("UTC" = "dateTime")) }}
+
+
+# Drift 07
+tracks_SS_07 <- left_join(trk_whales7, BB_07, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO07, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
+
 # Drift 08
-tracks_SS_08 <- left_join(tracks_08, BB_08, by = "dateTime") %>%   # join tracks with BB 08
-  left_join(., TOL_08, by = "dateTime") %>%                        # join TOL
-  left_join(., whales8, by = "long") %>%                           # join whales 
-  filter(spotID == "0-2571609") %>%                                # filter by one SPOT
-  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%           # Add column to specify BW presence (1) or absence (0)
-  dplyr::select(dateTime, lat.x, long, station, `BB_20-24000`,
-                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence) %>%  # keep necessary columns
-  mutate(Latitude = lat.x, 
-         Longitude = long, 
-         UTC = as.POSIXct(dateTime, format='%Y-%m-%d %H:%M:%S', tz='UTC'))
+tracks_SS_08 <- left_join(trk_whales8, BB_08, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_08, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-#Drift 10
-tracks_SS_10 <- left_join(tracks_10, BB_10, by = "dateTime") %>%    # join tracks with BB 10
-  left_join(., TOL_10, by = "dateTime") %>%                         # join tracks with TOL 10 
-  left_join(., whales10, by = "long") %>%                           # join whales 
-  filter(spotID == "0-2572490") %>%                                 # filter by one SPOT
-  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%           # Add column to specify BW presence (1) or absence (0)
-  dplyr::select(dateTime, lat.x, long, station, `BB_20-24000`, TOL_63, 
-                TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence) %>%  # keep necessary columns
-  mutate(Latitude = lat.x, 
-         Longitude = long, 
-         UTC = as.POSIXct(dateTime, format='%Y-%m-%d %H:%M:%S', tz='UTC'))
+# Drift 10 #Need to remove duplicates
+tracks_SS_10 <- left_join(trk_whales10, BB_10, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_10, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
+# Drift 11
+tracks_SS_11 <- left_join(trk_whales11, BB_11, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_11, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-#########
-# AIS
-#########
+# Drift 12
+tracks_SS_12 <- left_join(trk_whales12, BB_12, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_12, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-#For 09-03-18 to 09-11-18
-rawAIS <- read_csv("Data/AIS_090318_091118.csv", show_col_types = FALSE)
+# Drift 13
+tracks_SS_13 <- left_join(trk_whales13, BB_13, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_13, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-# Filter by vessels over 100m in length, remove unnecessary columns
-AIS <- rawAIS %>%
-  filter(Length >= 100) %>%
-  dplyr::select(-SOG,-COG, -CallSign, -IMO, -Cargo, -Draft, -Status)
+# Drift 14
+tracks_SS_14 <- left_join(trk_whales14, BB_14, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_14, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-AIS_sf <- AIS %>%
-  st_as_sf(coords = c("LON", "LAT"), crs=4326, remove=F)
+# Drift 15
+tracks_SS_15 <- left_join(trk_whales15, BB_15, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_15, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-##################################
-# Create 10 km buffer around buoys
-##################################
+# Drift 16
+tracks_SS_16 <- left_join(trk_whales16, BB_16, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_16, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-trk <- tracks08sf  # Shorten the object name to trk
-pois <- st_transform(trk, crs = 4326)    # Specify a crs
-pts_buff <- st_buffer(pois, dist = 10000)  # Buffer all points in trk to 10 km (10000m)
-buff <- st_transform(pts_buff, crs = 4326)  # Specify crs
+# Drift 18
+tracks_SS_18 <- left_join(trk_whales18, BB_18, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_18, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-# Plot showing 10km buffer around drift 8
-tmap_mode("plot")
-tm_shape(buff) + tm_symbols(col = "blue", border.col = NA) +
-  tm_shape(trk) + tm_dots(col = "red")
- 
+# Drift 19
+tracks_SS_19 <- left_join(trk_whales19, BB_19, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_19, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-### Crop full AIS to 10km buffer around drift 8 ###
-AIS_crop <- st_crop(x = AIS_sf, y = pts_buff)
+# Drift 20
+tracks_SS_20 <- left_join(trk_whales20, BB_20, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_20, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-# Intersect buffer with AIS
-inters <- st_intersection(buff, AIS_crop[1:10,])
+# Drift 21
+tracks_SS_21 <- left_join(trk_whales21, BB_21, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_21, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-# Plot
-ggplot(tracks_SS_08, aes(x = long, y = lat.x)) + geom_point() 
- + geom_sf(data = bbox8, aes(col = "red"))
+# Drift 22
+tracks_SS_22 <- left_join(trk_whales22, BB_22, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_22, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-# Plot showing AIS bouding box around drift 8 tracks
-ggplot() + geom_sf(data = bbox8) + geom_sf(data = pts_buff,color = "red")
+# Drift 23
+tracks_SS_23 <- left_join(trk_whales23, BB_23, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+  left_join(., TO_23, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%             # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, `BB_20-24000`,
+                TOL_63, TOL_125, TOL_2000, TOL_5000, TOL_20000, species, BWpresence)  # keep necessary columns
 
-ggplot() +
-  geom_sf(data = calif) + coord_sf(default_crs = sf::st_crs(4326)) + theme_bw()
- # geom_sf(data = AIS_sf)
+#write.csv(tracks_SS_08, "tracks_SS_08.csv", row.names=FALSE)
 
 
 #Plots
