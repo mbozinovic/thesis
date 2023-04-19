@@ -1,7 +1,0 @@
-"0","# Filter Drift 8 by BW presence and absence"
-"0","BW1 <- tracks_SS_08 %>%"
-"0","  filter(BWpresence == 1)"
-"0","BW0 <- tracks_SS_08 %>%"
-"0","  filter(BWpresence == 0)"
-"0",""
-"0","ggplot(data = tracks_SS_08, mapping = aes(TOL_125)) + geom_histogram(binwidth = 0.1, color = ""black"")"

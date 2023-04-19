@@ -1,4 +1,0 @@
-"0",""
-"0","#Mean depth over time"
-"0","ggplot(means_08, aes(x = `as.Date(dateTime)`, y = depth*(-1))) +"
-"0","  geom_line()"

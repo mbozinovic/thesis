@@ -1,5 +1,0 @@
-"0",""
-"0",""
-"0","# Depth"
-"0","ggplot(data = tracks_SS_08, aes(depth, fill = factor(BWpresence))) +"
-"0","  geom_histogram(binwidth = 10, color = ""black"")"

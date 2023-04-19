@@ -1,2 +1,0 @@
-"0","cont_slope_rast <- rasterize(cont_slope, agg)"
-"0","plot(cont_slope_rast, col = ""red"")"

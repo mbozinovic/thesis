@@ -1,4 +1,0 @@
-"0",""
-"0","# Temperature at 400m"
-"0","ggplot(data = tracks_SS_08, aes(temp400, fill = factor(BWpresence))) +"
-"0","  geom_histogram(binwidth = 0.01, color = ""black"")"

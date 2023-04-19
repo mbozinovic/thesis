@@ -1,3 +1,0 @@
-"0","# SST vs TOL 2000"
-"0","ggplot(data = tracks_SS_08, aes(x = sst_mean, y = `TOL_2000`)) +"
-"0","  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)"
