@@ -1,5 +1,5 @@
-
-# Read in, load, clean up, and wrangle raw data
+## code to assemble clean dataframe for each buoy.
+## Prerequisites include whales.R, tracks.R, soundscape_metrics.R.
 
 # Look into https://bookdown.org/yihui/rmarkdown-cookbook/managing-projects.html for info on 
 # managing projects with multiple Rmds and scripts
@@ -15,120 +15,21 @@ library(here)
 
 # set up #####
 
-here()
-#Remove global environment if needed
-#rm(list=ls()) 
-
 # Set system time zone to UTC
 Sys.setenv(TZ='UTC')
+here()
 
-worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                         returnclass = 'sf')
-calif <- st_crop(worldmap, 
-                 xmin = 33.7,
-                 xmax = 40,
-                 ymin = -131,
-                 ymax = -122)
-calif <- st_transform(calif, 4326)
+# Clear global environment if needed
+# rm(list=ls()) 
 
-tmap_options(basemaps=c(Terrain = "Esri.WorldTerrain",
-                        Imagery = "Esri.WorldImagery", 
-                        OceanBasemap = "Esri.OceanBasemap", 
-                        Topo="OpenTopoMap",
-                        Ortho="GeoportailFrance.orthos"))
-
-
-##########################
-# Read in soundscape data, NEED TO MAKE THIS A FUNCTION
-# look at http://ohi-science.org/data-science-training/programming.html#automation-with-for-loops for help on automation.
-##########################
-
-#dlist <- c(4,7,8,10,12,13,14,16,17,18,19,20,21,22,23)
-sslist <- list.files(path = paste0("data-raw/"), pattern = "CCES_", recursive = TRUE)
-
-#code doesnt work, can delete
-#for (i in sslist) {
-#  read_csv(paste0("data-raw/",i), show_col_types = FALSE)%>%
-#  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`) %>%
-#  mutate(dateTime = round_date(ymd_hms(.$dateTime),"20 minutes")) %>%
-#  assign(., value = paste0((substr(sslist[i], 16, 17)), substr(sslist[i], 6, 7)))
-#}
-
-#From ChatGPT, edited from above
-for (i in sslist) {
-  data <- read_csv(here(paste0("data-raw/", i)), show_col_types = FALSE) %>%
-    rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`) %>%
-    mutate(dateTime = round_date(ymd_hms(dateTime), "20 minutes")) %>%
-    mutate(variable = paste0(substr(i, 16, 17), substr(i, 6, 7)))
-  
-  assign(paste0(substr(i, 16, 17), "_", substr(i, 6, 7)), data)
-}
-
-
-##################
-# Read in Tracks
-##################
-
-# Load raw rda file
-load("data-raw/CCES2018_DriftTracks_Modified_03Nov2022.rda")
-
-# Read in tracks, filter out lost buoys (1,2,3,5,6,9,11) and corrupted buoys (4,17)
-tracks <- AllTracks %>%
-  dplyr::select(-dist, -speed) %>%
-  mutate(dateTime = round_date(.$dateTime, "20 minutes")) %>%      # round to nearest 20 minutes, will create duplicated in the data
-  filter(!station %in% c('1','2','3','4','5','6','9','11', '17')) %>%
-  rename(Longitude = long,                                 # Need these columns to specifically say this for ERDDAP matching
-         Latitude = lat,
-         UTC = dateTime)
-tracks <- tracks[!duplicated(tracks[c('UTC', 'station')]),]    # Remove duplicates
-
-# Save as RDS
-saveRDS(tracks, 'tracks.rds')
-
-# Filter by buoy
-#tracks_08 <- tracks %>% dplyr::filter(station == "8") 
-track4 <- AllTracks %>% dplyr::filter(station == "4")
-
-# Tracks on a map
-#tracks_sf <- tracks %>% # make tracks an sf object
-#  st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
-
-#tracks08sf <- tracks_08 %>%
-#  st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
-
-#tracks10sf <- tracks_10 %>%
-#  st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
-
-
-##########################
-# Read in whale detections
-##########################
-
-# Load raw RDA file
-#load("data-raw/CCES2018_BW_Detections.rda")             # Beaked whales only
-load("data-raw/CCES2018_BW_and_PM_Detections.rda")       # Beaked  + sperm whales
-
-# Change EventInfo object name to "whales" and edit columns
-whales <- EventInfo %>%
-  dplyr::select(-Project, -UID, -Id) %>%            # remove unnecessary columns
-  subset(species!= "?BW") %>%                    # remove rows containing ?BW and BW
-  subset(species!= "BW") %>%
-  mutate(dateTimeRound = round_date(.$StartTime, "20 minutes")) %>%   # Round to nearest 20 min
-  rename(station = Deployment)                    # Rename for common join column name next
-
-## NEED TO CHANGE STATION 15 TO STATION 14 HERE. Drift 15 and 14 are the same.
-whales$station[whales$station == 15] <- 14
-
-# Create common UTC field and remove unnecessary fields
-whales <- left_join(whales, tracks, by = join_by(station, closest("dateTimeRound" <= UTC))) %>%
-  dplyr::select(-Latitude.y, -Longitude.y, -spotID, -minNumber, -maxNumber, -bestNumber)
-
-# Whales data as sf
-BWsf <- whales %>% st_as_sf(coords = c("Longitude.x","Latitude.x"), crs=4326)   # whales as sf
 
 ######################
-# Join TRACKS with WHALES
+# Join TRACKS with WHALES (Start Rmd here)
 ######################
+tracks <- readRDS('data/tracks.rda')
+whales <- readRDS('data/whales.rda')
+# Read in EACH BB and TO rda file??
+# Should I add code to remove file if it exists?
 
 trk_whale <- left_join(tracks, whales, by = c("station","UTC")) #%>%
 #  filter(!station %in% c('4','17'))  ## Can filter out buoys 4 and 17 here
@@ -137,9 +38,6 @@ View(trk_whale)
 #Show duplicates (none??)
 trk_whale <- trk_whale[!duplicated(trk_whale[c('UTC', 'station')]),]
 View(trk_whale)
-
-# Save object
-saveRDS(trk_whale, 'trk_whale.rds')
 
 ###############
 # Filter whales by drift
@@ -152,7 +50,7 @@ d <- unique(trk_whale$station)
 for (drift in d) {
   assign(paste0("trk_whales", drift), trk_whale %>% dplyr::filter(station == drift))
 }
-
+# Results in trk_whales7, trk_whales8... objects
 
 ##############################################################
 # Joining tracks with soundscape metrics with whale detections
@@ -168,11 +66,41 @@ for (drift in d) {
 #BB12, BB13, BB14, BB15, BB16, BB18, BB19, BB20, BB21, BB22, BB23)
 #TO12, TO13, TO14, TO15, TO16, TO18, TO19, TO20, TO21, TO22, TO23)
 
-#for (bb in bblist) {
-#  for (ww in whlist) {
-#    left_join(ww, bb, by = c("UTC" = "dateTime")) }}
+
+# Make function to join whales + tracks, broadband, and TOL soundscape metrics and edit columns
+joinTable <- function(w, s, t) {
+  left_join(w, s, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
+    .[!duplicated(.['UTC']),] %>%                   # removes duplicates
+  left_join(., t, by = c("UTC"= "dateTime")) %>%
+    .[!duplicated(.['UTC']),] %>%                   # removes duplicated again
+  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%    # Add column to specify BW presence (1) or absence (0)
+  dplyr::select(UTC, spotID, Latitude, Longitude, station, 
+                `BB_20-24000`,TOL_63, TOL_125, TOL_2000, 
+                TOL_5000, TOL_20000, species, BWpresence)
+}
+ 
+#m <- left_join(trk_whales7, BB_07, by = c("UTC" = "dateTime")) %>%
+#  .[!duplicated(.['UTC']),]
+
+# join whales detections, soundscape metrics to each buoy track
+# How can I loop this?
+tracks_SS_07 <- joinTable(trk_whales7, BB_07, TO_07)
+tracks_SS_08 <- joinTable(trk_whales8, BB_08, TO_08)
+tracks_SS_10 <- joinTable(trk_whales10, BB_10, TO_10)
+tracks_SS_11 <- joinTable(trk_whales11, BB_11, TO_11)
+tracks_SS_12 <- joinTable(trk_whales12, BB_12, TO_12)
+tracks_SS_13 <- joinTable(trk_whales13, BB_13, TO_13)
+tracks_SS_14 <- joinTable(trk_whales14, BB_14, TO_14)
+tracks_SS_16 <- joinTable(trk_whales16, BB_16, TO_16)
+tracks_SS_18 <- joinTable(trk_whales18, BB_18, TO_18)
+tracks_SS_19 <- joinTable(trk_whales19, BB_19, TO_19)
+tracks_SS_20 <- joinTable(trk_whales20, BB_20, TO_20)
+tracks_SS_21 <- joinTable(trk_whales21, BB_21, TO_21)
+tracks_SS_22 <- joinTable(trk_whales22, BB_22, TO_22)
+tracks_SS_23 <- joinTable(trk_whales23, BB_23, TO_23)
 
 
+#### ignore this section below
 # Drift 07
 tracks_SS_07 <- left_join(trk_whales7, BB_07, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
   left_join(., TO07, by = c("UTC"= "dateTime")) %>%                        # join tracks with TOL metrics
@@ -282,6 +210,20 @@ tracks_SS_23 <- left_join(trk_whales23, BB_23, by = c("UTC" = "dateTime")) %>%  
 
 
 #Plots
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+                         returnclass = 'sf')
+calif <- st_crop(worldmap, 
+                 xmin = 33.7,
+                 xmax = 40,
+                 ymin = -131,
+                 ymax = -122)
+calif <- st_transform(calif, 4326)
+
+tmap_options(basemaps=c(Terrain = "Esri.WorldTerrain",
+                        Imagery = "Esri.WorldImagery", 
+                        OceanBasemap = "Esri.OceanBasemap", 
+                        Topo="OpenTopoMap",
+                        Ortho="GeoportailFrance.orthos"))
 tm_shape(worldmap, bbox = calif) + tm_polygons()
 tmap_mode("view")
 tm_basemap(leaflet::providers$Esri.OceanBasemap) + tm_shape(worldmap, bbox = bbox8) + tm_polygons()
