@@ -9,6 +9,11 @@ output: html_document
 
 library(tidyverse)
 library(sf)
+library(gganimate)
+#install.packages("remotes")
+#remotes::install_github("skgrange/gissr")
+#devtools::install_github("skgrange/gissr")
+library(gissr)
 
 # Function
 # Speeding up st_intersection (from https://github.com/r-spatial/sf/issues/801)
@@ -25,6 +30,8 @@ st_intersection_faster <- function(x,y,...){
 
   st_intersection(x, y_subset,...)
 }
+
+
 ```
 
 
@@ -56,6 +63,8 @@ AIS_sf <- AIS_091218 %>%
 # Create 10 km buffer around buoys (taken from M. McKenna's code)
 # Should be malleable for each buoy's number to easily plug in.
 ##################################
+tracks <- readRDS("data-raw/tracks.rda")
+
 trk8 <- tracks %>% 
   dplyr::filter(station == "8") %>%
   st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
@@ -66,7 +75,9 @@ buff <- st_transform(pts_buff, crs = 4326)  # Specify crs for new buffer
 
 ### Crop full AIS to 10km buffer around drift 8 ###
 AIS_crop <- st_crop(x = AIS_sf, y = buff)
+```
 
+```{r}
 # Intersect buffer with AIS. Starting this on first 10 rows to see how slowly it goes. 
 ## FIX ME
 #inters <- st_intersection(buff, AIS_crop[1:140,])
@@ -74,15 +85,58 @@ AIS_crop <- st_crop(x = AIS_sf, y = buff)
 
 #Another way to view AIS points that fall within buffer. DOES NOT consider time.
 AIS_within_buff <- AIS_crop[buff,]
+f <- buff[AIS_within_buff,]
 by <- join_by(closest(UTC >= BaseDateTime))
+
+d <- full_join(buff, as.data.frame(AIS_within_buff), by)
+
+e <- d[!duplicated(d[c('BaseDateTime')]),]  
+
+
+
 trk_AIS <- left_join(as.data.frame(trk8), as.data.frame(AIS_within_buff), by)
 
+proj4string <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+trk_AIS_sf <- trk_AIS %>% st_as_sf(coords = c("Longitude", "Latitude"), crs=projcrs, remove=F)# %>%
+   st_set_crs(4326)
+trk_AIS_sf <- st_transform(trk_AIS_sf, crs = 4326)
 
-inters <- st_intersection_faster(buff, AIS_crop[1:140,])
-inters2 <- st_intersection_faster(buff, AIS_crop[141:200,])
-inters3 <- st_intersection_faster(buff, AIS_crop[201:300,])
 
+#inters <- st_intersection_faster(buff, AIS_crop[1:140,])
+#inters2 <- st_intersection_faster(buff, AIS_crop[141:200,])
+#inters3 <- st_intersection_faster(buff, AIS_crop[201:300,])
+
+#Another way to view AIS points that fall within buffer. DOES NOT consider time.
+
+st_is_within_distance(AIS_crop, pois, dist = 10000)
+st_distance(AIS_crop, pois, dist_fun = 10000)
+
+st_set_geometry(AIS_crop, value = NULL)
+st_set_geometry(pois, value = NULL)
+
+AIS_crop <- as_Spatial(AIS_crop)
+pois <- as_Spatial(pois)
+AIS_within_buff <- as_Spatial(AIS_within_buff)
+z <- sp_distance(AIS_crop, pois, features = TRUE, unit = "km")
+
+data_places <- pois@data
+data_places$distance <- sp_distance(AIS_within_buff, pois, features = TRUE, unit = "km")
+View(data_places)
+
+rgeos::gWithinDistance(AIS_crop, pois, features = TRUE, dist = 10000)
 ```
+```{r}
+# For each row in AIS df,
+  # calculate distance to closest drift
+  # return smallest distance
+  # attach column to df
+
+# 
+(geosphere::distHaversine(AIS_within_buff[9:20,], pois))/1000
+```
+
+
+
 ```{r}
 # Plot showing 10km buffer around drift 8
 #tmap_mode("plot")
@@ -91,16 +145,30 @@ inters3 <- st_intersection_faster(buff, AIS_crop[201:300,])
 ```
 
 
-
+plots
 ```{r}
 # Plot
 ggplot(tracks_SS_08, aes(x = long, y = lat.x)) + geom_point() 
  + geom_sf(data = bbox8, aes(col = "red"))
 
 # Plot showing AIS bounding box around drift 8 tracks
-ggplot() + geom_sf(data = trk_AIS, color = "red")
+ggplot() + geom_sf(data = trk_AIS_sf, color = "red")
 ggplot() + geom_sf(data = buff[lgth,] ,color = "red")
 
 ggplot() +
   geom_sf(data = calif) + coord_sf(default_crs = sf::st_crs(4326)) + theme_bw()
  # geom_sf(data = AIS_sf)
+
+
+p <- ggplot() + geom_sf(data = buff, mapping = aes(x=Longitude,y=Latitude)) +
+  geom_point(data = AIS_within_buff, mapping = aes(x=LON,y=LAT, group = VesselName), color = "red")
+
+anim <- p +
+  transition_reveal(along = BaseDateTime)+
+  ease_aes('linear')+
+  #shadow_wake(0.1) +
+  ggtitle("Date: {frame_along}")
+
+animate(anim, nframes = 180, fps = 3)
+```
+
