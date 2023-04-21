@@ -1,10 +1,11 @@
-## code to prepare whale detections dataset here
+## code to prepare `whales` dataset here
 
 library(tidyverse)
+library(sf)
 
 # Load raw RDA file
-#load("data/CCES2018_BW_Detections.rda")             # Beaked whales only
-load("data/CCES2018_BW_and_PM_Detections.rda")       # Beaked  + sperm whales
+#load("data-raw/CCES2018_BW_Detections.rda")             # Beaked whales only
+load("data-raw/CCES2018_BW_and_PM_Detections.rda")       # Beaked + sperm whales
 
 # Change EventInfo object name to "whales" and edit columns
 whales <- EventInfo %>%
@@ -23,3 +24,6 @@ whales <- left_join(whales, tracks, by = join_by(station, closest("dateTimeRound
 
 # Whales data as sf
 BWsf <- whales %>% st_as_sf(coords = c("Longitude.x","Latitude.x"), crs=4326)   # whales as sf
+
+# Save object
+saveRDS(whales, 'data/whales.rda')

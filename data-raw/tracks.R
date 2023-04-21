@@ -1,9 +1,9 @@
-## code to prepare in AllTracks dataset goes here
+## code to prepare in `tracks` dataset goes here
 
 library(tidyverse)
 
 # Load raw rda file
-load("data/CCES2018_DriftTracks_Modified_03Nov2022.rda")
+load("data-raw/CCES2018_DriftTracks_Modified_03Nov2022.rda")
 
 # Read in tracks, filter out lost buoys (1,2,3,5,6,9,11) and corrupted buoys (4,17)
 tracks <- AllTracks %>%
@@ -16,7 +16,7 @@ tracks <- AllTracks %>%
 tracks <- tracks[!duplicated(tracks[c('UTC', 'station')]),]    # Remove duplicates
 
 # Save as RDS
-saveRDS(tracks, 'tracks.rda')
+saveRDS(tracks, 'data/tracks.rda')
 
 # Filter by buoy
 #tracks_08 <- tracks %>% dplyr::filter(station == "8") 
