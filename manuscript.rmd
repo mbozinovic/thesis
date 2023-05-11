@@ -1,0 +1,67 @@
+---
+title: "manuscript"
+format: html
+editor: visual
+---
+
+# Manuscript Draft
+
+## Introduction
+
+\[Introduce sound, soundscapes, noise in the ocean, noise pollution\]\
+Sound comes from a variety of sources in the ocean - biotic, abiotic, human. The ocean is naturally a noisy place, but recent increases in human activities are increasing the ocean sound levels. It's likely this noise pollution will interfere with soniferous animals, but it's unclear how, where, and what species will be affected.
+
+\[Introduce beaked and sperm whales: protected, visually cryptic, animals that are sensitive to noise and use sound extensively to communicate\]\
+Among the protected species in the California Current Ecosystem are beaked whale and sperm whales. These are toothed whales known as some of the deepest divers in the ocean, reaching depths of nearly 10,000 ft, or 3,000 meters. They can dive for over 3 hours, followed by only a few minutes on the surface. This diving behavior, coupled with a low-profile body makes them nearly invisible on the surface, so very little is known about them. Their reliance on sound can make them particularly sensitive to human noise. Sperm whales may have more acoustic tolerance than beaked whales (Miller et al. 2022). The acoustic interference from vessels, for example, can affect behavior, disrupt communication, or lead to serious harm, even at far distances (See Hooker et al. 2019 for more info). There are several documented cases of mid-frequency naval sonar activities coinciding with mass stranding events by beaked whales (see Anne's paper). Under the Marine Mammal Protection Act, all these species are federally protected, and several of these species have threatened or endangered conservation statuses. Despite their visually cryptic nature, their sound signals are very well-described. With automated classification methods, the clicks and pulses they make during foraging can be identified down to the species level. \[Can cite specific examples of noise as stressor to whales.\]
+
+\[Introduce the importance of passive acoustic monitoring on this type of study and gaps in visual survey methods\]\
+Passive acoustic monitoring is a tool that allows us to record and listen to the soundscape. Beaked and sperm whales are ideal study candidates for this type of monitoring because they are often better heard than seen. One type of passive acoustic recorder called a drifting buoy allows us to capture the dynamic nature of sound over a large spatial area and especially in the deep, offshore, and less studied waters; it can drift freely with the currents for days or weeks at a time. The goal with passive acoustic monitoring is to improve current species distribution models of beaked and sperm whales that utilize visual survey methods only. Its basic components consist of a satellite transmitter above water to monitor GPS information and an acoustic recorder attached by line at \~100m of depth. In fact, most of what is known about these deep divers is because of acoustic monitoring.
+
+\[Main research points\]\
+Shipping and offshore activities are expected to increase in the future, causing elevated oceanic sound levels. This is a form of habitat degradation, so there is a need to understand how human activities change and contribute to the overall soundscape in space and time. It's a challenge to acquire information on these federally protected and acoustically-sensitive species but becoming increasingly important to understand where habitats overlap with human activity. Acoustics can serve as important indicators of ecosystem health, but also of how humans are changing the environment. Quantifying soundscapes in a standardized way and monitoring these changes over time are priorities for marine managers and researchers right now.
+
+\[Goal\]\
+Characterize the acoustic habitat of beaked and sperm whales in the California Current Ecosystem using soundscape metrics and vessel tracking
+
+\[How this work will contribute to gaps in literature\]\
+This work will contribute to establishing baseline conditions of noise exposure to inform wind farm development and shipping lane changes. It'll also add to the knowledge base of beaked and sperm whale distribution through acoustic detections. Both of these outcomes are of high importance to managers and agencies especially NOAA.
+
+## Methods
+
+\[Overall data collection efforts\]\
+Acoustic detections were collected with the use of free-drifting Drifting Acoustic Spar Buoy Recorders (DASBRs). These were deployed as part of the California Current Ecosystem Survey (CCES) spanning the offshore waters from southern Canada to northern Mexico in summer of 2018. DASBRs offer greater spatial and temporal coverage compared to bottom-mounted or stationary hydrophones, ideal for detection of offshore or mobile species. These DASBRs contained two satellite geo-location trackers, two hydrophones, etc and collected a total of 1910 hours of data. SWFSC ran acoustic detections in PAMGuard. Eight drifting recorders were lost at sea and therefore removed from the analysis. These contain 1, 5, 10, 25, 75, 95, and 99 percentile distribution from each metric.
+
+\[Study area\]\
+The California Current Ecosystem extends along the US' Economic Exclusion Zone along the west coast. It's a highly productive and complex ecosystem that contains six national marine sanctuaries, supports several wild fisheries, and is home to many protected species. Because this area has high economic value and natural ecological activity, it's a well-managed and well-researched area.
+
+\[Add details about acoustic data collection information.\]\
+Soundscape metrics were duty-cycled (most 18min off, 2 minutes on, but some variation in "off" times) and later processed by the NOAA team with calls and clicks identified to the species level (see Simonis et al 2020 report for details on this survey and Rand et al. 2022 for duty-cycle study), and soundscape metrics were binned into low, medium, high frequency bands.
+
+\[Post-processing details, data cleaning\]\
+Soundscape metrics were rounded to the nearest 20 minutes. These include third-octave level bands and broadband metrics. One way to measure sound is with a metric called a third octave level, which splits the sound spectrum into many bands. The band at 125 Hertz is often associated with shipping vessel noise and the 2000 Hertz or 2 kHz with mid-frequency naval sonar. Beaked whales are known to be sensitive to sonar in this latter range. Several TOL levels were chosen as proxies to vessel or sonar frequencies. Whale detections were rounded to nearest 20 minutes. Two types of BW species (?BW and ?BWC) were removed from analysis as the species is unknown. Whale detections reduced to "presence/absence" from number of clicks, estimated individuals, etc.
+
+Drifter tracks were rounded to nearest 20 minutes, lost buoys (1,2,3,5,6,9,11) and corrupted buoys (4,17) were removed. Drift 14 and 15 are the same. These three major datasets were joined together based on a common buoy number and time field. Environmetal and oceanographic variables thought to be predictors of BW/SW habitat were extracted from NOAA's Environmental Research Division Data Access Program (ERDDAP) and Hybrid Coordinate Ocean Model (HYCOM) using matchEnvData function in package PAMmisc. Variables at depth were calculated using function from Taiki and formula from McCullough et al 2021. Distance to slope and bathymetric slope were calculated from a bathymetry TIF taken from GEBCO. Can show table of variables and justification by papers (Virgili et al. 2022).
+
+\[AIS\]\
+Automatic Identification System vessel tracking data were collected from Marine Cadastre in order to evaluate the effect of spatial proximity to the buoys. This step is important in understanding how ship characteristics contribute to various frequency bands. I filtered out any vessels under 100 meters in length in order to focus only on large vessels. By exploring buoy/vessel co-occurrence with a 10-km "listening space" around the buoy (McKenna) can allow us to investigate patterns of when whales are calling and the vessel activity during co-occurrence.
+
+\[Big analysis: statistics, modeling details\]
+
+Can use non-parametric Kruskal-Wallis one-way analysis of variance test to examine if number of whale detections per hour differed depending on presence/absence of vessels (see Trickey et al. 2022).
+
+## Results
+
+\[Add here.\] \[Weekly/daily plot of acoustic presence of whales and ships over time from each drift? See Trickey et al. 2022\]
+
+## Discussion
+
+\[Known limitations to this study\] Duty cycle whale detection and soundscape method knowingly omits 18 of 20 minutes of data. A sperm whale's true location relative to buoy is unknown so preferred habitat may not reflect the environmental variables that are associated with buoy that detects it (Barkley et al. 2021) Rounding tracks and soundscape metrics date/times to nearest 20 minutes is not perfect. Often, times did not line up with :00, :20, :40 and were either omitted or duplicated.
+
+This study only captures half of the year. If BW/SW have seasonal preferences outside of the study period, it was not captured here.
+
+\[Add here.\]
+
+## Acknowledgements
+
+Taiki - help with code!\
+Megan McKenna - guidance on AIS questions. \[Add here.\]
