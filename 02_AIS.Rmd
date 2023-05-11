@@ -14,7 +14,9 @@ library(gganimate)
 #remotes::install_github("skgrange/gissr")
 #devtools::install_github("skgrange/gissr")
 library(gissr)
+```
 
+```{r}
 # Function
 # Speeding up st_intersection (from https://github.com/r-spatial/sf/issues/801)
 
@@ -132,7 +134,8 @@ rgeos::gWithinDistance(AIS_crop, pois, features = TRUE, dist = 10000)
   # attach column to df
 
 # 
-(geosphere::distHaversine(AIS_within_buff[9:20,], pois))/1000
+ship_dist <- (geosphere::distHaversine(AIS_within_buff@coords[10:13,], pois))/1000
+cbind(AIS_within_buff@data[10:13,], ship_dist)
 ```
 
 
