@@ -1,31 +1,33 @@
 ## code to prepare `soundscape` dataset goes here
 
-#NEED TO MAKE THIS A FUNCTION
-# look at http://ohi-science.org/data-science-training/programming.html#automation-with-for-loops for help on automation.
-
 library(tidyverse)
 library(lubridate)
+library(here)
 
-
-#dlist <- c(4,7,8,10,12,13,14,16,17,18,19,20,21,22,23)
+# Path to folder in Project/on GitHub
 sslist <- list.files(path = paste0("data-raw/"), pattern = "CCES_", recursive = TRUE)
 
-#code doesnt work, can delete
+# Path to folder on my external hard drive
+dirlist <- dir("D:/Soundscape_metrics", recursive=TRUE, full.names=TRUE, pattern="CCES_")
+
+# DO I NEED THIS SECTION??? Read through soundscape csv files, change date format
 #for (i in sslist) {
-#  read_csv(paste0("data-raw/",i), show_col_types = FALSE)%>%
-#  rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`) %>%
-#  mutate(dateTime = round_date(ymd_hms(.$dateTime),"20 minutes")) %>%
-#  assign(., value = paste0((substr(sslist[i], 16, 17)), substr(sslist[i], 6, 7)))
+#  data <- read_csv(here(paste0("data-raw/", i)), show_col_types = FALSE) %>%
+#    rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`) %>%
+#    mutate(dateTime = round_date(ymd_hms(dateTime), "20 minutes")) %>%
+#    mutate(variable = paste0(substr(i, 16, 17), substr(i, 6, 7)))
+  
+#  assign(paste0(substr(i, 16, 17), "_", substr(i, 6, 7)), data)
 #}
 
-#From ChatGPT, edited from above
-for (i in sslist) {
-  data <- read_csv(here(paste0("data-raw/", i)), show_col_types = FALSE) %>%
+# Read though files from external hard drive
+for (i in dirlist) {
+  data <- read_csv(i, show_col_types = FALSE) %>%
     rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`) %>%
     mutate(dateTime = round_date(ymd_hms(dateTime), "20 minutes")) %>%
-    mutate(variable = paste0(substr(i, 16, 17), substr(i, 6, 7)))
+    mutate(variable = paste0(substr(i, 38, 39), substr(i,28, 29)))
   
-  assign(paste0(substr(i, 16, 17), "_", substr(i, 6, 7)), data)
-}
+  saveRDS(data, file = paste0("data/", substr(i, 38, 39), "_", substr(i, 28, 29), ".rda"))
 
-# Need to save as .rda
+}
+# Creates BB_07, TO_07, BB_08, TO_08, etc. RDA files for each buoy
