@@ -43,7 +43,7 @@ st_intersection_faster <- function(x,y,...){
 # AIS
 #########
 
-# Need to add more AIS dates in data folder
+##### Need to add more AIS dates to D: DRIVE!!!
 AISlist <- list.files(path = paste0("data-raw/"), pattern = "AIS_", recursive = TRUE)
 
 for (v in AISlist) {
