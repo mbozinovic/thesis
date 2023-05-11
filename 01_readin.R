@@ -1,16 +1,11 @@
 ## code to assemble clean dataframe for each buoy.
 ## Prerequisites include whales.R, tracks.R, soundscape_metrics.R.
 
-# Look into https://bookdown.org/yihui/rmarkdown-cookbook/managing-projects.html for info on 
-# managing projects with multiple Rmds and scripts
 
 # libraries ##########
 
 library(tidyverse)
 library(lubridate)
-library(sf)
-library(rnaturalearth)
-library(tmap)
 library(here)
 
 # set up #####
@@ -19,20 +14,14 @@ library(here)
 Sys.setenv(TZ='UTC')
 here()
 
-# Clear global environment if needed
-# rm(list=ls()) 
-
-
 ######################
 # Join TRACKS with WHALES (Start Rmd here)
 ######################
 tracks <- readRDS('data/tracks.rda')
 whales <- readRDS('data/whales.rda')
-# Read in EACH BB and TO rda file??
-# Should I add code to remove file if it exists?
 
-trk_whale <- left_join(tracks, whales, by = c("station","UTC")) #%>%
-#  filter(!station %in% c('4','17'))  ## Can filter out buoys 4 and 17 here
+# Join tracks and whales
+trk_whale <- left_join(tracks, whales, by = c("station","UTC"))
 
 # Remove duplicates
 trk_whale <- trk_whale[!duplicated(trk_whale[c('UTC', 'station')]),]
@@ -79,10 +68,8 @@ joinTable <- function(w, s, t) {
                 TOL_5000, TOL_20000, species, BWpresence)
 }
  
-#m <- left_join(trk_whales7, BB_07, by = c("UTC" = "dateTime")) %>%
-#  .[!duplicated(.['UTC']),]
 
-# join whales detections, soundscape metrics to each buoy track
+# join whales detections + soundscape metrics (BB and TO) to each buoy track
 # How can I loop this?
 tracks_SS_07 <- joinTable(trk_whales7, BB_07, TO_07)
 tracks_SS_08 <- joinTable(trk_whales8, BB_08, TO_08)
@@ -98,25 +85,3 @@ tracks_SS_21 <- joinTable(trk_whales21, BB_21, TO_21)
 tracks_SS_22 <- joinTable(trk_whales22, BB_22, TO_22)
 tracks_SS_23 <- joinTable(trk_whales23, BB_23, TO_23)
 
-
-
-#Plots
-worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                         returnclass = 'sf')
-calif <- st_crop(worldmap, 
-                 xmin = 33.7,
-                 xmax = 40,
-                 ymin = -131,
-                 ymax = -122)
-calif <- st_transform(calif, 4326)
-
-tmap_options(basemaps=c(Terrain = "Esri.WorldTerrain",
-                        Imagery = "Esri.WorldImagery", 
-                        OceanBasemap = "Esri.OceanBasemap", 
-                        Topo="OpenTopoMap",
-                        Ortho="GeoportailFrance.orthos"))
-
-# doesn't work
-#tm_shape(worldmap, bbox = calif) + tm_polygons()
-#tmap_mode("view")
-#tm_basemap(leaflet::providers$Esri.OceanBasemap) + tm_shape(worldmap, bbox = bbox8) + tm_polygons()
