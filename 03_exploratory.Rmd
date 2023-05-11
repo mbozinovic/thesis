@@ -1,5 +1,5 @@
 ---
-title: "exploratory analysis"
+title: "environmenal/exploratory analysis"
 output: html_document
 date: "2022-11-06"
 ---
@@ -8,235 +8,257 @@ Required Packages
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(lubridate)
 library(sf)
-library(rerddap)
+#library(raster)
 library(terra)
-library(marmap)
-library(rnaturalearth)
-library(mapproj)
-library(raster)
-#library("rerddapXtracto")
 library(PAMpal)
 library(PAMmisc)
-library(maptiles)
-library(tmap)
-library(spData)
-library(tmaptools)
-library(grid)
-library(ggspatial)
+#library(marmap)
+library(rerddap)
 ```
 
-Set Parameters
+### Get Environmental Variables
+
+For each buoy, the value of each environmental variable will be added to each track point based on Lat, Long, and UTC.
+Data only need to be downloaded once. After that, can refer to the file in the external hard drive ("D:").
+
+Environmental variables: Sea surface temp, Wind stress curl, Distance to continental slope, Depth, bathymetric slope,
+distance to shore, chlorophyll, sea surface height anomalies, + Hycom variables.
+
+Sea Surface Temperature from ERDDAP using PAMPal function
 ```{r}
-theme_set(theme_bw())
-tmap_mode("plot")
+# Downloads data from servers onto external hard drive. Uncomment and only run once.
+#tracks_SS_07 <- matchEnvData(tracks_SS_07, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST07", var = c('analysed_sst'))
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST08", var = c('analysed_sst'))
+#tracks_SS_10 <- matchEnvData(tracks_SS_10, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST10", var = c('analysed_sst'))
+#tracks_SS_12 <- matchEnvData(tracks_SS_12, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST12", var = c('analysed_sst'))
+#tracks_SS_13 <- matchEnvData(tracks_SS_13, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST13", var = c('analysed_sst'))
+#tracks_SS_14 <- matchEnvData(tracks_SS_14, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST14", var = c('analysed_sst'))
+#tracks_SS_16 <- matchEnvData(tracks_SS_16, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST16", var = c('analysed_sst'))
+#tracks_SS_18 <- matchEnvData(tracks_SS_18, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST18", var = c('analysed_sst'))
+#tracks_SS_19 <- matchEnvData(tracks_SS_19, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST19", var = c('analysed_sst'))
+#tracks_SS_20 <- matchEnvData(tracks_SS_20, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST20", var = c('analysed_sst'))
+#tracks_SS_21 <- matchEnvData(tracks_SS_21, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST21", var = c('analysed_sst'))
+#tracks_SS_22 <- matchEnvData(tracks_SS_22, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST22", var = c('analysed_sst'))
+#tracks_SS_23 <- matchEnvData(tracks_SS_23, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST23", var = c('analysed_sst'))
 ```
 
-Create sf objects and basemaps for maps
+Once downloaded, matches SST from file
 ```{r}
-whales_8_10sf <- BWsf %>%                            
-dplyr::filter(station == "8" | station == "10")
+SSTlist <- dir("D:/Environ_variables", recursive=TRUE, full.names=TRUE, pattern="analysedSST")
 
-trackssf <- st_as_sf(tracks, coords = c("Longitude", "Latitude"), crs=4326)
-trk_TOL_08 <- st_as_sf(tracks_SS_08, coords = c("Longitude", "Latitude"), crs=4326)
-trk_TOL_10 <- st_as_sf(tracks_SS_10, coords = c("Longitude", "Latitude"), crs=4326)
-trackBase <- get_tiles(whales_8_10sf, provider = "Esri.WorldShadedRelief")
-allTrackbase <- get_tiles(trackssf, provider = "Stamen.TonerLite", zoom = 5)
-```
-### Exploratory analysis
-
-SST from PAMPal
-```{r}
-# Downloads data from servers, uncomment and only run once
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'jplMURSST41', fileName = "analysedSST")
-
-# from file 
-tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'data/analysedSST.nc') %>%
+for (ss in SSTlist) {
+  data <- matchEnvData(get(paste0("tracks_SS_", substr(ss, 33, 34))), nc = ss) %>%
   rename(., sst_mean = analysed_sst_mean) %>%
   dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)   # rename new column to "sst_mean" and remove unnecessary columns
+
+  assign(paste0("tracks_SS_", substr(ss, 33, 34)), data)
+}
 ```
-
-
-Distance to continental slope
+### Wind Stress Curl from ERDDAP using PAMPal function
 ```{r}
-# Increase cell size by 30x to be visible
-bathy <- rast("data/gebco_bathy.tif")
-agg <- terra::aggregate(bathy, 5)
-plot(agg)
-
-# Rasterize track with agg as the template
-
-#TOL_rast <- rasterize(trk_TOL_08, agg, field = "TOL_125")
-sf08 <- st_as_sf(tracks_SS_08, coords = c("Longitude", "Latitude"), crs=4326, remove=F)
-sf10 <- st_as_sf(tracks_SS_10, coords = c("Longitude", "Latitude"), crs=4326, remove=F)
-trkraster08 <- rasterize(vect(sf08), agg)
-trkraster10 <- rasterize(vect(sf10), agg)
-
-bathy_df <- as.data.frame(bathy, xy = TRUE)
-
-# Map the coastline and cont. slope
-cont <- st_as_sf(as.contour(bathy))
-coast <- cont %>% filter(level == 0)
-cont_slope <- cont %>% filter(level == -2000)
-cont_slope_rast <- rasterize(cont_slope, agg, field = "level")
-plot(cont_slope_rast, col = "red")
-cont_slope_rast <- rasterize(cont_slope, agg)
-plot(cont_slope_rast, col = "red")
-  
-#ggplot() + 
-#  geom_raster(data = bathy_df, 
-#              mapping = aes(x=x, y=y, 
-#                            alpha = 0.8,
-#                            fill = `gebco_bathy`))+
-#  geom_sf(data = cont, col="black") + 
-#  geom_sf(data = coast, col = "red") +
-#  geom_sf(data = cont_slope, col = "purple") +
-#  geom_sf(data = whales_8_10sf, mapping = aes()) +
-#  scale_color_gradient(low="green", high="red") 
-```
-
-### Extract slope_dist and bind to drift tracks
-```{r}
-# Drift 8
-slopedist <- terra::distance(trkraster08, vect(cont_slope))     # measure distance from track to slope
-extdist <- terra::extract(slopedist, vect(sf08))       # extract this distance into a df
-tracks_SS_08 <- cbind(sf08,extdist) %>%                     # bind to main df
-  dplyr::select(-ID) %>%
-  rename("dist2slope" = gebco_bathy) %>%
-  st_set_geometry(NULL)                         # Drop geometry to make df for future cbinds
-
-#Drift 10
-slopedist <- terra::distance(trkraster10, vect(cont_slope))     # measure distance from track to slope
-extdist <- terra::extract(slopedist, vect(sf10))       # extract this distance into a df
-tracks_SS_10 <- cbind(sf10,extdist) %>%                     # bind to main df
-  dplyr::select(-ID) %>%
-  #rename("dist2slope" = gebco_bathy) %>%
-  st_set_geometry(NULL)                        # Drop geometry to make df for future cbinds
-```
-
-#### Bathymetry - PAMpal
-```{r}
-# Downloads from server
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'srtm15plus', fileName='depth.nc')
+# Downloads data from servers onto external hard drive. Uncomment and only run once.
+#tracks_SS_07 <- matchEnvData(tracks_SS_07, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress07.nc", var = c('curl'))
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress08.nc", var = c('curl'))
+#tracks_SS_10 <- matchEnvData(tracks_SS_10, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress10.nc", var = c('curl'))
+#tracks_SS_12 <- matchEnvData(tracks_SS_12, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress12.nc", var = c('curl'))
+#tracks_SS_13 <- matchEnvData(tracks_SS_13, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress13.nc", var = c('curl'))
+#tracks_SS_14 <- matchEnvData(tracks_SS_14, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress14.nc", var = c('curl'))
+#tracks_SS_16 <- matchEnvData(tracks_SS_16, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress16.nc", var = c('curl'))
+#tracks_SS_18 <- matchEnvData(tracks_SS_18, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress18.nc", var = c('curl'))
+#tracks_SS_19 <- matchEnvData(tracks_SS_19, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress19.nc", var = c('curl'))
+#tracks_SS_20 <- matchEnvData(tracks_SS_20, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress20.nc", var = c('curl'))
+#tracks_SS_21 <- matchEnvData(tracks_SS_21, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress21.nc", var = c('curl'))
+#tracks_SS_22 <- matchEnvData(tracks_SS_22, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress22.nc", var = c('curl'))
+#tracks_SS_23 <- matchEnvData(tracks_SS_23, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress23.nc", var = c('curl'))
 
 # Pulls from downloaded file
-tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'data/depth.nc') %>%
-  rename(., depth = z_mean) %>%        # rename new column to "depth"
-  mutate(depth = depth*-1) %>%
-  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)
-```
-
-#### Bathymetric slope
-
-```{r}
-# Slope (Hard-coded - can fix this)
-bgo <- getNOAA.bathy(lon1 = -121, lon2 = -131,
-                     lat1 = 34, lat2= 40, resolution = 1)  # plot bounding box around drift 8 and 10
-# As raster
-bgo_rast <- marmap::as.raster(bgo)
-bgo_slope <- terrain(bgo_rast, v = "slope")
-
-# Extract slope values at points along drift 8
-slope <- raster::extract(bgo_slope, tracks_SS_08[,4:3])
-tracks_SS_08 <- cbind(tracks_SS_08, slope)
-```
-
-#### Distance from coast - PAMPal
-Need to have variable choose itself!! Also, how do I get it to not download each time?
-```{r}
-#dist2shore <- erddapToEdinfo(dataset='dist2coast_1deg',
-#                             baseurl='https://pae-paha.pacioos.hawaii.edu/erddap/',
-#                             chooseVars = FALSE)
-
-
-tracks_SS_08 <- matchEnvData(tracks_SS_08, nc='data/Dist2Shore.nc') %>%
-  rename(., dist2shore = dist_mean) %>%
-  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)
-
-#May not need this part
-# Downloads from server
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'dist2coast_1deg', fileName='dist2coast.nc', var = 'dist')
-
-# Pulls from downloaded file
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'data/dist2coast.nc')
-
-# Downloads nc file
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc=dist2shore, fileName='Dist2Shore.nc')  
-```
-
-### Chlorophyll from PAMPal
-```{r}
-# Downloads from server
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'erdMH1chlamday', fileName='chlorophyll.nc')
-
-# Pulls from downloaded file
-tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'data/chlorophyll.nc')
-```
-
-
-#### Sea Surface Height Anomalies from PAMPal
-```{r}
-# Downloaded from server
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'nesdisSSH1day', fileName='sshanomalies.nc')
-
-# Pulled from downloaded nc file
-tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'data/sshanomalies.nc') %>%
-  rename(., ssh_mean = sla_mean) %>%
-  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)
-```
-
-### Wind Stress Curl from PAMPal *** NEEDS FIXING ****
-```{r}
-# Downloads from server
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'erdQMstress1day_LonPM180', fileName='erdQMstress1day_LonPM180.nc', var = 'curl')
-
-# Pulls from downloaded file
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'erdQMstress1day_LonPM180.nc')
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'data-raw/erdQMstress1day_LonPM180.nc')
 #tracks_SS_08
 
 #windcurl <- erddapToEdinfo('erdQMstress1day', baseurl = 'https://coastwatch.pfeg.noaa.gov/erddap/')
 
-#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc=windcurl, fileName='windcurl.nc')  
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc=windcurl, fileName='windcurl.nc')
+
+```
+Once downloaded, matches wind stress curl from file
+```{r}
+windlist <- dir("D:/Environ_variables", recursive=TRUE, full.names=TRUE, pattern="windstress")
+
+for (w in windlist) {
+  data <- matchEnvData(get(paste0("tracks_SS_", substr(w, 32, 33))), nc = w) %>%
+     dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean, -matchDepth_mean)   # remove unnecessary columns
+  
+  assign(paste0("tracks_SS_", substr(w, 32, 33)), data)
+}
+```
+
+### Distance to continental slope (uses terra package)
+```{r}
+bathy <- rast("D:/CCES_gebco_bathy.tif") # Bathymetry for all of CCE from https://download.gebco.net/
+agg <- terra::aggregate(bathy, 5)  # Increase cell size by factor of 5 to be visible
+
+cont <- st_as_sf(as.contour(bathy, )) # Create contour lines from bathymetry 
+cont_slope <- cont %>% filter(level == -2000) # Establish continental shelf. Is 2000m the correct depth for continental shelf?
+
+tracklist <- grep(pattern = "tracks_SS_", names(.GlobalEnv), value = T)
+
+for (t in tracklist) {
+  sf <- st_as_sf(get(t), coords = c("Longitude", "Latitude"), crs=4326, remove=F)
+  trk <- terra::rasterize(vect(sf), agg)
+  slop <- terra::distance(trk, vect(cont_slope))
+  ext <- terra::extract(slop, vect(sf))
+  
+  dbind <- cbind(sf, ext) %>%
+  dplyr::select(-ID) %>%
+  rename("dist2slope" = last) %>%
+  st_set_geometry(NULL) # remove geometry to prevent buoy dataframe from becoming sf object for future 
+  
+  assign(paste0("tracks_SS_", substr(t, 11, 12)), dbind)
+}
+```
+
+Depth from ERDDAP using PAMPal function
+```{r}
+# Downloads data from servers onto external hard drive. Uncomment and only run once.
+#tracks_SS_07 <- matchEnvData(tracks_SS_07, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth07.nc", var = c('z'))
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth08.nc", var = c('z'))
+#tracks_SS_10 <- matchEnvData(tracks_SS_10, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth10.nc", var = c('z'))
+#tracks_SS_12 <- matchEnvData(tracks_SS_12, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth12.nc", var = c('z'))
+#tracks_SS_13 <- matchEnvData(tracks_SS_13, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth13.nc", var = c('z'))
+#tracks_SS_14 <- matchEnvData(tracks_SS_14, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth14.nc", var = c('z'))
+#tracks_SS_16 <- matchEnvData(tracks_SS_16, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth16.nc", var = c('z'))
+#tracks_SS_18 <- matchEnvData(tracks_SS_18, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth18.nc", var = c('z'))
+#tracks_SS_19 <- matchEnvData(tracks_SS_19, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth19.nc", var = c('z'))
+#tracks_SS_20 <- matchEnvData(tracks_SS_20, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth20.nc", var = c('z'))
+#tracks_SS_21 <- matchEnvData(tracks_SS_21, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth21.nc", var = c('z'))
+#tracks_SS_22 <- matchEnvData(tracks_SS_22, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth22.nc", var = c('z'))
+#tracks_SS_23 <- matchEnvData(tracks_SS_23, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth23.nc", var = c('z'))
+```
+
+Once downloaded, matches depth from file
+```{r}
+depthlist <- dir("D:/Environ_variables", recursive=TRUE, full.names=TRUE, pattern="depth")
+
+for (dd in depthlist) {
+  data <- matchEnvData(get(paste0("tracks_SS_", substr(dd, 27, 28))), nc = dd) %>%
+  rename(., depth = z_mean) %>%        # rename new column to "depth"
+  mutate(depth = depth*-1) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)
+
+  assign(paste0("tracks_SS_", substr(dd, 27, 28)), data)
+}
+```
+
+#### Bathymetric slope (skipping loop for now)
+```{r}
+bathy_slope <- terra::terrain(bathy, v = "slope")
+
+for (t in tracklist) {
+  slope <- terra::extract(bathy_slope, get(t)[,4:3]) %>%  # Reads latitude and longitude of buoy dataframe
+  dplyr::select(-ID) %>%
+  rename("bathy_slope" = slope)
+  
+  sbind <- cbind(get(t), slope)
+  
+  assign(paste0("tracks_SS_", substr(t, 11, 12)), sbind)
+}
+```
+
+Distance to Shore from ERDDAP using PAMPal function
+```{r}
+# Downloads data from servers onto external hard drive. Uncomment and only run once.
+#tracks_SS_07 <- matchEnvData(tracks_SS_07, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore07.nc", var = c('dist'))
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore08.nc", var = c('dist'))
+#tracks_SS_10 <- matchEnvData(tracks_SS_10, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore10.nc", var = c('dist'))
+#tracks_SS_12 <- matchEnvData(tracks_SS_12, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore12.nc", var = c('dist'))
+#tracks_SS_13 <- matchEnvData(tracks_SS_13, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore13.nc", var = c('dist'))
+#tracks_SS_14 <- matchEnvData(tracks_SS_14, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore14.nc", var = c('dist'))
+#tracks_SS_16 <- matchEnvData(tracks_SS_16, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore16.nc", var = c('dist'))
+#tracks_SS_18 <- matchEnvData(tracks_SS_18, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore18.nc", var = c('dist'))
+#tracks_SS_19 <- matchEnvData(tracks_SS_19, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore19.nc", var = c('dist'))
+#tracks_SS_20 <- matchEnvData(tracks_SS_20, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore20.nc", var = c('dist'))
+#tracks_SS_21 <- matchEnvData(tracks_SS_21, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore21.nc", var = c('dist'))
+#tracks_SS_22 <- matchEnvData(tracks_SS_22, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore22.nc", var = c('dist'))
+#tracks_SS_23 <- matchEnvData(tracks_SS_23, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore23.nc", var = c('dist'))
+```
+
+Once downloaded, matches Distance to Shore from file
+```{r}
+distlist <- dir("D:/Environ_variables", recursive=TRUE, full.names=TRUE, pattern="dist2shore")
+
+for (d2 in distlist) {
+  data <- matchEnvData(get(paste0("tracks_SS_", substr(d2, 32, 33))), nc = d2) %>%
+  rename(., dist2shore = dist_mean) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)
+
+  assign(paste0("tracks_SS_", substr(d2, 32, 33)), data)
+}
+```
+
+### Chlorophyll from ERDDAP using PAMPal function
+```{r}
+# Downloads data from servers onto external hard drive. Uncomment and only run once.
+#tracks_SS_07 <- matchEnvData(tracks_SS_07, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll07.nc", var = c('chlorophyll'))
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll08.nc", var = c('chlorophyll'))
+#tracks_SS_10 <- matchEnvData(tracks_SS_10, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll10.nc", var = c('chlorophyll'))
+#tracks_SS_12 <- matchEnvData(tracks_SS_12, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll12.nc", var = c('chlorophyll'))
+#tracks_SS_13 <- matchEnvData(tracks_SS_13, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll13.nc", var = c('chlorophyll'))
+#tracks_SS_14 <- matchEnvData(tracks_SS_14, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll14.nc", var = c('chlorophyll'))
+#tracks_SS_16 <- matchEnvData(tracks_SS_16, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll16.nc", var = c('chlorophyll'))
+#tracks_SS_18 <- matchEnvData(tracks_SS_18, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll18.nc", var = c('chlorophyll'))
+#tracks_SS_19 <- matchEnvData(tracks_SS_19, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll19.nc", var = c('chlorophyll'))
+#tracks_SS_20 <- matchEnvData(tracks_SS_20, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll20.nc", var = c('chlorophyll'))
+#tracks_SS_21 <- matchEnvData(tracks_SS_21, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll21.nc", var = c('chlorophyll'))
+#tracks_SS_22 <- matchEnvData(tracks_SS_22, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll22.nc", var = c('chlorophyll'))
+#tracks_SS_23 <- matchEnvData(tracks_SS_23, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll23.nc", var = c('chlorophyll'))
+```
+
+Once downloaded, matches chlorophyll from file
+```{r}
+chlalist <- dir("D:/Environ_variables", recursive=TRUE, full.names=TRUE, pattern="chlorophyll")
+
+for (ch in chlalist) {
+  data <- matchEnvData(get(paste0("tracks_SS_", substr(ch, 33, 34))), nc = ch) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)
+
+  assign(paste0("tracks_SS_", substr(ch, 33, 34)), data)
+}
+```
+
+Sea Surface Height Anomalies from ERDDAP using PAMPal function
+```{r}
+# Downloads data from servers onto external hard drive. Uncomment and only run once.
+#tracks_SS_07 <- matchEnvData(tracks_SS_07, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh07.nc", var = c('sla'))
+#tracks_SS_08 <- matchEnvData(tracks_SS_08, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh08.nc", var = c('sla'))
+#tracks_SS_10 <- matchEnvData(tracks_SS_10, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh10.nc", var = c('sla'))
+#tracks_SS_12 <- matchEnvData(tracks_SS_12, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh12.nc", var = c('sla'))
+#tracks_SS_13 <- matchEnvData(tracks_SS_13, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh13.nc", var = c('sla'))
+#tracks_SS_14 <- matchEnvData(tracks_SS_14, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh14.nc", var = c('sla'))
+#tracks_SS_16 <- matchEnvData(tracks_SS_16, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh16.nc", var = c('sla'))
+#tracks_SS_18 <- matchEnvData(tracks_SS_18, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh18.nc", var = c('sla'))
+#tracks_SS_19 <- matchEnvData(tracks_SS_19, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh19.nc", var = c('sla'))
+#tracks_SS_20 <- matchEnvData(tracks_SS_20, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh20.nc", var = c('sla'))
+#tracks_SS_21 <- matchEnvData(tracks_SS_21, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh21.nc", var = c('sla'))
+#tracks_SS_22 <- matchEnvData(tracks_SS_22, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh22.nc", var = c('sla'))
+#tracks_SS_23 <- matchEnvData(tracks_SS_23, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh23.nc", var = c('sla'))
+```
+
+Once downloaded, matches sea surface height anomalies from file
+```{r}
+sshlist <- dir("D:/Environ_variables", recursive=TRUE, full.names=TRUE, pattern="ssh")
+
+for (sh in sshlist) {
+  data <- matchEnvData(get(paste0("tracks_SS_", substr(sh, 25, 26))), nc = sh) %>%
+  rename(., ssh_mean = sla_mean) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)
+
+  assign(paste0("tracks_SS_", substr(sh, 25, 26)), data)
+}
 ```
 
 
 #### HyCOM Data - MLDepth, MLTemp, TTemp, TDepth, Salinity
-Doesn't bin itself into separate dataframe based on size!
-```{r}
-# These refer to nc files that have already been downloaded from the server.
-# Uncomment and only run once! Rows are hard-coded.
-
-#hycomData0 <- matchEnvData(as.data.frame(tracks_SS_08[1:250,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm0.nc")
-
-#hycomData1 <- matchEnvData(as.data.frame(tracks_SS_08[251:500,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm1.nc")
-
-#hycomData2 <- matchEnvData(as.data.frame(tracks_SS_08[501:750,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm2.nc")
-
-#hycomData3 <- matchEnvData(as.data.frame(tracks_SS_08[751:1200,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm3.nc")
-
-#hycomData4 <- matchEnvData(as.data.frame(tracks_SS_08[1201:1500,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm4.nc")
-
-#hycomData5 <- matchEnvData(as.data.frame(tracks_SS_08[1501:1800,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm5.nc")
-
-#hycomData6 <- matchEnvData(as.data.frame(tracks_SS_08[1801:2145,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm6.nc")
-
-#hycomData7 <- matchEnvData(as.data.frame(tracks_SS_08[2146:2469,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm7.nc")
-
-#hycomData8 <- matchEnvData(as.data.frame(tracks_SS_08[2470:2769,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "hycomm8.nc")
-
-
-# Run the 9 nc lists that make up tracks_SS_08
-hycomData0 <- matchEnvData(as.data.frame(tracks_SS_08[1:250,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm0.nc")
-hycomData1 <- matchEnvData(as.data.frame(tracks_SS_08[251:500,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm1.nc")
-hycomData2 <- matchEnvData(as.data.frame(tracks_SS_08[501:750,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm2.nc")
-hycomData3 <- matchEnvData(as.data.frame(tracks_SS_08[751:1200,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm3.nc")
-hycomData4 <- matchEnvData(as.data.frame(tracks_SS_08[1201:1500,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm4.nc")
-hycomData5 <- matchEnvData(as.data.frame(tracks_SS_08[1501:1800,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm5.nc")
-hycomData6 <- matchEnvData(as.data.frame(tracks_SS_08[1801:2145,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm6.nc")
-hycomData7 <- matchEnvData(as.data.frame(tracks_SS_08[2146:2469,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm7.nc")
-hycomData8 <- matchEnvData(as.data.frame(tracks_SS_08[2470:2769,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "hycomm8.nc")
-```
 
 Create function to estimate thermocline variables using the temperature at depth data
 ```{r}
@@ -281,9 +303,83 @@ calcThermoVars <- function(depth, temp, mldMode='SST8', thermMode='variso', plot
 }
 ```
 
+
+```{r}
+# Create loop for each buoy to download HYCOM data
+
+##FIX THIS - try testing on ONE buoy
+for (t in tracklist) {
+  Hdata <- matchEnvData(as.data.frame(get(paste0("tracks_SS_", substr(t, 11, 12)))), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
+  
+  thermData <- bind_rows(lapply(Hdata, function(x) {
+    # do thermo calcs
+    result <- calcThermoVars(x$matchDepth, x$water_temp)
+    # get specific values
+    result$temp400 <- x$water_temp[x$matchDepth == 400]
+    result$sal400 <- x$salinity[x$matchDepth == 400]
+    result
+}))
+  bindr <- cbind(get(paste0("tracks_SS_", substr(t, 11, 12))), thermData)
+  assign(paste0("tracks_SS_", substr(t, 11, 12)), bindr) #fix this part?
+}
+```
+
+```{r}
+test08 <- matchEnvData(as.data.frame(tracks_SS_08), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
+
+thermData08 <- bind_rows(lapply(test08, function(x) {
+    # do thermo calcs
+    result <- calcThermoVars(x$matchDepth, x$water_temp)
+    # get specific values
+    result$temp400 <- x$water_temp[x$matchDepth == 400]
+    result$sal400 <- x$salinity[x$matchDepth == 400]
+    result
+}))
+
+tracks_SS_08 <- cbind(tracks_SS_08, thermData08)
+```
+
+
+```{r}
+#hycomData0 <- matchEnvData(as.data.frame(tracks_SS_08[1:250,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm0.nc")
+
+#test <- matchEnvData(as.data.frame(tracks_SS_07), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
+
+
+#hycomData1 <- matchEnvData(as.data.frame(tracks_SS_08[251:500,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm1.nc")
+
+#hycomData2 <- matchEnvData(as.data.frame(tracks_SS_08[501:750,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm2.nc")
+
+#hycomData3 <- matchEnvData(as.data.frame(tracks_SS_08[751:1200,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm3.nc")
+
+#hycomData4 <- matchEnvData(as.data.frame(tracks_SS_08[1201:1500,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm4.nc")
+
+#hycomData5 <- matchEnvData(as.data.frame(tracks_SS_08[1501:1800,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm5.nc")
+
+#hycomData6 <- matchEnvData(as.data.frame(tracks_SS_08[1801:2145,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm6.nc")
+
+#hycomData7 <- matchEnvData(as.data.frame(tracks_SS_08[2146:2469,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm7.nc")
+
+#hycomData8 <- matchEnvData(as.data.frame(tracks_SS_08[2470:2769,]), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, fileName = "data-raw/hycomm8.nc")
+
+
+# Run the 9 nc lists that make up tracks_SS_08
+#hycomData0 <- matchEnvData(as.data.frame(tracks_SS_08[1:250,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm0.nc")
+#hycomData1 <- matchEnvData(as.data.frame(tracks_SS_08[251:500,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm1.nc")
+#hycomData2 <- matchEnvData(as.data.frame(tracks_SS_08[501:750,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm2.nc")
+#hycomData3 <- matchEnvData(as.data.frame(tracks_SS_08[751:1200,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm3.nc")
+#hycomData4 <- matchEnvData(as.data.frame(tracks_SS_08[1201:1500,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm4.nc")
+#hycomData5 <- matchEnvData(as.data.frame(tracks_SS_08[1501:1800,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm5.nc")
+#hycomData6 <- matchEnvData(as.data.frame(tracks_SS_08[1801:2145,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm6.nc")
+#hycomData7 <- matchEnvData(as.data.frame(tracks_SS_08[2146:2469,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm7.nc")
+#hycomData8 <- matchEnvData(as.data.frame(tracks_SS_08[2470:2769,]), var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000, nc = "data-raw/hycomm8.nc")
+```
+
+
 Use above function on the smaller hycom datasets (0-6)
 ```{r}
-#calcThermoVars(hycomData[[1]]$matchDepth, hycomData[[1]]$water_temp, plot=TRUE)
+#Optional plot:
+calcThermoVars(test[[1]]$matchDepth, test[[1]]$water_temp, plot=TRUE)
 
 thermData0 <- bind_rows(lapply(hycomData0, function(x) {
     # do thermo calcs
@@ -376,6 +472,51 @@ tracks_SS_08 <- cbind(tracks_SS_08, thermData)
 # New tracks_SS_08 variable contains Hycom variables now
 ##### FINAL tracks_ss_08 dataframe ######
 View(tracks_SS_08)
+```
+```{r}
+thermData <- bind_rows(lapply(test, function(x) {
+    # do thermo calcs
+    result <- calcThermoVars(x$matchDepth, x$water_temp)
+    # get specific values
+    result$temp400 <- x$water_temp[x$matchDepth == 400]
+    result$sal400 <- x$salinity[x$matchDepth == 400]
+    result
+}))
+
+test_fin <- cbind(tracks_SS_07, thermData)
+print(data)
+```
+testing hycom bind on ONE drift first
+```{r}
+test22 <- matchEnvData(as.data.frame(tracks_SS_22), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
+
+thermData22 <- bind_rows(lapply(test22, function(x) {
+    # do thermo calcs
+    result <- calcThermoVars(x$matchDepth, x$water_temp)
+    # get specific values
+    result$temp400 <- x$water_temp[x$matchDepth == 400]
+    result$sal400 <- x$salinity[x$matchDepth == 400]
+    result
+}))
+
+test_fin <- cbind(tracks_SS_22, thermData22)
+View(test_fin)
+```
+
+```{r}
+saveRDS(tracks_SS_10, 'data/fulltrack10.rda')
+saveRDS(tracks_SS_12, 'data/fulltrack12.rda')
+saveRDS(tracks_SS_13, 'data/fulltrack13.rda')
+saveRDS(tracks_SS_14, 'data/fulltrack14.rda')
+saveRDS(tracks_SS_16, 'data/fulltrack16.rda')
+saveRDS(tracks_SS_18, 'data/fulltrack18.rda')
+saveRDS(tracks_SS_19, 'data/fulltrack19.rda')
+saveRDS(tracks_SS_20, 'data/fulltrack20.rda')
+saveRDS(tracks_SS_21, 'data/fulltrack21.rda')
+saveRDS(tracks_SS_22, 'data/fulltrack22.rda')
+saveRDS(tracks_SS_23, 'data/fulltrack23.rda')
+saveRDS(tracks_SS_07, 'data/fulltrack07.rda')
+saveRDS(tracks_SS_08, 'data/fulltrack08.rda')
 ```
 
 
@@ -814,6 +955,24 @@ ggplot(data = tracks_SS_08, aes(sal400, fill = factor(BWpresence))) +
 
 ### Plot maps for Powerpoint images
 
+Set Parameters
+```{r}
+theme_set(theme_bw())
+tmap_mode("plot")
+```
+
+Create sf objects and basemaps for maps (not needed for environmental variables)
+```{r}
+whales_8_10sf <- BWsf %>%                            
+dplyr::filter(station == "8" | station == "10")
+
+trackssf <- st_as_sf(tracks, coords = c("Longitude", "Latitude"), crs=4326)
+trk_TOL_08 <- st_as_sf(tracks_SS_08, coords = c("Longitude", "Latitude"), crs=4326)
+trk_TOL_10 <- st_as_sf(tracks_SS_10, coords = c("Longitude", "Latitude"), crs=4326)
+trackBase <- get_tiles(whales_8_10sf, provider = "Esri.WorldShadedRelief")
+allTrackbase <- get_tiles(trackssf, provider = "Stamen.TonerLite", zoom = 5)
+```
+
 Map of whole study area
 ```{r}
 # Establish bounding box
@@ -1085,4 +1244,30 @@ tm_shape(bathy) + tm_raster() +
   tm_layout(legend.width = 0.5)
 ```
 
+```{r}
+# Plots for coastline and continental slope. Do I keep?
+sf08 <- st_as_sf(tracks_SS_08, coords = c("Longitude", "Latitude"), crs=4326, remove=F)
+sf10 <- st_as_sf(tracks_SS_10, coords = c("Longitude", "Latitude"), crs=4326, remove=F)
+trkraster08 <- rasterize(vect(sf08), agg)
+trkraster10 <- rasterize(vect(sf10), agg)
+
+bathy_df <- as.data.frame(bathy, xy = TRUE)
+
+# Map the coastline and cont. slope
+cont <- st_as_sf(as.contour(bathy, ))
+coast <- cont %>% filter(level == 0)
+cont_slope <- cont %>% filter(level == -2000) #Is 2000m the correct depth for continental shelf?
+cont_slope_rast <- rasterize(cont_slope, agg, field = "level")
+plot(agg)
+plot(cont_slope_rast, col = "red")
+cont_slope_rast <- rasterize(cont_slope, agg)
+plot(cont_slope_rast, col = "red")
+  
+ggplot() + 
+  geom_sf(data = cont, col="black") + 
+  geom_sf(data = coast, col = "red") +
+  geom_sf(data = cont_slope, col = "purple") +
+  #geom_sf(data = whales_8_10sf, mapping = aes()) +
+  scale_color_gradient(low="green", high="red")
+```
 
