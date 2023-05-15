@@ -58,14 +58,14 @@ for (ii in iilist) {
 
 # Make function to join whales + tracks, broadband, and TOL soundscape metrics and edit columns
 joinTable <- function(w, s, t) {
-  left_join(w, s, by = c("UTC" = "dateTime")) %>%   # join tracks with broadband metrics
-    .[!duplicated(.['UTC']),] %>%                   # removes duplicates
-  left_join(., t, by = c("UTC"= "dateTime")) %>%
-    .[!duplicated(.['UTC']),] %>%                   # removes duplicated again
-  mutate(BWpresence = if_else(is.na(nClicks), 0, 1)) %>%    # Add column to specify BW presence (1) or absence (0)
+  left_join(w, s, by = join_by(closest("UTC" <= "dateTime"))) %>%     # join tracks with broadband metrics
+    .[!duplicated(.['UTC']),] %>%                                     # removes duplicates
+  left_join(., t, by = join_by(closest("UTC" <= "dateTime"))) %>%    # joins tracks/BB with TOL metrics
+    .[!duplicated(.['UTC']),] %>%                                     # removes duplicates formed from new join
+  mutate(Wpresence = if_else(is.na(nClicks), 0, 1)) %>%    # Add column to specify whale presence (1) or absence (0)
   dplyr::select(UTC, spotID, Latitude, Longitude, station, 
                 `BB_20-24000`,TOL_63, TOL_125, TOL_2000, 
-                TOL_5000, TOL_20000, species, BWpresence)
+                TOL_5000, TOL_20000, species, Wpresence)
 }
  
 
