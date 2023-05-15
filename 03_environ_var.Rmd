@@ -3,27 +3,26 @@ title: " extracting environmenal and oceanographic variables"
 output: html_document
 date: "2022-11-06"
 ---
+For each buoy, the value of each environmental variable will be added to each track point based on Lat, Long, and UTC.
+Data only need to be downloaded once. After that, can refer to the file in the external hard drive ("D:").
+
+Environmental variables: Sea surface temp, Wind stress curl, Distance to continental slope, Depth, bathymetric slope,
+distance to shore, chlorophyll, sea surface height anomalies, + Hycom variables.
+
+This takes about 2.5 hours to execute completely!
 
 Required Packages
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(sf)
-#library(raster)
 library(terra)
 library(PAMpal)
 library(PAMmisc)
-#library(marmap)
 library(rerddap)
 ```
 
 ### Get Environmental Variables
-
-For each buoy, the value of each environmental variable will be added to each track point based on Lat, Long, and UTC.
-Data only need to be downloaded once. After that, can refer to the file in the external hard drive ("D:").
-
-Environmental variables: Sea surface temp, Wind stress curl, Distance to continental slope, Depth, bathymetric slope,
-distance to shore, chlorophyll, sea surface height anomalies, + Hycom variables.
 
 Sea Surface Temperature from ERDDAP using PAMPal function
 ```{r}
@@ -324,20 +323,21 @@ for (t in tracklist) {
 }
 ```
 
+# runs hycom variable download and bind for one drift. can ignore if above works.
 ```{r}
 ## HYCOM function above stops at buoys 07 and 08, need to manually run it here. FIX!!
-test08 <- matchEnvData(as.data.frame(tracks_SS_08), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
+#test08 <- matchEnvData(as.data.frame(tracks_SS_08), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
 
-thermData08 <- bind_rows(lapply(test08, function(x) {
-    # do thermo calcs
-    result <- calcThermoVars(x$matchDepth, x$water_temp)
-    # get specific values
-    result$temp400 <- x$water_temp[x$matchDepth == 400]
-    result$sal400 <- x$salinity[x$matchDepth == 400]
-    result
-}))
+#thermData08 <- bind_rows(lapply(test08, function(x) {
+#    # do thermo calcs
+#    result <- calcThermoVars(x$matchDepth, x$water_temp)
+#    # get specific values
+#    result$temp400 <- x$water_temp[x$matchDepth == 400]
+#    result$sal400 <- x$salinity[x$matchDepth == 400]
+#    result
+#}))
 
-tracks_SS_08 <- cbind(tracks_SS_08, thermData08)
+#tracks_SS_08 <- cbind(tracks_SS_08, thermData08)
 ```
 
 
