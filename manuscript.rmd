@@ -40,7 +40,12 @@ Soundscape metrics were duty-cycled (most 18min off, 2 minutes on, but some vari
 \[Post-processing details, data cleaning\]\
 Soundscape metrics were rounded to the nearest 20 minutes. These include third-octave level bands and broadband metrics. One way to measure sound is with a metric called a third octave level, which splits the sound spectrum into many bands. The band at 125 Hertz is often associated with shipping vessel noise and the 2000 Hertz or 2 kHz with mid-frequency naval sonar. Beaked whales are known to be sensitive to sonar in this latter range. Several TOL levels were chosen as proxies to vessel or sonar frequencies. Whale detections were rounded to nearest 20 minutes. Two types of BW species (?BW and ?BWC) were removed from analysis as the species is unknown. Whale detections reduced to "presence/absence" from number of clicks, estimated individuals, etc.
 
-Drifter tracks were rounded to nearest 20 minutes, lost buoys (1,2,3,5,6,9,11) and corrupted buoys (4,17) were removed. Drift 14 and 15 are the same. These three major datasets were joined together based on a common buoy number and time field. Environmetal and oceanographic variables thought to be predictors of BW/SW habitat were extracted from NOAA's Environmental Research Division Data Access Program (ERDDAP) and Hybrid Coordinate Ocean Model (HYCOM) using matchEnvData function in package PAMmisc. Variables at depth were calculated using function from Taiki and formula from McCullough et al 2021. Distance to slope and bathymetric slope were calculated from a bathymetry TIF taken from GEBCO. Can show table of variables and justification by papers (Virgili et al. 2022).
+Drifter tracks were rounded to nearest 20 minutes, lost buoys (1,2,3,5,6,9,11) and corrupted buoys (4,17) were removed. Drift 14 and 15 are the same. These three major datasets were joined together based on a common buoy number and time field.
+
+\[Environmental Data\]\
+Environmetal and oceanographic variables thought to be predictors of BW/SW habitat were extracted from NOAA's Environmental Research Division Data Access Program (ERDDAP) and Hybrid Coordinate Ocean Model (HYCOM) using matchEnvData function in package PAMmisc. Variables at depth were calculated using function from Taiki and formula from McCullough et al 2021. Distance to slope and bathymetric slope were calculated from a bathymetry TIF taken from GEBCO. Can show table of variables and justification by papers (Virgili et al. 2022).
+
+[On wind curl stress]{.underline}: "Positive wind stress curl lifts the thermocline, which results in enhanced primary production" (Manocci et al 2015).
 
 \[AIS\]\
 Automatic Identification System vessel tracking data were collected from Marine Cadastre in order to evaluate the effect of spatial proximity to the buoys. This step is important in understanding how ship characteristics contribute to various frequency bands. I filtered out any vessels under 100 meters in length in order to focus only on large vessels. By exploring buoy/vessel co-occurrence with a 10-km "listening space" around the buoy (McKenna) can allow us to investigate patterns of when whales are calling and the vessel activity during co-occurrence.
@@ -49,9 +54,13 @@ Automatic Identification System vessel tracking data were collected from Marine 
 
 Can use non-parametric Kruskal-Wallis one-way analysis of variance test to examine if number of whale detections per hour differed depending on presence/absence of vessels (see Trickey et al. 2022).
 
+[Example of GAM]{.underline}: Manocci et al. 2015.
+
 ## Results
 
-\[Add here.\] \[Weekly/daily plot of acoustic presence of whales and ships over time from each drift? See Trickey et al. 2022\]
+\[Add here.\]
+
+\[Weekly/daily plot of acoustic presence of whales and ships over time from each drift? See JS Trickey et al. 2022, Fig 3\]
 
 ## Discussion
 
