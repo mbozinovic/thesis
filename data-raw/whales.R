@@ -23,7 +23,10 @@ whales <- left_join(whales, tracks, by = join_by(station, closest("dateTimeRound
   dplyr::select(-Latitude.y, -Longitude.y, -spotID, -minNumber, -maxNumber, -bestNumber)
 
 # Whales data as sf
-BWsf <- whales %>% st_as_sf(coords = c("Longitude.x","Latitude.x"), crs=4326)   # whales as sf
+Wsf <- whales %>% st_as_sf(coords = c("Longitude.x","Latitude.x"), crs=4326)   # whales as sf
 
 # Save object
 saveRDS(whales, 'data/whales.rda')
+
+# Number of rows per station
+nrow(whales[whales$station==12,])
