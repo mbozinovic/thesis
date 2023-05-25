@@ -9,6 +9,7 @@ output: html_document
 Required Packages
 ```{r}
 library(tidyverse)
+library(mgcv)
 ```
 
 Read in RDS files of each buoy + all environ variables + AIS (pending)
@@ -71,17 +72,17 @@ ggplot(data = pivot3, aes(Hz, fill = factor(BWpresence))) +
 
 ## ignore??
 ```{r drift-8-histogram}
-ggplot(data = pivot3, aes(Hz, fill = factor(BWpresence))) +
-  geom_histogram(binwidth = 1, color = "black") +
-  theme_classic() +
-  ggtitle("Distribution of Third-Octave Level (TOL) Intensities: Buoy 8") +
-  scale_x_continuous(name = "Sound Intensity (dB)") +
-  scale_fill_manual(name = "Beaked Whale Presence", 
-                    labels = c("0" = "Absent", "1" = "Present"),
-                    values = c("0" = "bisque1",
-                               "1" = "brown4")) +
-  theme(legend.position = c(0.6,0.7)) +
-  facet_wrap(~TOL, labeller = as_labeller(TOL.labs))
+#ggplot(data = pivot3, aes(Hz, fill = factor(BWpresence))) +
+#  geom_histogram(binwidth = 1, color = "black") +
+#  theme_classic() +
+#  ggtitle("Distribution of Third-Octave Level (TOL) Intensities: Buoy 8") +
+#  scale_x_continuous(name = "Sound Intensity (dB)") +
+#  scale_fill_manual(name = "Beaked Whale Presence", 
+#                    labels = c("0" = "Absent", "1" = "Present"),
+#                    values = c("0" = "bisque1",
+#                               "1" = "brown4")) +
+#  theme(legend.position = c(0.6,0.7)) +
+#  facet_wrap(~TOL, labeller = as_labeller(TOL.labs))
 ```
 
 
@@ -348,9 +349,9 @@ Whale Occurrences
 ```{r}
 # Filter Drift 8 by Whale presence and absence
 W1 <- tracks_SS_08 %>%
-  filter(BWpresence == 1)
+  filter(Wpresence == 1)
 W0 <- tracks_SS_08 %>%
-  filter(BWpresence == 0)
+  filter(Wpresence == 0)
 
 ggplot(data = tracks_SS_08, mapping = aes(TOL_125)) + geom_histogram(binwidth = 0.1, color = "black")
 
@@ -579,6 +580,92 @@ ggplot(data = allDrifts, aes(temp400, fill = factor(BWpresence))) +
 ggplot(data = allDrifts, aes(sal400, fill = factor(BWpresence))) +
   geom_histogram(binwidth = 0.005, color = "black")
 ```
+### GAMs
+
+```{r}
+model3 <- gam(BWpresence ~ depth + TOL_125 + dist2shore + mldTemp, 
+              data = allDrifts, family = binomial)
+plot(model3)
+
+#try fitting linear model
+
+lm_depth <- lm(BWpresence ~ depth, data = allDrifts)
+ggplot(allDrifts, aes(sst_mean, chlorophyll_mean)) +
+  geom_point() +
+  geom_smooth()
+```
+Categorical term
+```{r}
+# ALL variables, GAM
+model1 <- gam(BWpresence>0 ~ s(BB_20.24000) + s(TOL_63) + s(TOL_125) + s(TOL_2000)
+              + s(TOL_5000) + s(TOL_20000) + s(depth) + s(mldDepth) + s(Latitude)
+              + s(Longitude) + s(sst_mean) + s(curl_mean) + s(dist2slope) 
+              + s(bathy_slope) + s(dist2shore) + s(chlorophyll_mean) + s(ssh_mean) 
+              + s(mldTemp) + s(ttDepth) + s(ttTemp) + s(temp400) + s(sal400),
+              data = allDrifts, family = binomial, method = "REML")
+
+# ALL variables, GLM
+model1GLM <- glm(BWpresence ~ BB_20.24000 + TOL_63 + TOL_125 + TOL_2000
+              + TOL_5000 + TOL_20000 + depth + mldDepth + Latitude
+              + Longitude + sst_mean + curl_mean + dist2slope
+              + bathy_slope + dist2shore + chlorophyll_mean + ssh_mean 
+              + mldTemp + ttDepth + ttTemp + temp400 + sal400,
+              data = allDrifts, family = binomial)
+
+# By species? doesnt work, may need to create dummy variables
+model2 <- gam(BWpresence ~ s(sst_mean, by = as.factor(species)), 
+              data = allDrifts, family = binomial, method = "REML")
+
+# Soundscape metrics only, GAM
+model4 <- gam(BWpresence ~ s(BB_20.24000, k = 10) + 
+                s(TOL_63, k = 10) + s(TOL_125, k = 10) + 
+                s(TOL_2000, k = 10) + s(TOL_5000, k = 10) 
+              + s(TOL_20000, k = 10),
+              data = allDrifts, family = binomial, method = "REML")
+
+# Soundscape metrics only, GLM
+model4GLM <- glm(BWpresence ~ BB_20.24000 + TOL_63 + TOL_125 + TOL_2000
+              + TOL_5000 + TOL_20000,
+              data = allDrifts, family = binomial)
+
+model125 <- gam(BWpresence ~ s(TOL_125, k = 10),
+              data = allDrifts, family = binomial, method = "REML")
+plot(model125, trans = plogis)
+summary(model125)
+gam.check(model125)
+
+# Environmental var only
+model5 <- gam(BWpresence ~ s(depth) + s(mldDepth) + s(Latitude)
+              + s(Longitude) + s(sst_mean) + s(curl_mean) + s(dist2slope) 
+              + s(bathy_slope) + s(dist2shore) + s(chlorophyll_mean) + s(ssh_mean) 
+              + s(mldTemp) + s(ttDepth) + s(ttTemp) + s(temp400) + s(sal400),
+              data = allDrifts, family = binomial, method = "REML")
+
+plogis(coef(model1[1]))
+summary(model1)
+summary(model4)
+summary(model5)
+summary(model4GLM)
+plot(model4GLM)
+gam.check(model1)
+gam.check(model4)
+
+#Log odds scale (when used with family = binomial)
+plot(model1, pages = 6)
+plot(model4, pages = 4, trans = plogis)
+
+#Probability scale + centered on the intercept + adding intercept-related uncertainty with seWithMean arg
+plot(model1, pages = 14, trans = plogis,
+     shift = coef(model1)[1])#,
+     #seWithMean = TRUE)
+
+plot(model2, pages = 1, trans = plogis,
+     shift = coef(model2)[1])
+
+plot(model4, pages = 6, trans = plogis,
+     shift = coef(model4)[1])
+```
+
 
 
 ### Plot maps for Powerpoint images
