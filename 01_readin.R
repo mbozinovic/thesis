@@ -64,8 +64,9 @@ joinTable <- function(w, s, t) {
     .[!duplicated(.['UTC']),] %>%                                     # removes duplicates formed from new join
   mutate(Wpresence = if_else(is.na(nClicks), 0, 1)) %>%    # Add column to specify whale presence (1) or absence (0)
   dplyr::select(UTC, spotID, Latitude, Longitude, station, 
-                `BB_20-24000`,TOL_63, TOL_125, TOL_2000, 
-                TOL_5000, TOL_20000, species, Wpresence)
+                `BB_20-24000`,TOL_63, TOL_125, TOL_1600, 
+                TOL_2000, TOL_3150, TOL_5000, TOL_8000, 
+                TOL_10000, TOL_12500, TOL_20000, species, Wpresence)
 }
  
 
