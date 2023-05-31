@@ -136,6 +136,65 @@ ggplot(data = allDrifts, aes(x = UTC, y = station*(-1))) + geom_point(aes(color 
 #Note the break in drift 20 - I think it wasn't transmitting for several days (11/15-11/19)
 ```
 
+Avg sound levels by band (scatterplot)
+```{r}
+avgdB <- TO_12 %>%
+  summarize(TOL_25 = mean(TOL_25),
+            TOL_31.5 = mean(TOL_31.5),
+            TOL_40 = mean(TOL_40),
+            TOL_50 = mean(TOL_50),
+            TOL_63 = mean(TOL_63),
+            TOL_80 = mean(TOL_80),
+            TOL_100 = mean(TOL_100),
+            TOL_125 = mean(TOL_125),
+            TOL_160 = mean(TOL_160),
+            TOL_200 = mean(TOL_200),
+            TOL_250 = mean(TOL_250),
+            TOL_315 = mean(TOL_315),
+            TOL_400 = mean(TOL_400),
+            TOL_500 = mean(TOL_500),
+            TOL_630 = mean(TOL_630),
+            TOL_800 = mean(TOL_800),
+            TOL_1000 = mean(TOL_1000),
+            TOL_1250 = mean(TOL_1250),
+            TOL_1600 = mean(TOL_1600),
+            TOL_2000 = mean(TOL_2000),
+            TOL_2500 = mean(TOL_2500),
+            TOL_3150 = mean(TOL_3150),
+            TOL_4000 = mean(TOL_4000),
+            TOL_5000 = mean(TOL_5000),
+            TOL_6300 = mean(TOL_6300),
+            TOL_8000 = mean(TOL_8000),
+            TOL_10000 = mean(TOL_10000),
+            TOL_12500 = mean(TOL_12500),
+            TOL_16000 = mean(TOL_16000),
+            TOL_20000 = mean(TOL_20000)) %>%
+  pivot_longer(cols = TOL_25:TOL_20000,
+               names_to = "frequency",
+               values_to="dB")
+
+
+ggplot(avgdB, aes(x = factor(frequency, levels = unique(frequency)), y = dB)) + 
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+Box plots
+```{r}
+TO_longer <- pivot_longer(TO_14, cols = TOL_25:TOL_20000,
+               names_to = "frequency",
+               values_to="dB")
+ggplot(TO_longer, aes(x = factor(frequency, levels = unique(frequency)), y = dB)) + 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+# Violin plot
+ggplot(TO_longer, aes(x = factor(frequency, levels = unique(frequency)), y = dB)) + 
+  geom_violin() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+
 
 Scatterplots
 
