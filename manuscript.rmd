@@ -9,81 +9,123 @@ bibliography: references.bib
 
 ## Introduction
 
-**\[Sound, soundscapes, noise in the ocean, noise pollution\]**\
-@pijanowski2011 (+ mapping soundscapes). Soundscapes are made up of three broad categories of sound sources:\
+### Soundscapes
+
+**\[Noise pollution is a growing concern and increasing in the ocean.\]**
+
+The ocean is naturally a noisy place, but recent increases in human activities are increasing the ocean sound levels (@tyack2008 ). Frequencies of these activities often overlap in frequency range, space, and time. Climate change is also expected to alter the temperature and salinity of the ocean, causing an increase in global sound speed @affatati2022 .
+
+Ships account for over 80% of the global trade, and an estimated 2.1% annual increase in shipping in expected (@unitedstatesarmycorpsofengineersusace2018) . Shipping accounts for the most prominent anthropogenic noise in the ocean, so sound levels are expected to increase. \[Discuss post-covid elevated levels. \] The global ambient noise in the ocean is estimated to have increased by 12 decibels in the last few decades @hildebrand2009.
+
+Within their Marine Strategy Framework Directive, the European Union has recognized noise as a form of pollution @directiv2008.
+
+**\[Generally, how are cetaceans/fishes/invertebrates affected?\]**
+
+Sound is a critical form of communication for many species in the ocean.
+
+**\[Sound sources\]**\
+\@pijanowski2011 (+ mapping soundscapes). Soundscapes are made up of three broad categories of sound sources:\
 - biophonies, which come from marine mammals, fishes, and invertebrates;\
 - geophonies, which consist of natural sounds like rain, wind, earthquakes;\
-- anthropophonies, which consist of human-made sounds from vessels, offshore development, active sonar pingers/echosounders, and seismic surveys (@miksis-olds, @duarte2021).
+- anthropophonies, which consist of human-made sounds from vessels (@miksis-olds, @duarte2021) . These can be incidental or deliberate @chou2021, @chahouri2022 . Incidental = shipping, offshore development, drilling. Deliberate = active sonar pingers/echosounders, and seismic surveys.
 
-The ocean is naturally a noisy place, but recent increases in human activities are increasing the ocean sound levels (@tyack2008 ). Frequencies of these activities often overlap in frequency range, space, and time.
-
-\[Chronic/residual/ambient/transient/continuous/impulsive sound\] @mckenna2021 and @richardson2013\
-Transient sounds have a short duration, while continuous sounds keep going. @richardson2013.
+**\[Chronic (long-term)/residual/ambient/transient/continuous/impulsive/acute sound\]** @mckenna2021 and @richardson2013\
+Transient sounds have a short duration, while continuous sounds keep going. @richardson2013. How are transient and continuous sounds known to affect marine mammals differently? Close approach of a vessel, for example, appears to disrupt beaked whale foraging, as opposed to some medium levels of chronic ship noise ( @aguilarsoto2006 ). It is unknown if short-term effects translate into long-term effects
 
 Lower frequencies travel further, and higher frequencies tend to attenuate (@richardson2013 ), so the focus should be on local effects for that (@hildebrand2009 ). Ambient noise in shallow water has more variability than deeper water (@richardson2013)
 
-\[Where and to what extend is noise pollution regulated?\] Marine Strategy Framework Directive by European Union.
-
 "Ambient noise off the coast of California has increased many-fold over the past several decades... (@moore2013 + other sources w/in that). It's likely this noise pollution will interfere with soniferous animals, but it's unclear how, where, and what species will be affected. \[add language about sensitivity and vulnerability @duarte2021?? i think).
 
+### Beaked Whales/Sperm Whales
+
 **\[Introduce beaked and sperm whales: protected, visually cryptic, animals that are sensitive to noise and use sound extensively to communicate\]**\
-[Beaked whales]{.underline} (*Ziphiidae*) routinely dive for hours at a time to depths greater than 1000 ft. They can dive for over 3 hours, followed by only a few minutes on the surface (same for BW and SW?) ( see Watkins et al., 1993). This diving behavior, coupled with a low-profile body makes them nearly invisible on the surface, so very little is known about them. This may be an anti-predation adaptation to avoid killer whales (cite) as well as a synchronized foraging dives following a silent descent (@aguilardesoto2020 ). Because they must make sound to locate prey, they do so in the refuge of deep depths where killer whales do not go (less than 20 m @aguilardesoto2020 and in frequencies they do not hear (cite). Why do they have both adaptations? It is thought that this anti-predator response is exactly what makes them sensitive to human noise.
+[Beaked whales]{.underline} (*Ziphiidae*) routinely dive for hours at a time to depths greater than 1000 ft. They can dive for over 3 hours, followed by only a few minutes on the surface (same for BW and SW?) ( see Watkins et al., 1993). This diving behavior, coupled with a low-profile body makes them nearly invisible on the surface, so very little is known about them. This may be an anti-predation adaptation to avoid killer whales (cite) as well as a synchronized foraging dives following a silent descent (@aguilardesoto2020 ). Because they must make sound to locate prey, they do so in the refuge of deep depths where killer whales do not go (less than 20 m @aguilardesoto2020 and in frequencies they do not hear (cite)). Why do they have both adaptations? It is thought that this anti-predator response is exactly what makes them sensitive to human noise.
+
+"Sperm whales and Cuvier's beaked whales are deep-diving species that generally live in pelagic areas characterized by deep basins and trenches or steep slopes. As such, their distribution is closely related to bathymetry, with distinctive preference for depths of 1000m and 500-1500m for sperm whales and Cuvier's beaked whales, respectively." ([**Awbery et al 2021**](https://www.frontiersin.org/articles/10.3389/fmars.2022.860242/full))
 
 Species studied:\
-- ZC Cuvier's beaked whale *Ziphius cavirostris\
--* BW43, possibly Perrin's beaked whale *M*. *perrini*\
-- BW37V, possibly Hubbs' beaked whale *M. carlhubbsi\
+- ZC Cuvier's beaked whale *Ziphius cavirostris (IUCN status: least concern)\
+-* BW43, possibly Perrin's beaked whale *M*. *perrini (IUCN status: endangered)*\
+- BW37V, possibly Hubbs' beaked whale *M. carlhubbsi (IUCN status: data deficient)\
 -* BB, --???\
-- BWC, possibly ginkgo-toothed beaked whale *M. ginkgodens\
--* PM, sperm whale
+- BWC, possibly ginkgo-toothed beaked whale *M. ginkgodens (IUCN status: data deficient)\
+-* PM, sperm whale *(IUCN status: vulnerable)*
 
-sp[erm whales]{.underline} (*Physeter macrocephalus*) may have more acoustic tolerance than beaked whales (Miller et al. 2022).
+sp[erm whales]{.underline} (*Physeter macrocephalus*) may have more acoustic tolerance than beaked whales @miller2009, @miller2022 . Look at 3D3 project of behavioral responses of sperm whales to sonar
 
-The acoustic interference from human activity (IN ODONTOCETES OR ALL MARINE LIFE?), for example, can :\
-- affect **behavior** (displacement from habitat, spending time and effort fleeing instead of foraging (Joy et al. 2019, @deruiter2013, @aguilarsoto2006 , @stanistreet2022, @joyce2020, @falcone2017, @cholewiak2017 )\
+**Effects of Acoustic Disturbance**
+
+The acoustic interference from human activity in BW/SW, for example, can :\
+- affect **behavior** (displacement from habitat, spending time and effort fleeing instead of foraging, increasing call intensity (cite?) (Joy et al. 2019, @deruiter2013, @aguilarsoto2006 , @stanistreet2022, @joyce2020, @falcone2017, @cholewiak2017 )\
 - disrupt **communication** and echolocation (same as above?)\
 - lead to physical **harm**, even at far distances (up to 100 km away from @falcone2017) like hearing loss, tissue damage, and elevated stress levels. (See @hooker2019 for more info)\
 - **masking** signals for communication (@erbe2014?, ) or environmental cues (@duarte2021)\
 - reduced mating calls (Weilgart, 2007)\
 - see Cox et al 2006 for impacts of sound on BW
 
-There are several documented cases of naval mid-frequency active sonar (MFAS) activities coinciding with mass stranding events by beaked whales (see @simonis2020, table 1 in @weilgart, @deruiter2013 , @stanistreet2022, @bernaldodequiros). [For sperm whales]{.underline}: "The potential impact of full-scale military exercises on sperm whales are not known. @stanistreet2022, though there is evidence that male sperm whales stop feeding and change behaviors ( @curé2013).
+There are several documented cases of naval mid-frequency active sonar (MFAS) activities coinciding with mass stranding events by beaked whales (see @simonis2020, table 1 in @weilgart, @deruiter2013 , @stanistreet2022, @bernaldodequiros, @fernández2005 ). [For sperm whales]{.underline}: "The potential impact of full-scale military exercises on sperm whales are not known. @stanistreet2022, though there is evidence that male sperm whales stop feeding and change behaviors ( @curé2013).
 
-Under the Marine Mammal Protection Act, all these species are federally protected, several of these species have threatened or endangered conservation statuses, but most remain listed as "data deficient" (cite IUCN). Arguments have been made that the term data-deficient does not illicit the same conservation urgency and therefore gets lowered on the priority list (@parsons2016).
+Under the Marine Mammal Protection Act, all these species are federally protected, several of these species have threatened or endangered conservation statuses (Endangered Species Act), but most remain listed as "data deficient" (cite IUCN). \[Also include National Marine Sanctuary Act\]. Arguments have been made that the term data-deficient does not illicit the same conservation urgency and therefore gets lowered on the priority list (@parsons2016).
 
 Despite their visually cryptic nature, their sound signals are very well-described, down to the species level @baumann-pickering2013, @baumann-pickering2014. Beaked whale produce clicks, pulses, and buzzes during foraging starting at the 400(?) m range @tyack. The production of sound at this depth may be an adaptation to avoid predation from killer whales, who spend most of its time shallow (from @tyack Baird et al 1998, follow up on this). Some are still being discovered and identified globally- see @manzano-roth2023, @yamada2019.
 
 Do beaked whales show temporal variation in their calls? See @ziegenhorn2023
 
-**\[add info about sperm whale echolocation characteristics.\]** Sperm whales also emit series of clicks when socializing (@poupard2022 ).
+**\[add info about sperm whale echolocation characteristics.\]** Sperm whales also emit series of clicks when socializing (@poupard2022 ).\
 
-**\[Introduce the importance of passive acoustic monitoring on this type of study, gaps in visual survey methods\]**\
-Passive acoustic monitoring is a tool that allows us to record and listen to the soundscape. Beaked and sperm whales are ideal study candidates for this type of monitoring because they are often better heard than seen.
+### Passive Acoustic Monitoring
 
-**\[List pros and cons of all types of PAM: acoustic tags, towed hydrophones, bottom-mounted, static (Mellinger et al)\].** One type of passive acoustic recorder called a drifting buoy that drifts freely with the currents for days or weeks at a time. It allows us to capture the dynamic nature of sound over a large spatial area and especially in the deep, offshore, and less studied waters. Buoys offer greater spatial and temporal coverage compared to bottom-mounted or stationary hydrophones, ideal for detection of offshore or mobile species. Studying beaked whales can be challenging due to how offshore they live (@robbins2022). The goal with passive acoustic monitoring is to improve current species distribution models of beaked and sperm whales that utilize visual survey methods only. Historically, it has been challenging to record foraging calls at several hundred meters of depth @barlow2005.
+Passive acoustic monitoring is a tool that allows us to record and listen to the soundscape. It is not fit for all applications or ecological questions, but beaked and sperm whales are ideal study candidates for this type of monitoring because they are often better heard than seen ( @fleishman ).
+
+Bottom-mounted/static: high temporal resolution, low spatial resolution @mellinger
+
+Acoustic tags:
+
+Towed arrays:
+
+Tradeoffs include costly equipment or deployment, data/battery storage requirements, chance of return, spatial coverage, temporal coverage, capturing fine-scale movements, number of individuals, parsing out individuals, through inclement weather or night-time @johnson2009 @fleishman
+
+One type of passive acoustic recorder called a drifting buoy that drifts freely with the currents for days or weeks at a time. It allows us to capture the dynamic nature of sound over a large spatial area and especially in the deep, offshore, and less studied waters. Buoys offer greater spatial and temporal coverage compared to bottom-mounted or stationary hydrophones, ideal for detection of offshore or mobile species. Studying beaked whales can be challenging due to how offshore they live (@robbins2022). The goal with passive acoustic monitoring is to improve current species distribution models of beaked and sperm whales that utilize visual survey methods only. Historically, it has been challenging to record foraging calls at several hundred meters of depth @barlow2005.
 
 Its basic components consist of a satellite transmitter above water to monitor GPS information and an acoustic recorder attached by line at \~100m of depth. In fact, most of what is known about these deep divers is because of acoustic monitoring. Similar designs of drifting buoys have been used in estuarine and coral reef soundscape studies @lillis2018.
 
-**\[AIS\]**
+### **AIS**
 
 Automatic Identification System. Ships are abundant throughout the study area due to major US ports. This was collected to investigate patterns of co-occurrence between vessels and whales and sound levels in those moments.
 
-@aguilarsoto2006 -- elevated sound levels duing close encounters between ships and beaked whales can be detrimental.
+@aguilarsoto2006 -- elevated sound levels during close encounters between ships and beaked whales can be detrimental.
 
 How have other studies separated vessel noise (contribution to soundscape) from ambient soundscape? See @weiss2021 and @haver2020. Power spectral density ambient sound levels.
 
-**\[Main research points\]**\
-Shipping and offshore activities are expected to increase in the future, causing elevated oceanic sound levels. This is a form of habitat degradation, so there is a need to understand how human activities change and contribute to the overall soundscape in space and time. It's a challenge to acquire information on these federally protected and acoustically-sensitive species but becoming increasingly important to understand where habitats overlap with human activity. Acoustics can serve as important indicators of ecosystem health, but also of how humans are changing the environment.
+**Laws and Regulations** \[Where and to what extent is noise pollution regulated?\]
 
-**\[Goal\]**\
+see @chou2021 for a list of documents, reports, programs, efforts in ocean noise reduction
+
+Marine Strategy Framework Directive by European Union establishes a directive about environmental regulation on marine noise, specifically requiring member states to adopt strategies in compliance with threshold values for impulsive and continuous noise. @directiv2008, @borsanij.f.2023
+
+For mid-frequency cetaceans, auditory impairment threshold levels are as follows:\
+peak sound pressure level (Impulsive) - 230 dB, recommended accumulation period of 24 hrs (impulsive) - 185 dB, recommended accumulation period of 24 hrs (impulsive) - 198 dB (@noaa2018) .
+
+IMO guidelines from 2014 are being updated by July 2023. @internationalmaritimeorganization
+
+Canada is developing an Ocean Noise Strategy
+
+In the US, it's difficult to achieve compliance from Navy.
+
+### Research Objective
+
+\
+Shipping and offshore activities are expected to increase in the future, causing elevated oceanic sound levels. This is a form of habitat degradation, so there is a need to understand how human activities change and contribute to the overall soundscape in space and time. It's a challenge to acquire information on these federally protected and acoustically-sensitive species but becoming increasingly important to understand where habitats overlap with human activity. Acoustics can serve as important indicators of ecosystem health, but also of how humans are changing the environment.\
+\
 Characterize the acoustic habitat of beaked and sperm whales in the California Current Ecosystem using soundscape metrics and vessel tracking. Characterizing the acoustic environment and identifying co-occurrence of whales and anthropogenic sound has been done in a similar study by @weiss2021. This serves as baseline monitoring of soundscape for offshore areas.
 
-**\[How this work will contribute to gaps in literature, "To date, studies have focused on this and this, but not on this"\]**\
-This work will contribute to establishing baseline conditions of noise exposure to inform wind farm development and shipping lane changes.
+**\[Gaps in literature, rationale for research\]**
+
+"To date, studies have focused on this and this, but not on this".This work will contribute to establishing baseline conditions of noise exposure to inform wind farm development and shipping lane changes. \[add here\]
 
 It'll also add to the knowledge base of beaked and sperm whale distribution through acoustic detections.
 
-Both of these outcomes are of high importance to managers and agencies especially NOAA. Within their Ocean Noise Strategy Roadmap, NOAA is specifically seeking 1) a quantification of the spatial and temporal variability of ambient noise conditions, and 2) understanding of how anthropogenic soudn sources contribute to the soundscape. Co-occurrence of buoys and vessels will provide fine-scale snapshots of sound levels surrounding vessels and concurrent whale foraging activity. With AIS, we can calculate distance from buoy to vessel and sound levels in those moments. And 3) NOAA is seeking more information on vocally active species' distributions.
+Both of these outcomes are of high importance to managers and agencies especially NOAA and BOEM (see 2023-2024 report). Within their Ocean Noise Strategy Roadmap, NOAA is specifically seeking 1) a quantification of the spatial and temporal variability of ambient noise conditions, and 2) understanding of how anthropogenic soudn sources contribute to the soundscape. Co-occurrence of buoys and vessels will provide fine-scale snapshots of sound levels surrounding vessels and concurrent whale foraging activity. With AIS, we can calculate distance from buoy to vessel and sound levels in those moments. And 3) NOAA is seeking more information on vocally active species' distributions. This is part of a bill introduced by Congress to "assess underwater sound in high-priority" environments (https://www.congress.gov/bill/117th-congress/house-bill/6987).
 
 \[add here\]
 
@@ -97,21 +139,27 @@ Quantifying soundscapes in a standardized way and monitoring these changes over 
 
 ## Methods
 
-**\[Overall data collection efforts\]**\
-Acoustic detections were collected with the use of free-drifting Drifting Acoustic Spar Buoy Recorders (hereafter buoys). These were deployed as part of the California Current Ecosystem Survey (CCES) spanning the offshore waters from southern Canada to northern Mexico in summer of 2018. These buoys contained two satellite geo-location trackers, two hydrophones, etc and collected a total of 1910 hours of data. SWFSC ran acoustic detections in PAMGuard. Eight buoys were lost at sea and therefore removed from the analysis. These contain 1, 5, 10, 25, 75, 95, and 99 percentile distribution from each metric.
+### **Study Area**
 
-**\[Study area\]**\
-The California Current Ecosystem extends along the US' Economic Exclusion Zone along the west coast. It is characterized by... It's a highly productive and complex ecosystem that contains six national marine sanctuaries, supports several wild fisheries, and is home to many protected species. Because this area has high economic value and natural ecological activity, it's a well-managed and well-researched area.
+\
+The California Current Ecosystem extends along the US' Economic Exclusion Zone along the west coast. It is characterized by... It's a highly productive and complex ecosystem that contains five current and one proposed national marine sanctuaries, supports several wild fisheries, and is home to many protected species. Because this area has high economic value and natural ecological activity, it's a well-managed and well-researched area.
+
+In 2021, California, Washington, and Oregon ranked 3rd, 5th, and 23rd in most trafficked U.S. waterways, respectively (@unitedstatesarmycorpsofengineersusace2018. Lots of overlap between vessel activity from busy ports and important habitat for protected species.
 
 \[Can discuss the warm and cool phases that occurred during study period.\]
 
 see @harvey for report on conditions
 
+### Data Collection and Processing
+
+**\[Overall data collection efforts\]**\
+Acoustic detections were collected with the use of free-drifting Drifting Acoustic Spar Buoy Recorders (hereafter buoys). These were deployed as part of the California Current Ecosystem Survey (CCES) spanning the offshore waters from southern Canada to northern Mexico in summer of 2018. These buoys contained two satellite geo-location trackers, two hydrophones, etc and collected a total of 1910 hours of data. SWFSC ran acoustic detections in PAMGuard. Eight buoys were lost at sea and therefore removed from the analysis. These contain 1, 5, 10, 25, 75, 95, and 99 percentile distribution from each metric.
+
 **\[Add details about acoustic data collection information.\]**\
-Soundscape metrics were duty-cycled (most 18min off, 2 minutes on, but some variation in "off" times) and later processed by the NOAA team with calls and clicks identified to the species level (see Simonis et al 2020 report for details on this survey and Rand et al. 2022 for duty-cycle study), and soundscape metrics were binned into low, medium, high frequency bands. Can include software used, sampling rate?
+Soundscape metrics were duty-cycled (most 18min off, 2 minutes on, but some variation in "off" times) and later processed by the NOAA team with calls and clicks identified to the species level (see @simonis2020 for details on this survey and @rand2022 for duty-cycle study). Soundscape metrics were binned into low, medium, high frequency bands. Can include software used, sampling rate?
 
 **\[Post-processing details, data cleaning\]**\
-Soundscape metrics were rounded to the nearest 20 minutes (:00, :20, :40) and converted to UTC. These include third-octave level bands and broadband (20-24,000 Hz) metrics. ~~One way to measure sound is with a metric called a third octave level, which splits the sound spectrum into many bands.~~ The band at 125 Hertz is often associated with shipping vessel noise and the 2-5 kHz range with mid-frequency naval sonar ( @garrett2016 ). Beaked whales are known to be sensitive to sonar in this latter range (cite). Several TOL levels were chosen as proxies to vessel or sonar frequencies (TOL 63 to 20,000).
+Soundscape metrics were rounded to the nearest 20 minutes (:00, :20, :40) and converted to UTC. These include third-octave level bands and broadband (20-24,000 Hz) metrics. ~~One way to measure sound is with a metric called a third octave level, which splits the sound spectrum into many bands.~~ The band at 125 Hertz is often associated with shipping vessel noise and the 2-5 kHz range with mid-frequency naval sonar ( @garrett2016 ). Beaked whales are known to be sensitive to sonar in this latter range (cite). Several TOL levels were chosen as proxies to vessel or sonar frequencies (from TOL 63 to 20,000).
 
 Whale detections were rounded to nearest 20 minutes. A separate column was created as a common join field that contained nearest timestamp in UTC to that of drifter tracks. Two types of BW species (?BW and ?BWC) were removed from analysis as the species is unknown and unsure. Whale detections were reduced to "presence/absence" from number of clicks, estimated individuals, etc.
 
@@ -125,31 +173,31 @@ Environmetal and oceanographic variables thought to be predictors of BW/SW habit
 use @torreblanca2022 for deep habitat info\
 see @johnston2008 and @manzano-roth2023 for seamount habitat importance
 
-| Covariate                     | Unit | Source                                                          | Justification |
-|-----------------|-----------------|----------------------|-----------------|
-|                               |      | \[can use A, B, C to avoid repetition, cite in caption\]        |               |
-| Distance to continental slope |      | General Bathymetric Chart of the Oceans (GEBCO) @weatherall2015 |               |
-| Bathymetric slope             |      | GEBCO tif                                                       |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-|                               |      |                                                                 |               |
-
-[On wind curl stress]{.underline}: "Positive wind stress curl lifts the thermocline, which results in enhanced primary production" (Manocci et al 2015).
+| Covariate                     | Unit | Source                                                          | Justification                                                                                                         |
+|-------------------------------|------|-----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+|                               |      | \[can use A, B, C to avoid repetition, cite in caption\]        |                                                                                                                       |
+| Distance to continental slope |      | General Bathymetric Chart of the Oceans (GEBCO) @weatherall2015 |                                                                                                                       |
+| Bathymetric slope             |      | GEBCO tif                                                       |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
+| Wind curl stress              |      | ERDDAP                                                          | "Positive wind stress curl lifts the thermocline, which results in enhanced primary production" (Manocci et al 2015). |
+|                               |      |                                                                 |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
+|                               |      |                                                                 |                                                                                                                       |
 
 **\[AIS\]**\
 Automatic Identification System vessel tracking data were collected from Marine Cadastre in order to evaluate the effect of spatial proximity to the buoys. This step is important in understanding how ship characteristics contribute to various frequency bands. I filtered out any vessels under 100 meters in length in order to focus only on large vessels. By exploring buoy/vessel co-occurrence with a 10-km "listening space" around the buoy (McKenna) can allow us to investigate patterns of when whales are calling and the vessel activity during co-occurrence.
 
 **\[Big analysis: statistics, modeling details\]**
 
-Can use non-parametric Kruskal-Wallis one-way analysis of variance test to examine if number of whale detections per hour differed depending on presence/absence of vessels (see Trickey et al. 2022).
+Use Random Forest model to identify most important predictors.
+
+Can use non-parametric Kruskal-Wallis one-way analysis of variance test to examine *if number of whale detections per hour differed depending on presence/absence of vessels* (see Trickey et al. 2022).
 
 [Example of GAM]{.underline}: @mannocci2015
 
