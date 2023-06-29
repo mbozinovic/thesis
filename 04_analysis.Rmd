@@ -50,12 +50,14 @@ print(ggplot(data = pivot1, aes(Hz, fill = factor(BWpresence))) +
   scale_fill_manual(values = c("0" = "bisque1",
                                "1" = "brown4")) +
   theme(legend.position = c(0.7,0.8)) +
-  facet_grid(~SL))
+  (facet_grid(~factor(SL, levels = c('BB_20.24000', 'TOL_63', 'TOL_125', 'TOL_2000', 'TOL_5000', 'TOL_20000')))))
 }
 
 # Single plot for ALL DRIFTS
 pivot3 <- allDrifts %>%
   pivot_longer(cols = starts_with("TOL") | starts_with("BB"), names_to = "SL", values_to = "Hz")    # Pivot longer for histogram facet grid
+
+#SL$size_f <- factor(SL$ , levels = c('BB_20.2400', 'TOL_63', 'TOL_125', 'TOL_2000', 'TOL_5000', 'TOL_20000'))))
 
 ggplot(data = pivot3, aes(Hz, fill = factor(BWpresence))) +
   geom_histogram(binwidth = 3, color = "black") +
@@ -66,7 +68,7 @@ ggplot(data = pivot3, aes(Hz, fill = factor(BWpresence))) +
   scale_fill_manual(values = c("0" = "bisque1",
                                "1" = "brown4")) +
   theme(legend.position = c(0.7,0.8)) +
-  facet_grid(~SL)
+  facet_grid(~factor(SL, levels = c('BB_20.24000', 'TOL_63', 'TOL_125', 'TOL_2000', 'TOL_5000', 'TOL_20000')))
 
 ```
 
@@ -138,7 +140,7 @@ ggplot(data = allDrifts, aes(x = UTC, y = station*(-1))) + geom_point(aes(color 
 
 Avg sound levels by band (scatterplot)
 ```{r}
-avgdB <- TO_12 %>%
+avgdB <- TO_23 %>%
   summarize(TOL_25 = mean(TOL_25),
             TOL_31.5 = mean(TOL_31.5),
             TOL_40 = mean(TOL_40),
@@ -181,7 +183,7 @@ ggplot(avgdB, aes(x = factor(frequency, levels = unique(frequency)), y = dB)) +
 
 Box plots
 ```{r}
-TO_longer <- pivot_longer(TO_14, cols = TOL_25:TOL_20000,
+TO_longer <- pivot_longer(TO_10, cols = TOL_25:TOL_20000,
                names_to = "frequency",
                values_to="dB")
 ggplot(TO_longer, aes(x = factor(frequency, levels = unique(frequency)), y = dB)) + 
@@ -644,7 +646,7 @@ ggplot(data = allDrifts, aes(sal400, fill = factor(BWpresence))) +
 ```{r}
 model3 <- gam(BWpresence ~ depth + TOL_125 + dist2shore + mldTemp, 
               data = allDrifts, family = binomial)
-plot(model3)
+#plot(model3)
 
 #try fitting linear model
 
@@ -724,324 +726,3 @@ plot(model2, pages = 1, trans = plogis,
 plot(model4, pages = 6, trans = plogis,
      shift = coef(model4)[1])
 ```
-
-
-
-### Plot maps for Powerpoint images
-
-Set Parameters
-```{r}
-theme_set(theme_bw())
-tmap_mode("plot")
-```
-
-Create sf objects and basemaps for maps (not needed for environmental variables)
-```{r}
-whales_8_10sf <- Wsf %>%                            
-dplyr::filter(station == "8" | station == "10")
-
-trackssf <- st_as_sf(tracks, coords = c("Longitude", "Latitude"), crs=4326)
-trk_TOL_08 <- st_as_sf(tracks_SS_08, coords = c("Longitude", "Latitude"), crs=4326)
-trk_TOL_10 <- st_as_sf(tracks_SS_10, coords = c("Longitude", "Latitude"), crs=4326)
-trackBase <- get_tiles(whales_8_10sf, provider = "Esri.WorldShadedRelief")
-allTrackbase <- get_tiles(trackssf, provider = "Stamen.TonerLite", zoom = 5)
-```
-
-Map of whole study area
-```{r}
-# Establish bounding box
-bbox <- st_bbox(c(xmin = -110, 
-            xmax = -128, 
-            ymax = 44, 
-            ymin = 30), crs = st_crs(4326))
-
-#Establish basemap
-allTrackbase <- get_tiles(bbox, provider = "Esri.WorldGrayCanvas", zoom = 5)
-
-# Establish inset map
-us_region <- st_bbox(c(xmin = -90,
-            xmax = -120, 
-            ymax = 48, 
-            ymin = 25), crs = st_crs(4326))
-usa <- get_tiles(us_region, provider = "Esri.WorldGrayCanvas", zoom = 4)
-
-sg <- bb_poly(bb(tracks_sf))
-inset <- tm_shape(usa) + tm_rgb() + tm_shape(sg) + tm_borders(col = "red")
-
-
-#Map all tracks
-main <- tm_shape(allTrackbase) + tm_rgb() +
-  tm_shape(trackssf) +
-  tm_grid(alpha = 0.6, col = "grey") +
-  tm_dots(col = "darkblue", size = 0.001, legend.show = TRUE) +
-  tm_scale_bar(width = 0.3, text.size = 3, position = c(0.2, 0.03)) +
-  tm_compass(type = "arrow", position = c(0.05, 0.05), color.light = "white") +
-  tm_add_legend('symbol',
-                type = "line",
-                col = "darkblue",
-                labels = "Drifting buoy tracks",
-                size = 1,
-                lwd = 2)
-
-vp <- viewport(x=0.66, y=0.8, width = 0.26, height=0.4)
-main
-print(inset,vp=vp)
-
-
-# Map all tracks - ggplot
-basemap2 <- as.data.frame(allTrackbase, xy = TRUE)
-#ggplot() +
-#  geom_tile(data = basemap, aes(x=x, y=y, fill = "basemap")) +
-#  geom_sf(data = trackssf, mapping = aes(), color = "red")
-
-
-# Map tracks 08 and 10 only
-tm_shape(trackBase) + tm_rgb() + 
-  tm_shape(trk_TOL_08) + tm_dots(col = "red", 
-                                 legend.show = TRUE) +
-  tm_shape(trk_TOL_10) + tm_dots(col = "green")
-
-# Bounding box of drift tracks on map
-lon2 <- -129.04666
-lon1 <- -115.78247
-lat1 <- 28.21790
-lat2 <- 45.09226
-
-basemap3 <- ne_countries(scale = "medium", type = "map_units", returnclass = "sf")
-
-# Drift tracks
-ggplot(data = basemap3) +
-  geom_sf(fill = "antiquewhite") +
-  coord_sf(xlim = c(lon2 - 1, lon1 + 1), ylim = c(lat1 - 1, lat2 + 1), expand = FALSE) +
-  theme(panel.grid.major = element_blank()) +
-  geom_path(data = tracks_sf, mapping = aes(x=long,y=lat, group = factor(station)), color = "deeppink") +
-  theme(panel.background = element_rect(fill = "aliceblue"), 
-        axis.text = element_blank(), axis.ticks = element_blank(), 
-        axis.title = element_blank())
-```
-
-Map of soundscapes
-```{r}
-# CCES_08 + CCES_10 Broadband
-tm_shape(trackBase) + tm_rgb() + 
-  tm_shape(trk_TOL_08) + 
-  tm_symbols(col = "BB_20-24000", 
-             border.lwd = NA, 
-             size = 0.4, 
-             sizes.legend = 0.7, 
-             n = 10) +
-  tm_shape(trk_TOL_10) + 
-  tm_symbols(col = "BB_20-24000",
-             border.lwd = NA, 
-             size = 0.4,
-             n = 10) +
-  tm_layout(legend.width = 0.5, 
-            legend.position = c("right","top"),
-            legend.bg.color = "lightblue")
-
-#CCES_08 Third Octave Level
-tm_shape(trackBase) + tm_rgb() + 
-  tm_shape(trk_TOL_08) + 
-  tm_symbols(col = "TOL_63", 
-             border.lwd = NA, 
-             size = 0.5, 
-             n = 10) + 
-  tm_layout(legend.width = 0.5, 
-            legend.position = c("right","top")) + 
-  tm_legend()
-
-ggplot() + 
-  geom_sf(data = trk_TOL_08, aes(color = TOL_125, size = TOL_125), show.legend = FALSE) +
-  geom_sf(data = trk_TOL_10, aes(color = TOL_125, size = TOL_125)) +
-  scale_x_continuous(limits = c(-130,-122)) + 
-  scale_y_continuous(limits = c(35,39)) +
-  scale_color_gradient(low = "navy", high = "yellow")+
-  scale_size(range = c(1,12)) +
-  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
-  theme(panel.border = element_rect(fill = NA),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(), 
-        axis.title = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none")
-```
-
-Map of whale detections
-```{r}
-# Whale detections
-ggplot() +
-  geom_point(data = whales8, mapping = aes(x=long, y=lat), shape = 21, color = "black", fill = "green4", size = 4) +
-  geom_point(data = whales10, mapping = aes(x=long, y=lat), shape = 21, color = "black", fill = "green4", size = 4) +
-  scale_x_continuous(limits = c(-130,-122)) + 
-  scale_y_continuous(limits = c(35,39)) +
-  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
-  theme(panel.border = element_rect(fill = NA),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(), 
-        axis.title = element_blank(),
-        panel.background = element_blank()
-        )
-#ggsave("Wdetect.png")
-
-
-```
-
-Map of bathymetry
-```{r}
-# Bathymetry
-bathym <- ggplot() +
-    geom_raster(data = bathy_df, 
-              mapping = aes(x=x, y=y,
-                            fill = `gebco_bathy`)) +
-  annotation_scale(location = "bl", width_hint = 0.4) +
-  theme(axis.text = element_blank(), 
-        axis.ticks = element_blank(), 
-        axis.title = element_blank(),
-        panel.background = element_blank(),
-        panel.border = element_rect(fill = NA))
-
-
-# Alternative Bathymetry (code from Ocean Tracking Network #https://www.youtube.com/watch?v=xT2F-Y9bKLk)
-bgo <- getNOAA.bathy(lon1 = -122, lon2 = -130,
-                     lat1 = 35, lat2= 39, resolution = 1)  # plot bounding box around drift 8 and 10
-autoplot(bgo, geom = c("raster", "contour"), coast = TRUE, show.legend = FALSE) + 
-  scale_fill_etopo() + #creates ggplot object
-  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
-  theme(axis.text = element_blank(), 
-        axis.ticks = element_blank(), 
-        axis.title = element_blank(),
-        panel.background = element_blank())
-
-# Soundscape + bathymetry
-whales08_sf <- Wsf %>%                            
-  dplyr::filter(station == "8")
-
-ggplot() +
-  geom_raster(data = bathy_df, 
-              mapping = aes(x=x, y=y,
-                            fill = `gebco_bathy`), show.legend = FALSE) +
-  #geom_contour(data = bathy_df, mapping = aes(x=x, y=y, z=gebco_bathy, linewidth = 0.1), color = "blue", linewidth = 0.01,) +
-  geom_sf(data = trk_TOL_08, aes(color = TOL_125, size = TOL_125), show.legend = FALSE) +
-  geom_sf(data = whales08_sf, aes(), color = "black") +
-  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
-  scale_color_gradient(low = "beige", high = "hotpink") +
-  scale_fill_etopo() +
-  theme(axis.text = element_blank(), 
-        axis.ticks = element_blank(), 
-        axis.title = element_blank(),
-        panel.background = element_blank(),
-        panel.border = element_rect(fill = NA))
-#ggsave("soundscape.png")
-```
-
-Map of AIS
-```{r}
-# Plot + crop to drift area
-#basemap <- ne_countries(scale = "medium", returnclass = "sf")
-#ggplot() + 
-#  geom_sf(aes(), basemap) +
-#  geom_path(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName), #show.legend = F) + 
-  #geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName)) +
-#  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
-#  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7)))
-
-
-# AIS data
-ggplot() + 
-  geom_path(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName, linewidth = 1), show.legend = F) +
-  scale_x_continuous(limits = c(-131,-121)) + 
-  scale_y_continuous(limits = c(34,40)) +
-  theme(axis.text = element_blank(), 
-        axis.ticks = element_blank(), 
-        axis.title = element_blank(),
-        panel.background = element_blank(),
-        panel.border = element_rect(fill = NA))
-#ggsave("AIS.png")
-```
-
-
-Map of Sea Surface Temp with rerddap, Drift 8 only
-```{r}
-# Multi-scale Ultra-high Resolution (MUR) SST Analysis fv04.1, Global, 0.01°, 2002-present, Daily
-SSTInfo <- info('jplMURSST41') 
-murSST <- griddap(SSTInfo, latitude = c(35, 39), longitude = c(-122, -130), 
-                  time = c("2018-08-16", "2018-10-01"), 
-                  fields = 'analysed_sst') # drift 8 dates only
-SST <- murSST$data
-
-# Raster of SST
-ggplot() + 
-  geom_tile(data = SST, aes(x = longitude, y = latitude, fill = analysed_sst)) +
-  scale_fill_gradient(low = "darkblue", high = "yellow") +
-  annotation_scale(location = "br", width_hint = 0.2, plot_unit = "km") +
-  theme(axis.text = element_blank(),
-        axis.ticks = element_blank(), 
-        axis.title = element_blank(),
-        panel.background = element_blank(),
-        panel.border = element_rect(fill = NA),
-        legend.position = "none")
-```
-
-Plot distance to continental slope
-```{r}
-ggplot() +
-  geom_raster(data = bathy_df, 
-              mapping = aes(x=x, y=y,
-                            fill = `gebco_bathy`)) +
-  geom_sf(data = tracks_SS_08, 
-          mapping = aes(col = dist_slope)) +
-  geom_sf(data = cont_slope) + scale_fill_continuous(high = "lightgreen", low = "blue")
-  
-
-# PLOT distance by TOL with whales
-ggplot(data = tracks_SS_08, aes(x = dist_slope, y = `TOL_125`)) + 
-  geom_point() + 
-  geom_smooth(color = "green") +
-  theme_classic()
-```
-
-Another map - need to decide if important to keep
-```{r}
-# Plot
-oceanBase <- get_tiles(tracks_SS_08, provider="Esri.NatGeoWorldMap", crop = TRUE)
-tm_shape(oceanBase) + tm_rgb() +
-  tm_shape(tracks_SS_08) +  tm_symbols(col="species", size = 1) +
-  tm_layout(legend.width = 0.5, 
-            legend.position = c("right","top"))
-
-
-#Raster base map
-oceanBase <- get_tiles(tracks_SS_10, provider="Esri.NatGeoWorldMap")
-tm_shape(bathy) + tm_raster() +
-  tm_shape(tracks_SS_10) + 
-  tm_symbols(style = "jenks") +
-  tm_layout(legend.width = 0.5)
-```
-
-```{r}
-# Plots for coastline and continental slope. Do I keep?
-sf08 <- st_as_sf(tracks_SS_08, coords = c("Longitude", "Latitude"), crs=4326, remove=F)
-sf10 <- st_as_sf(tracks_SS_10, coords = c("Longitude", "Latitude"), crs=4326, remove=F)
-trkraster08 <- rasterize(vect(sf08), agg)
-trkraster10 <- rasterize(vect(sf10), agg)
-
-bathy_df <- as.data.frame(bathy, xy = TRUE)
-
-# Map the coastline and cont. slope
-cont <- st_as_sf(as.contour(bathy, ))
-coast <- cont %>% filter(level == 0)
-cont_slope <- cont %>% filter(level == -2000) #Is 2000m the correct depth for continental shelf?
-cont_slope_rast <- rasterize(cont_slope, agg, field = "level")
-plot(agg)
-plot(cont_slope_rast, col = "red")
-cont_slope_rast <- rasterize(cont_slope, agg)
-plot(cont_slope_rast, col = "red")
-  
-ggplot() + 
-  geom_sf(data = cont, col="black") + 
-  geom_sf(data = coast, col = "red") +
-  geom_sf(data = cont_slope, col = "purple") +
-  #geom_sf(data = whales_8_10sf, mapping = aes()) +
-  scale_color_gradient(low="green", high="red")
-```
-
