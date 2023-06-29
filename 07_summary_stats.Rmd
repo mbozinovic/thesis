@@ -1,0 +1,110 @@
+---
+title: "07_summary_stats"
+author: "Marina Bozinovic"
+date: "2023-06-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+Read in RDS files of each buoy + all environ variables + AIS (pending)
+```{r}
+ftlist <- dir("data/", recursive=TRUE, full.names=TRUE, pattern="fulltrack")
+
+for (ft in ftlist) {
+  df <- readRDS(ft)
+  assign(paste0("fulltrack", substr(ft, 15, 16)), df)
+}
+```
+
+Read in RDA files for percentiles
+```{r}
+## Make list of rda files to read in
+pclist <- c("BB_pct01_07", "BB_pct01_08", "BB_pct01_10", "BB_pct01_12", "BB_pct01_13", "BB_pct01_14", "BB_pct01_16", 
+            "BB_pct01_18", "BB_pct01_19", "BB_pct01_20", "BB_pct01_21", "BB_pct01_22", "BB_pct01_23", "TO_pct01_07",
+            "TO_pct01_08", "TO_pct01_10", "TO_pct01_12", "TO_pct01_13", "TO_pct01_14", "TO_pct01_16", "TO_pct01_18", 
+            "TO_pct01_19", "TO_pct01_20", "TO_pct01_21", "TO_pct01_22", "TO_pct01_23", "BB_pct99_07", "BB_pct99_08", 
+            "BB_pct99_10", "BB_pct99_12", "BB_pct99_13", "BB_pct99_14", "BB_pct99_16", "BB_pct99_18", "BB_pct99_19", 
+            "BB_pct99_20", "BB_pct99_21", "BB_pct99_22", "BB_pct99_23", "TO_pct99_07", "TO_pct99_08", "TO_pct99_10", 
+            "TO_pct99_12", "TO_pct99_13", "TO_pct99_14", "TO_pct99_16", "TO_pct99_18", "TO_pct99_19", "TO_pct99_20", 
+            "TO_pct99_21", "TO_pct99_22", "TO_pct99_23")
+
+## Read in rda files and assign to object
+for (ii in pclist) {
+  dta <- readRDS(paste0('data/', ii, '.rda'))
+  
+  assign(ii, dta)
+}
+
+pct01_07 <- cbind(BB_pct01_07, TO_pct01_07) %>%
+  select(., -3)
+pct01_08 <- cbind(BB_pct01_08, TO_pct01_08) %>%
+  select(., -3)
+pct01_10 <- cbind(BB_pct01_10, TO_pct01_10) %>%
+  select(., -3)
+pct01_12 <- cbind(BB_pct01_12, TO_pct01_12) %>%
+  select(., -3)
+pct01_13 <- cbind(BB_pct01_13, TO_pct01_13) %>%
+  select(., -3)
+pct01_14 <- cbind(BB_pct01_14, TO_pct01_14) %>%
+  select(., -3)
+pct01_16 <- cbind(BB_pct01_16, TO_pct01_16) %>%
+  select(., -3)
+pct01_18 <- cbind(BB_pct01_18, TO_pct01_18) %>%
+  select(., -3)
+pct01_19 <- cbind(BB_pct01_19, TO_pct01_19) %>%
+  select(., -3)
+pct01_20 <- cbind(BB_pct01_20, TO_pct01_20) %>%
+  select(., -3)
+pct01_21 <- cbind(BB_pct01_21, TO_pct01_21) %>%
+  select(., -3)
+pct01_22 <- cbind(BB_pct01_22, TO_pct01_22) %>%
+  select(., -3)
+pct01_23 <- cbind(BB_pct01_23, TO_pct01_23) %>%
+  select(., -3)
+```
+
+Bind ALL DRIFTS into one dataframe
+```{r}
+allDrifts <- rbind(fulltrack07, fulltrack08, fulltrack10, 
+                   fulltrack12, fulltrack13, fulltrack14, 
+                   fulltrack16, fulltrack18, fulltrack19, 
+                   fulltrack20, fulltrack21, fulltrack22, fulltrack23)
+```
+
+Where are loudest sound levels?
+```{r}
+pct01_07 %>%
+  summarise_if(is.numeric, list(~ min(., na.rm=TRUE)))
+
+
+```
+
+Where are the quietest sound levels by band?
+```{r}
+pctlist <- c("07", "08", "10", "12", "14", "16", "18", "19",
+             "20", "21", "22", "23")
+# Doesn't show time stamp!
+for (pc in pctlist) {
+  data <- get(paste0("pct01_", pc)) %>%
+    summarise_if(is.numeric, list(~ min(., na.rm=TRUE)))
+  
+  assign(paste0("min_", pc), data)
+}
+
+
+```
+
+Where do we hear the most whale detections?
+```{r}
+
+```
+
+Summary of each species: highest/lowest sound levels, number of detections
+```{r}
+allDrifts %>%
+  
+```
+
