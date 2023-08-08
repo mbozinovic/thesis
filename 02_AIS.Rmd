@@ -4,16 +4,15 @@ author: "Marina Bozinovic"
 date: "2023-04-11"
 output: html_document
 ---
-```{r}
-#Required Packages
 
+#Introduction
+AIS download from Marine Cadastre and match to buoy datasets.
+
+
+Required Packages
+```{r}
+library(PAMscapes)
 library(tidyverse)
-library(sf)
-library(gganimate)
-#install.packages("remotes")
-#remotes::install_github("skgrange/gissr")
-#devtools::install_github("skgrange/gissr")
-library(gissr)
 ```
 
 ```{r}
@@ -138,40 +137,56 @@ ship_dist <- (geosphere::distHaversine(AIS_within_buff@coords[10:13,], pois))/10
 cbind(AIS_within_buff@data[10:13,], ship_dist)
 ```
 
-
+-----------------------
+From Taiki's AIS Workflow
 
 ```{r}
-# Plot showing 10km buffer around drift 8
-#tmap_mode("plot")
-#tm_shape(buff) + tm_symbols(col = "blue", border.col = NA) +
-#  tm_shape(trk) + tm_dots(col = "red")
+marcadFiles07 <- downloadMarCadAIS(tracks_SS_07, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
 ```
 
-
-plots
+Subset to US West Coast
 ```{r}
-# Plot
-ggplot(tracks_SS_08, aes(x = long, y = lat.x)) + geom_point() 
- + geom_sf(data = bbox8, aes(col = "red"))
+subsetMarCadAIS(inDir="D:/AIS", outDir="D:/AIS/AIS_West", name='West_', 
+                latRange=c(20,50), lonRange=c(-140,-110),
+                overwrite=FALSE, progress=TRUE)
+```
+Now read in only ais points that come in contact with buoys.
+```{r}
+ais_near_07 <- readLocalAIS(tracks_SS_07, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+View(ais_near_07)
 
-# Plot showing AIS bounding box around drift 8 tracks
-ggplot() + geom_sf(data = trk_AIS_sf, color = "red")
-ggplot() + geom_sf(data = buff[lgth,] ,color = "red")
+gpsClose <- addAIS(tracks_SS_07, ais_near_07, interpType = 'close', interpTime = 120)
+gpsNone <- addAIS(tracks_SS_07, ais_near_07, interpType = 'none')
+gpsAll <- addAIS(tracks_SS_07, ais_near_07, interpType = 'all', interpTime = 120)
 
+## Using PRE-ROUNDED dataset to try out
+ais_near_raw7 <- readLocalAIS(tracks7, aisDir = "D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+gpsClose_raw7 <- addAIS(tracks7, ais_near_raw7, interpType = 'close', interpTime = 120)
+```
+
+Plot
+```{r}
 ggplot() +
-  geom_sf(data = calif) + coord_sf(default_crs = sf::st_crs(4326)) + theme_bw()
- # geom_sf(data = AIS_sf)
+    geom_path(data=tracks_SS_07, aes(x=Longitude, y=Latitude), col='black') +
+    geom_path(data=ais_near_07, aes(x=Longitude, y=Latitude, group=factor(MMSI), col=inDist)) +
+    xlim(min(tracks_SS_07$Longitude), max(tracks_SS_07$Longitude)) +
+    ylim(min(tracks_SS_07$Latitude), max(tracks_SS_07$Latitude))
 
 
-p <- ggplot() + geom_sf(data = buff, mapping = aes(x=Longitude,y=Latitude)) +
-  geom_point(data = AIS_within_buff, mapping = aes(x=LON,y=LAT, group = VesselName), color = "red")
+baseGps <- ggplot(data=tracks7, aes(x=Longitude, y=Latitude), col='black') +
+    geom_path() +
+    xlim(min(tracks7$Longitude), max(tracks7$Longitude)) +
+    ylim(min(tracks7$Latitude), max(tracks7$Latitude))
 
-anim <- p +
-  transition_reveal(along = BaseDateTime)+
-  ease_aes('linear')+
-  #shadow_wake(0.1) +
-  ggtitle("Date: {frame_along}")
+baseGps + geom_path(data=gpsClose_raw7, aes(x=shipLong, y=shipLat, group=factor(MMSI), color=shipDist < 10e3)) +
+     geom_point(data=gpsClose_raw7, aes(x=shipLong, y=shipLat, color=shipDist < 10e3), size = 0.1) +
+    ggtitle('CloseInterp')
 
-animate(anim, nframes = 180, fps = 3)
+
+# Viewing only ships within 10 km of buoys.
+close2ships7 <- gpsClose %>% filter(shipDist < 10e3)
 ```
+
 
