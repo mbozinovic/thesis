@@ -28,7 +28,10 @@ include.covars <- which(names(allDrifts) %in% covariate.list[[1]])
 string.covars.used <- paste0(names(allDrifts)[include.covars], sep="+", collapse="")
 
 #Create a dataframe for the RF model
-DF.modelZC <- na.omit(allDrifts)
+#DF.modelZC <- na.omit(allDrifts)
+
+DF.modelZC <- allDrifts %>%
+  filter(!species %in% c("BB", "BW43", "BW37V", "PM", "BWC"))
 
 # create balanced sample sizes of response for tree construction to 
 # avoid biases associated with imbalanced data
@@ -40,9 +43,11 @@ set.seed(123)
 
 # create balanced sample size random forest model
 
-#By ZC, doesn't work
-RF.model.ZC <- rfPermute(DF.modelZC$BWpresence ~ ., DF.modelZC[,include.covars], ntree=1000)
+#Model for ZC
+RF.model.ZC <- rfPermute(DF.modelZC$BWpresence ~ ., DF.modelZC[,include.covars], ntree=1000) ##doesnt work!!
 RF.model.ZC
+
+Dep <- "CCES_ZC_"
 
 #Evaluate RF models
 #Create a PDF of summary plots
