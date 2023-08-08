@@ -32,8 +32,10 @@ string.covars.used <- paste0(names(allDrifts)[include.covars], sep="+", collapse
 DF.model <- na.omit(allDrifts)
 DF.modelZC <- na.omit(allDrifts)
 
+
 # create balanced sample sizes of response for tree construction to 
 # avoid biases associated with imbalanced data
+sampsize <- balancedSampsize(DF.model$Bwpresence)
 sampsize <- balancedSampsize(DF.model$Bwpresence)
 
 # For ZC only
