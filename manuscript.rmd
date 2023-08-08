@@ -11,68 +11,62 @@ bibliography: references.bib
 
 ### Soundscapes
 
-Sound is a critical form of communication for many species in the ocean. Since sound travels over four times faster in water than in air and can carry information over far distances @urick1983 , the use of sound has evolved as a critical component of communication, navigation, and foraging for many invertebrates, fishes and cetaceans @duarte2021 . Under proper condition, sounds have the ability to travel great distances across ocean basins @miksis-olds.
+Sound is a critical form of communication for many species in the ocean. Since sound travels over four times faster in water than in air and can carry information over far distances @urick1983 , the use of sound has evolved as a critical component of communication, navigation, and foraging for many invertebrates, fishes and cetaceans @duarte2021 . Under the right conditions, sounds have the ability to travel across ocean basins @miksis-olds.
 
-The total collection of sounds in an environment is called a soundscape, and these are grouped into three broad categories: biophonies, sound produced by cetaceans, fishes, and invertebrates; geophonies, which consist of natural sounds like rain, wind, and earthquakes; anthropophonies, which consist of human-made sounds from shipping vessels, sonar, and survey activities (@miksis-olds, @duarte2021). Ocean sound levels exhibit high spatio-temporal variation based on traits such as properties of water, organism diversity, human activities, and bathymetry of a region @andré2011. Within soundscape ecology, ocean soundscapes have unique enough sound signatures to be characterized, measured, and monitored as indicators of ecosystem health, species diversity @radford2010 @haver2019.
+The total collection of sounds in an environment is called a soundscape, and these sources of sound are grouped into three broad categories: biophonies, sound produced by animals like cetaceans, fishes, and invertebrates; geophonies, natural sounds like rain, wind, and earthquakes; and anthropophonies, human-made sounds from shipping vessels, sonar, and survey activities (@miksis-olds, @duarte2021). Every region of the ocean experiences high spatio-temporal variation in sound levels and sources based on traits such as properties of water, organism diversity, human activities, and bathymetry @andré2011. Because of their unique sound signatures, ocean soundscapes are dynamic and can be characterized, measured, and monitored as indicators of ecosystem health or species diversity @radford2010 @haver2019 @weiss2021 @pijanowski2011 .
 
 **\[what do they have to lose in a noisy environment?\]**
 
-In an exceptionally noisy environment, organisms can be negatively impacted. Invertebrates and fishes may have stunted development and elevated stress responses (cite), while cetaceans' behavior, calling patterns, physiology and stress levels, ability to locate prey or conspecifics are affected. Ecosystem-level effects? Each species is affected differently, some more sensitive to certain types of noise. While terrestrial ecosystem-level effects have been documented, (Buxton 2017, Shannon 2016, Francis 2012), those within aquatic ecosystems are less studied @kunc2016.
+When noise levels reach above normal levels, organisms can be negatively impacted. Invertebrates and fishes may have stunted development and elevated stress responses (cite), fishes \[add negative behavior here\], and cetaceans' behavior, calling patterns, physiology and stress levels, ability to locate prey or conspecifics are impacted (cite). Each species is affected differently, some more sensitive to certain types of noise. While terrestrial ecosystem-level effects have been documented, (Buxton 2017, Shannon 2016, Francis 2012), those within aquatic ecosystems lack studies @kunc2016.
 
 **\[Noise pollution is a growing concern and increasing in the ocean.\]**
 
-Ocean noise pollution is among the anthropogenic changes that have recently grown to concerning levels @tyack2008, @hildebrand. The global ambient noise in the ocean is estimated to have increased by 12 decibels in the last few decades and has a close correlation to global economic trends @frisk2012. with commercial shipping accounting for most of the low-frequency anthropogenic noise in the ocean @hildebrand2009. Ships have been increasing in terms of gross tonnage and fleet size @hildebrand2009 (and age?), and now account for over 80% of the global trade, with an estimated 1.4% expected annual increase in shipping through 2027 @unctad.
+Ocean noise pollution is among the anthropogenic changes that have recently grown to concerning levels @tyack2008, @hildebrand. The global ambient noise in the ocean is estimated to have increased by 12 decibels in the last few decades and has a close correlation to global economic trends @frisk2012, with commercial shipping accounting for most of the low-frequency anthropogenic noise in the ocean @hildebrand2009. Ships have been increasing in terms of gross tonnage and fleet size @hildebrand2009 (and age?), and now account for over 80% of the global trade, with an estimated 1.4% expected annual increase in shipping through 2027 @unctad.
 
-These noise-generating activities are categorized as either incidental or deliberate @chou2021, @chahouri2022. Deliberate activities such as active sonar pingers, resource extraction from the seabed, seismic surveys, and echosounders are intentionally produce sound to measure an area and can utilize both high and low frequencies. Incidental activities like dredging, offshore development, and shipping produce sound as a by-product @hawkins2017. Anthropogenic noise can further be characterized by the frequency and duration of the sound. For example, shipping has a low-frequency (\<200 Hz), but continuous sound that is widely distributed across the world's oceans @hildebrand2009. Because this type of noise can travel great distances (add number), they can have effects further away from the source. Sonar for military surveillance or research such as seafloor mapping occupies the mid-frequency bands, but attenuates quicker and occupies a smaller acoustic space than shipping (shorter distance). Close approach of a vessel, for example, appears to disrupt beaked whale foraging, as opposed to some medium levels of chronic ship noise ( @aguilarsoto2006 ).
+These noise-generating activities are categorized as either incidental or deliberate @chou2021, @chahouri2022. Deliberate activities such as active sonar pingers, resource extraction from the seabed, seismic surveys, and echosounders are intentionally produce sound to measure an area and can utilize both high and low frequencies. Incidental activities like dredging, offshore development, and shipping produce sound as a by-product @hawkins2017. Anthropogenic noise can further be characterized by the frequency and duration of the sound. For example, shipping produces a continuous, low-frequency (\<200 Hz) sound that is widely distributed across the world's oceans @hildebrand2009. ~~Because this type of noise can travel great distances, they can have effects further away from the source~~. Sonar for military surveillance or research such as seafloor mapping occupies the mid-frequency bands, but attenuates quicker, therefore impacting a smaller acoustic space.
 
-It remains unknown if chronic effects from continuous sound or acute effects from impulsive sounds can alter the normal behavior or physiology of cetaceans enough to affect reproduction and population levels.
+It remains unknown if chronic effects from continuous sound or acute effects from impulsive sounds can alter the normal behavior or physiology of cetaceans enough to affect reproduction and population levels. (though see @new2013 for habitat displacement affecting reproduction or survival)
 
 Lower frequencies travel further, and higher frequencies tend to attenuate (@richardson2013 ), so the focus should be on local effects for that (@hildebrand2009 ). Ambient noise in shallow water has more variability than deeper water (@richardson2013). Climate change is also expected to alter the temperature, salinity, and pH of the ocean, causing an additional increase in global sound speed due to changing absorption qualities @affatati2022 @kunc2016 .
 
 **\[This is an issue, but the extent of damage remains unclear, so it's difficult to produce legislation to that effect\]**
 
-As soniferous animals, cetaceans have varying levels of sensitivity and vulnerability to certain types of noise. Mysticetes are more affected by low-frequency noise produced by large shipping vessels. Odontocetes produce and hear mid- to high-frequency sounds, so human activities that produce sounds at these frequencies interfere with these signals. While many studies document negative responses of cetaceans to noise pollution with general frequency bands (cite), the circumstances surrounding these acoustic disturbances (chronic or impulsive, low, mid, or high frequency, shallow or deep water, overlap with anthropogenic activity) and their long-term effects are unclear.
+As soniferous animals, cetaceans have varying levels of sensitivity and vulnerability to certain types of noise. Mysticetes are more affected by low-frequency noise produced by large shipping vessels. Odontocetes produce and hear mid- to high-frequency sounds, so human activities that produce sounds at these frequencies interfere with these signals. The lines are not always so clear cut as odontocetes may be affected by the frequencies of motorized shipping typically known to affect baleen whales @aguilarsoto2006.
+
+While many studies document negative responses of cetaceans to noise pollution with general frequency bands (cite), the circumstances surrounding these acoustic disturbances (chronic or impulsive, low, mid, or high frequency, shallow or deep water, overlap with anthropogenic activity) and their long-term effects are unclear.
+
+habitat degradation
 
 ### Beaked Whales/Sperm Whales
 
-**\[Introduce beaked and sperm whales: protected, visually cryptic, animals that are sensitive to noise and use sound extensively to communicate\]**\
-[Beaked whales]{.underline} (*Ziphiidae*) are among the least studied and most sensitive animals to anthropogenic noise. They routinely dive for hours at a time to depths greater than 1000 ft. They can dive for over 3 hours, followed by only a few minutes on the surface (same for BW and SW?) ( see Watkins et al., 1993). This diving behavior, coupled with a low-profile body makes them nearly invisible on the surface, so very little is known about them. This may be an anti-predation adaptation to avoid killer whales (cite) as well as a synchronized foraging dives following a silent descent (@aguilardesoto2020 ). Because they must make sound to locate prey, they do so in the refuge of deep depths where killer whales do not go (less than 20 m @aguilardesoto2020 and in frequencies they do not hear (cite)). Why do they have both adaptations? It is thought that this anti-predator response is exactly what makes them sensitive to human noise.
+[Beaked whales]{.underline} consist of 24 species within the family *Ziphiidae* and are among the least understood cetaceans and deepest divers in the ocean. They regularly dive for over an hour to depths greater than 800 m, and have been known to dive over three hours at a time to depths greater than 2000 m, followed by only a few minutes on the surface @tyack @baird2006. Their preference for deep water, coupled with a low-profile body makes them nearly invisible on the surface, so very little is known about them with visual observations @awbery2022 . Much of what is known comes from strandings and stomach content analysis @west2017. Even when sighting events occur, they risk misidentification due to the paucity of data regarding morphological variations in some species @aguilardesoto2017. Tagging studies prove useful, but difficult to scale/acquire sizable dataset @baird2006 @baird2008 @tyack .
 
-"Sperm whales and Cuvier's beaked whales are deep-diving species that generally live in pelagic areas characterized by deep basins and trenches or steep slopes. As such, their distribution is closely related to bathymetry, with distinctive preference for depths of 1000m and 500-1500m for sperm whales and Cuvier's beaked whales, respectively." ([**Awbery et al 2021**](https://www.frontiersin.org/articles/10.3389/fmars.2022.860242/full))
+Beaked whales are also known to be unusually sensitive to noise. There are several documented cases of naval mid-frequency active sonar (MFAS) activities coinciding with mass stranding events by beaked whales (see @simonis2020, table 1 in @weilgart, @deruiter2013 , @stanistreet2022, @bernaldodequiros, @fernández2005 ). This occurs for two reasons: 1) their anti-predation adaptation to avoid killer whales (*Orcinus orca*)(synchronized foraging, followed by silent, scattered vertical ascent) mimics that of anthropogenic noise and leads to strandings @aguilardesoto2020; 2) the same physiological adaptations that allow for extreme diving are observed to be deadly when forced to alter behavior and flee the noise source more so than other odontocetes @tyack @cox2006 @joyce2020 . Furthermore, these responses vary based on the individuals' age, sex, past experience with noise, or current activity @weilgart.
 
-Species studied:\
+Despite their visually cryptic nature, their sound signals are very well-described, down to the species level @baumann-pickering2013, @baumann-pickering2014. Beaked whale produce clicks, pulses, and buzzes during foraging starting at the 400(?) m range @tyack. With increasing acoustic surveys in the literature, new vocalization patterns are being detected globally @manzano-roth2023 and notable temporal patterns are emerging @yamada2019.
+
+Sperm whales (*Physeter macrocephalus*) also occupy deep ocean habitats, but their dive depths and times are reduced in comparison. Sperm whales have been known to dive regularly between 400-600 m and often over 1000 m @watkins1993 @awbery2022 @amano2003. They also appear to have more acoustic tolerance than beaked whales @miller2009, @miller2022. While avoidance responses in sperm whales have been recorded following naval sonar events @curé2013 @stanistreet2022 @sivle2012 , the full extent is unknown.
+
+Sperm whales also emit series of targeted clicks when socializing (@marcoux2006 @fais2015) and when foraging @fais2016, but it's unlikely they debilitate their prey with their vocalizations as previously hypothesized @norris1972 . More is known about sperm whales than beaked whales as they are less visually cryptic and have a
+
+Species studied: \
 - ZC Cuvier's beaked whale *Ziphius cavirostris (IUCN status: least concern)\
--* BW43, possibly Perrin's beaked whale *M*. *perrini (IUCN status: endangered)* confirmed??\
-- BW37V, possibly Hubbs' beaked whale *M. carlhubbsi (IUCN status: data deficient)\
--* BB, --???\
-- BWC, possibly ginkgo-toothed beaked whale *M. ginkgodens (IUCN status: data deficient)\
--* PM, sperm whale *(IUCN status: vulnerable)*
-
-sp[erm whales]{.underline} (*Physeter macrocephalus*) may have more acoustic tolerance than beaked whales @miller2009, @miller2022 . Look at 3D3 project of behavioral responses of sperm whales to sonar
+-* BW43, Perrin's beaked whale *M*. *perrini (IUCN status: endangered)* confirmed in 2021 @baumann-pickering2013 @barlow2021\
+- BW37V, possibly Hubbs' beaked whale *M. carlhubbsi (IUCN status: data deficient)* @simonis2020*\
+**-* BB, --???\
+- BWC, possibly ginkgo-toothed beaked whale *M. ginkgodens (IUCN status: data deficient)* @simonis2020*\
+**-* PM, sperm whale *(IUCN status: vulnerable)*
 
 **Effects of Acoustic Disturbance**
 
-The acoustic interference from human activity in BW/SW, for example, can :\
-- affect **behavior** (displacement from habitat, spending time and effort fleeing instead of foraging, increasing call intensity (cite?) (Joy et al. 2019, @deruiter2013, @aguilarsoto2006 , @stanistreet2022, @joyce2020, @falcone2017, @cholewiak2017 )\
-- disrupt **communication** and echolocation (same as above?)\
-- lead to physical **harm**, even at far distances (up to 100 km away from @falcone2017) like hearing loss, tissue damage, and elevated stress levels. (See @hooker2019 for more info)\
-- **masking** signals for communication (@erbe2014?, ) or environmental cues (@duarte2021)\
-- reduced mating calls (Weilgart, 2007)\
+The specific effects of acoustic interference from human activity in beaked and sperm whales are well-documented. Intense noise events can affect behavior through habitat displacement, spending time and effort fleeing instead of foraging, communication and echolocation click disruption, increasing call intensity (cite?) (@deruiter2013, @aguilarsoto2006 , @stanistreet2022, @joyce2020, @falcone2017, @cholewiak2017 ), cause physiological harm like hearing loss, tissue damage, and elevated stress levels (see @hooker2019) even at far distances (up to 100 km away @falcone2017), masksignals for communication (@erbe2014), environmental cues (@duarte2021), or mating @weilgart.\
 - see Cox et al 2006 for impacts of sound on BW
 
-There are several documented cases of naval mid-frequency active sonar (MFAS) activities coinciding with mass stranding events by beaked whales (see @simonis2020, table 1 in @weilgart, @deruiter2013 , @stanistreet2022, @bernaldodequiros, @fernández2005 ). [For sperm whales]{.underline}: "The potential impact of full-scale military exercises on sperm whales are not known. @stanistreet2022, though there is evidence that male sperm whales stop feeding and change behaviors ( @curé2013).
-
-Under the Marine Mammal Protection Act, all these species are federally protected, several of these species have threatened or endangered conservation statuses (Endangered Species Act), but most remain listed as "data deficient" (cite IUCN). \[Also include National Marine Sanctuary Act\]. Arguments have been made that the term data-deficient does not illicit the same conservation urgency and therefore gets lowered on the priority list (@parsons2016).
-
-Despite their visually cryptic nature, their sound signals are very well-described, down to the species level @baumann-pickering2013, @baumann-pickering2014. Beaked whale produce clicks, pulses, and buzzes during foraging starting at the 400(?) m range @tyack. The production of sound at this depth may be an adaptation to avoid predation from killer whales, who spend most of its time shallow (from @tyack Baird et al 1998, follow up on this). Some are still being discovered and identified globally- see @manzano-roth2023, @yamada2019.
-
-Do beaked whales show temporal variation in their calls? See @ziegenhorn2023
-
-**\[add info about sperm whale echolocation characteristics.\]** Sperm whales also emit series of clicks when socializing (@poupard2022 ).\
+Under the Marine Mammal Protection Act, all these species are federally protected, several receive addition protection under the Endangered Species Act due to a vulnerable or endangered conservation status @taylor @perrin , but some remain listed as "data deficient" ( @pitman @ginkgodens). The latter designation has been scrutinized for not illiciting the same conservation urgency as species whose populations are well-documented therefore gets lowered on the priority list (@parsons2016).
 
 ### Passive Acoustic Monitoring
 
-Passive acoustic monitoring is a tool that allows us to record and listen to the soundscape. It is not fit for all applications or ecological questions, but beaked and sperm whales are ideal study candidates for this type of monitoring because they are often better heard than seen ( @fleishman ).
+Passive acoustic monitoring is a tool that allows us to record and listen to the soundscape. It is not fit for all applications or ecological questions, but beaked and sperm whales are ideal study candidates for this type of monitoring because they are often better heard than seen ( @fleishman ). This method provides reliable estimates @arranz2023.
 
 Bottom-mounted/static: high temporal resolution, low spatial resolution @mellinger
 
@@ -139,7 +133,7 @@ Quantifying soundscapes in a standardized way and monitoring these changes over 
 ### **Study Area**
 
 \
-The California Current Ecosystem extends along the US' Economic Exclusion Zone along the west coast. It is characterized by... It's a highly productive and complex ecosystem that contains five current and one proposed national marine sanctuaries, supports several wild fisheries, and is home to many protected species. Because this area has high economic value and natural ecological activity, it's a well-managed and well-researched area. "Ambient noise off the coast of California has increased many-fold over the past several decades..." (@moore2013 + other sources w/in that).
+The California Current Ecosystem extends along the US' Economic Exclusion Zone along the west coast. It is characterized by... It's a highly productive and complex ecosystem that contains five current and one proposed national marine sanctuaries \[add National Marine Sanctuary Act support\], supports several wild fisheries, and is home to many protected species. Because this area has high economic value and natural ecological activity, it's a well-managed and well-researched area. "Ambient noise off the coast of California has increased many-fold over the past several decades..." (@moore2013 + other sources w/in that).
 
 In 2021, California, Washington, and Oregon ranked 3rd, 5th, and 23rd in most trafficked U.S. waterways, respectively (@unitedstatesarmycorpsofengineersusace2018. Lots of overlap between vessel activity from busy ports and important habitat for protected species.
 
@@ -171,7 +165,7 @@ use @torreblanca2022 for deep habitat info\
 see @johnston2008 and @manzano-roth2023 for seamount habitat importance
 
 | Covariate                     | Unit | Source                                                          | Justification                                                                                                         |
-|-----------------|-----------------|-----------------|----------------------|
+|-----------------|-----------------|-----------------|---------------------|
 |                               |      | \[can use A, B, C to avoid repetition, cite in caption\]        |                                                                                                                       |
 | Distance to continental slope |      | General Bathymetric Chart of the Oceans (GEBCO) @weatherall2015 |                                                                                                                       |
 | Bathymetric slope             |      | GEBCO tif                                                       |                                                                                                                       |
@@ -222,6 +216,8 @@ Are BW or SW known to have seasonal movements? @robbins2022 suggest they do, tho
 Non-AIS vessels or small vessels (fishing, recreational) may contribute to the soundscape in relevant frequency bands (@hermannsen2019 , @hildebrand2009 ) and this does not get captured here.
 
 \[Add here.\]
+
+**\[Recommendations?\]**
 
 ## Acknowledgements
 
