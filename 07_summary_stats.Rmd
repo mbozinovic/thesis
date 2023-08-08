@@ -38,6 +38,7 @@ for (ii in pclist) {
   assign(ii, dta)
 }
 
+# 1 Percentile
 pct01_07 <- cbind(BB_pct01_07, TO_pct01_07) %>%
   select(., -3)
 pct01_08 <- cbind(BB_pct01_08, TO_pct01_08) %>%
@@ -64,6 +65,39 @@ pct01_22 <- cbind(BB_pct01_22, TO_pct01_22) %>%
   select(., -3)
 pct01_23 <- cbind(BB_pct01_23, TO_pct01_23) %>%
   select(., -3)
+
+pct01_all <- rbind(pct01_07, pct01_08, pct01_10, pct01_12, pct01_13,
+                   pct01_14, pct01_16, pct01_18, pct01_19, pct01_20,
+                   pct01_21, pct01_22, pct01_23)
+# need to add column with buoy name
+
+# 99 Percentile
+pct99_07 <- cbind(BB_pct99_07, TO_pct99_07) %>%
+  select(., -3)
+pct99_08 <- cbind(BB_pct99_08, TO_pct99_08) %>%
+  select(., -3)
+pct99_10 <- cbind(BB_pct99_10, TO_pct99_10) %>%
+  select(., -3)
+pct99_12 <- cbind(BB_pct99_12, TO_pct99_12) %>%
+  select(., -3)
+pct99_13 <- cbind(BB_pct99_13, TO_pct99_13) %>%
+  select(., -3)
+pct99_14 <- cbind(BB_pct99_14, TO_pct99_14) %>%
+  select(., -3)
+pct99_16 <- cbind(BB_pct99_16, TO_pct99_16) %>%
+  select(., -3)
+pct99_18 <- cbind(BB_pct99_18, TO_pct99_18) %>%
+  select(., -3)
+pct99_19 <- cbind(BB_pct99_19, TO_pct99_19) %>%
+  select(., -3)
+pct99_20 <- cbind(BB_pct99_20, TO_pct99_20) %>%
+  select(., -3)
+pct99_21 <- cbind(BB_pct99_21, TO_pct99_21) %>%
+  select(., -3)
+pct99_22 <- cbind(BB_pct99_22, TO_pct99_22) %>%
+  select(., -3)
+pct99_23 <- cbind(BB_pct99_23, TO_pct99_23) %>%
+  select(., -3)
 ```
 
 Bind ALL DRIFTS into one dataframe
@@ -76,11 +110,34 @@ allDrifts <- rbind(fulltrack07, fulltrack08, fulltrack10,
 
 Where are loudest sound levels?
 ```{r}
+# For buoy 7
 pct01_07 %>%
   summarise_if(is.numeric, list(~ min(., na.rm=TRUE)))
 
+pct01_07 %>% filter(.$`BB_20-24000` > 120)
 
+########################
+
+pctlist <- c("07", "08", "10", "12", "14", "16", "18", "19",
+             "20", "21", "22", "23")
+# Doesn't show time stamp!
+for (pc in pctlist) {
+  data <- get(paste0("pct99_", pc)) %>%
+    summarise_if(is.numeric, list(~ max(., na.rm=TRUE)))
+  
+  assign(paste0("max_", pc), data)
+}
+
+print(max_07)
+
+## Add multi. Sum up rows and extract min/max
+ggplot(data = TO_pct01_07, aes()) + 
+  geom_histogram()
+
+summary(TO_pct01_07)
 ```
+
+
 
 Where are the quietest sound levels by band?
 ```{r}
@@ -94,17 +151,135 @@ for (pc in pctlist) {
   assign(paste0("min_", pc), data)
 }
 
-
+print(min_07)
 ```
 
-Where do we hear the most whale detections?
+Where do we hear the most whale detections? Which buoy had the most detections?
 ```{r}
-
-```
-
-Summary of each species: highest/lowest sound levels, number of detections
-```{r}
+# Summarize number of detections by species
 allDrifts %>%
-  
+  group_by(species) %>%
+  summarize(n())
+## ZC had the most
+
+
+#Which buoy had the most detections?
+allDrifts %>%
+  count(station, BWpresence) %>%
+  filter(!BWpresence == 0) %>%
+  arrange(desc(n))
+## Buoy 18 has the most
+
+#Plot buoys
+ggplot() +
+     geom_path(data=allDrifts, aes(x=Longitude, y=Latitude, group=factor(station), col=factor(station))) 
+```
+
+
+
+
+Summary of each species: highest/lowest sound levels, avg sound levels they're exposed to
+```{r}
+# Sort sperm whale detection by decreasing BB sound levels
+allDrifts %>%
+  dplyr::filter(species == "PM") %>%
+  arrange(desc(BB_20.24000))
+
+
+PM <- allDrifts %>%
+  dplyr::filter(species == "PM")
+
+print(paste("PM Max BB sound level: ", max(PM$BB_20.24000, na.rm = TRUE)))
+print(paste("PM Min BB sound level: ", min(PM$BB_20.24000, na.rm = TRUE)))
+print(paste("PM Max TOL125 sound level: ", max(PM$TOL_125, na.rm = TRUE)))
+print(paste("PM Min TOL125 sound level: ", min(PM$TOL_125, na.rm = TRUE)))
+print(paste("PM Max TOL20000 sound level: ", max(PM$TOL_20000, na.rm = TRUE)))
+print(paste("PM Min TOL20000 sound level: ", min(PM$TOL_20000, na.rm = TRUE)))
+
+
+# One detection value for BWC
+BWC <- allDrifts %>%
+  dplyr::filter(species == "BWC")
+print(paste("BWC Max BB sound level: ", max(BWC$BB_20.24000, na.rm = TRUE)))
+print(paste("BWC Min BB sound level: ", min(BWC$BB_20.24000, na.rm = TRUE)))
+print(paste("BWC Max TOL125 sound level: ", max(BWC$TOL_125, na.rm = TRUE)))
+print(paste("BWC Min TOL125 sound level: ", min(BWC$TOL_125, na.rm = TRUE)))
+print(paste("BWC Max TOL20000 sound level: ", max(BWC$TOL_20000, na.rm = TRUE)))
+print(paste("BWC Min TOL20000 sound level: ", min(BWC$TOL_20000, na.rm = TRUE)))
+
+BB <- allDrifts %>%
+  dplyr::filter(species == "BB")
+print(paste("BB Max BB sound level: ", max(BB$BB_20.24000, na.rm = TRUE)))
+print(paste("BB Min BB sound level: ", min(BB$BB_20.24000, na.rm = TRUE)))
+print(paste("BB Max TOL125 sound level: ", max(BB$TOL_125, na.rm = TRUE)))
+print(paste("BB Min TOL125 sound level: ", min(BB$TOL_125, na.rm = TRUE)))
+print(paste("BB Max TOL20000 sound level: ", max(BB$TOL_20000, na.rm = TRUE)))
+print(paste("BB Min TOL20000 sound level: ", min(BB$TOL_20000, na.rm = TRUE)))
+ 
+BW37V <- allDrifts %>%
+  dplyr::filter(species == "BW37V")
+print(paste("BW37V Max BB sound level: ", max(BW37V$BB_20.24000, na.rm = TRUE)))
+print(paste("BW37V Min BB sound level: ", min(BW37V$BB_20.24000, na.rm = TRUE)))
+print(paste("BW37V Max TOL125 sound level: ", max(BW37V$TOL_125, na.rm = TRUE)))
+print(paste("BW37V Min TOL125 sound level: ", min(BW37V$TOL_125, na.rm = TRUE)))
+print(paste("BW37V Max TOL20000 sound level: ", max(BW37V$TOL_20000, na.rm = TRUE)))
+print(paste("BW37V Min TOL20000 sound level: ", min(BW37V$TOL_20000, na.rm = TRUE)))
+ 
+BW43 <- allDrifts %>%
+  dplyr::filter(species == "BW43")
+print(paste("BW43 Max BB sound level: ", max(BW43$BB_20.24000, na.rm = TRUE)))
+print(paste("BW43 Min BB sound level: ", min(BW43$BB_20.24000, na.rm = TRUE)))
+print(paste("BW43 Max TOL125 sound level: ", max(BW43$TOL_125, na.rm = TRUE)))
+print(paste("BW43 Min TOL125 sound level: ", min(BW43$TOL_125, na.rm = TRUE)))
+print(paste("BW43 Max TOL20000 sound level: ", max(BW43$TOL_20000, na.rm = TRUE)))
+print(paste("BW43 Min TOL20000 sound level: ", min(BW43$TOL_20000, na.rm = TRUE)))
+
+ZC <- allDrifts %>%
+  dplyr::filter(species == "ZC")
+print(paste("ZC Max BB sound level: ", max(ZC$BB_20.24000, na.rm = TRUE)))
+print(paste("ZC Min BB sound level: ", min(ZC$BB_20.24000, na.rm = TRUE)))
+print(paste("ZC Max TOL125 sound level: ", max(ZC$TOL_125, na.rm = TRUE)))
+print(paste("ZC Min TOL125 sound level: ", min(ZC$TOL_125, na.rm = TRUE)))
+print(paste("ZC Max TOL20000 sound level: ", max(ZC$TOL_20000, na.rm = TRUE)))
+print(paste("ZC Min TOL20000 sound level: ", min(ZC$TOL_20000, na.rm = TRUE)))
+ 
+
+```
+Number of detections
+```{r}
+print(paste("Number of PM detections: ", nrow(PM)))
+print(paste("Number of ZC detections: ", nrow(ZC)))
+print(paste("Number of BW43 detections: ", nrow(BW43)))
+print(paste("Number of BWC detections: ", nrow(BWC)))
+print(paste("Number of BB detections: ", nrow(BB)))
+print(paste("Number of BW37V detections: ", nrow(BW37V)))
+
+#Plot
+sp <- allDrifts %>% filter(!species == 'NA')
+ggplot(sp, aes(species)) +
+  geom_bar()
+```
+How do I find WHERE the highest/lowest detections are happening?
+```{r}
+ZC <- allDrifts %>%
+  dplyr::filter(species == "ZC")
+
+ZC[which.max(ZC$BB_20.24000),]
+ZCmax2000 <- ZC[which.max(ZC$TOL_2000),]
+
+#Point of ZC max TOL2000 sound level. Need to put in context of map.
+ggplot(data = ZCmax2000, aes(x = Longitude, y = Latitude)) +
+  geom_point()
+
+
+#not working
+allDrifts %>%
+  group_by(species) %>%
+  filter(max(allDrifts$BB_20.24000))
+
+allDrifts %>%
+  summarise_if(is.numeric, list(~ min(., na.rm=TRUE)))
+
+
 ```
 
