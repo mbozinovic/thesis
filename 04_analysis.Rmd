@@ -27,6 +27,7 @@ Bind ALL DRIFTS into one dataframe
 ```{r}
 allDrifts <- rbind(fulltrack07, fulltrack08, fulltrack10, fulltrack12, fulltrack13, fulltrack14, 
                    fulltrack16, fulltrack18, fulltrack19, fulltrack20, fulltrack21, fulltrack22, fulltrack23)
+#save(allDrifts, file = "allDrifts.rda")
 ```
 
 
