@@ -108,7 +108,10 @@ allDrifts <- rbind(fulltrack07, fulltrack08, fulltrack10,
                    fulltrack20, fulltrack21, fulltrack22, fulltrack23)
 ```
 
-Where are loudest sound levels?
+Where are loudest sound levels? See @haver2020 for details on percentiles
+5th percentile = exceeded most of the time, so refers to background sound
+90th percentile = exceeded 10% of the time, so refers to PEAKS in sound level
+Also see @haver2021 (fig 2) for daily TOL levels by site (can do by buoy)
 ```{r}
 # For buoy 7
 pct01_07 %>%
