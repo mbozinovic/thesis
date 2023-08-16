@@ -10,138 +10,28 @@ AIS download from Marine Cadastre and match to buoy datasets.
 
 
 Required Packages
-```{r}
+```{r, }
 library(PAMscapes)
 library(tidyverse)
-```
-
-```{r}
-# Function
-# Speeding up st_intersection (from https://github.com/r-spatial/sf/issues/801)
-
-st_intersection_faster <- function(x,y,...){
-#faster replacement for st_intersection(x, y,...)
-
-  y_subset <-
-    st_intersects(x, y) %>%
-    unlist() %>%
-    unique() %>%
-    sort() %>%
-    {y[.,]}
-
-  st_intersection(x, y_subset,...)
-}
-
-
-```
-
-
-
-```{r}
-#########
-# AIS
-#########
-
-##### Need to add more AIS dates to D: DRIVE!!!
-AISlist <- list.files(path = paste0("data-raw/"), pattern = "AIS_", recursive = TRUE)
-
-for (v in AISlist) {
-  Adata <- read_csv(paste0("data-raw/", v), show_col_types = FALSE) %>%
-    filter(Length >= 100) %>%                  # Filter out vessels over 100m in length
-    dplyr::select(-SOG,-COG, -CallSign, -IMO, -Cargo, -Draft, -Status) %>%  #Remove unnecessary columns
-    mutate(variable = paste0(substr(v, 16, 17), substr(v, 6, 7)))
-  
-  assign(paste0("AIS_", substr(v, 5, 10)), Adata)
-}
-
-
-AIS_sf <- AIS_091218 %>%
-  st_as_sf(coords = c("LON", "LAT"), crs=4326, remove=F)
-```
-
-```{r}
-##################################
-# Create 10 km buffer around buoys (taken from M. McKenna's code)
-# Should be malleable for each buoy's number to easily plug in.
-##################################
-tracks <- readRDS("data-raw/tracks.rda")
-
-trk8 <- tracks %>% 
-  dplyr::filter(station == "8") %>%
-  st_as_sf(coords= c("Longitude", "Latitude"), crs=4326, remove=F)
-
-pois <- st_transform(trk8, crs = 4326)    # Specify a crs
-pts_buff <- st_buffer(pois, dist = 10000)  # Creates 10 km buffer around buoy points 10 km (10000m)
-buff <- st_transform(pts_buff, crs = 4326)  # Specify crs for new buffer
-
-### Crop full AIS to 10km buffer around drift 8 ###
-AIS_crop <- st_crop(x = AIS_sf, y = buff)
-```
-
-```{r}
-# Intersect buffer with AIS. Starting this on first 10 rows to see how slowly it goes. 
-## FIX ME
-#inters <- st_intersection(buff, AIS_crop[1:140,])
-
-
-#Another way to view AIS points that fall within buffer. DOES NOT consider time.
-AIS_within_buff <- AIS_crop[buff,]
-f <- buff[AIS_within_buff,]
-by <- join_by(closest(UTC >= BaseDateTime))
-
-d <- full_join(buff, as.data.frame(AIS_within_buff), by)
-
-e <- d[!duplicated(d[c('BaseDateTime')]),]  
-
-
-
-trk_AIS <- left_join(as.data.frame(trk8), as.data.frame(AIS_within_buff), by)
-
-proj4string <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-trk_AIS_sf <- trk_AIS %>% st_as_sf(coords = c("Longitude", "Latitude"), crs=projcrs, remove=F)# %>%
-   st_set_crs(4326)
-trk_AIS_sf <- st_transform(trk_AIS_sf, crs = 4326)
-
-
-#inters <- st_intersection_faster(buff, AIS_crop[1:140,])
-#inters2 <- st_intersection_faster(buff, AIS_crop[141:200,])
-#inters3 <- st_intersection_faster(buff, AIS_crop[201:300,])
-
-#Another way to view AIS points that fall within buffer. DOES NOT consider time.
-
-st_is_within_distance(AIS_crop, pois, dist = 10000)
-st_distance(AIS_crop, pois, dist_fun = 10000)
-
-st_set_geometry(AIS_crop, value = NULL)
-st_set_geometry(pois, value = NULL)
-
-AIS_crop <- as_Spatial(AIS_crop)
-pois <- as_Spatial(pois)
-AIS_within_buff <- as_Spatial(AIS_within_buff)
-z <- sp_distance(AIS_crop, pois, features = TRUE, unit = "km")
-
-data_places <- pois@data
-data_places$distance <- sp_distance(AIS_within_buff, pois, features = TRUE, unit = "km")
-View(data_places)
-
-rgeos::gWithinDistance(AIS_crop, pois, features = TRUE, dist = 10000)
-```
-```{r}
-# For each row in AIS df,
-  # calculate distance to closest drift
-  # return smallest distance
-  # attach column to df
-
-# 
-ship_dist <- (geosphere::distHaversine(AIS_within_buff@coords[10:13,], pois))/1000
-cbind(AIS_within_buff@data[10:13,], ship_dist)
 ```
 
 -----------------------
 From Taiki's AIS Workflow
 
 ```{r}
-marcadFiles07 <- downloadMarCadAIS(tracks_SS_07, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles07 <- downloadMarCadAIS(tracks_SS_07, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles08 <- downloadMarCadAIS(tracks_SS_08, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles10 <- downloadMarCadAIS(tracks_SS_10, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles12 <- downloadMarCadAIS(tracks_SS_12, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles13 <- downloadMarCadAIS(tracks_SS_13, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles14 <- downloadMarCadAIS(tracks_SS_14, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles16 <- downloadMarCadAIS(tracks_SS_16, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles18 <- downloadMarCadAIS(tracks_SS_18, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles19 <- downloadMarCadAIS(tracks_SS_19, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles20 <- downloadMarCadAIS(tracks_SS_20, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles21 <- downloadMarCadAIS(tracks_SS_21, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles22 <- downloadMarCadAIS(tracks_SS_22, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles23 <- downloadMarCadAIS(tracks_SS_23, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
 ```
 
 Subset to US West Coast
@@ -150,43 +40,84 @@ subsetMarCadAIS(inDir="D:/AIS", outDir="D:/AIS/AIS_West", name='West_',
                 latRange=c(20,50), lonRange=c(-140,-110),
                 overwrite=FALSE, progress=TRUE)
 ```
-Now read in only ais points that come in contact with buoys.
+Now read into R only ais points that come in contact with buoys
 ```{r}
 ais_near_07 <- readLocalAIS(tracks_SS_07, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
    filter(vesselLength >= 100)  #remove vessels under 100m in length
-View(ais_near_07)
 
-gpsClose <- addAIS(tracks_SS_07, ais_near_07, interpType = 'close', interpTime = 120)
-gpsNone <- addAIS(tracks_SS_07, ais_near_07, interpType = 'none')
-gpsAll <- addAIS(tracks_SS_07, ais_near_07, interpType = 'all', interpTime = 120)
-
-## Using PRE-ROUNDED dataset to try out
-ais_near_raw7 <- readLocalAIS(tracks7, aisDir = "D:/AIS/AIS_West", distance=10e3) %>%
+ais_near_08 <- readLocalAIS(tracks_SS_08, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
    filter(vesselLength >= 100)  #remove vessels under 100m in length
-gpsClose_raw7 <- addAIS(tracks7, ais_near_raw7, interpType = 'close', interpTime = 120)
+
+ais_near_10 <- readLocalAIS(tracks_SS_10, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_12 <- readLocalAIS(tracks_SS_12, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_13 <- readLocalAIS(tracks_SS_13, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_14 <- readLocalAIS(tracks_SS_14, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_16 <- readLocalAIS(tracks_SS_16, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_18 <- readLocalAIS(tracks_SS_18, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_19 <- readLocalAIS(tracks_SS_19, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_20 <- readLocalAIS(tracks_SS_20, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_21 <- readLocalAIS(tracks_SS_21, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#empty table because no large vessels interacted with this buoy
+
+ais_near_22 <- readLocalAIS(tracks_SS_22, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+ais_near_23 <- readLocalAIS(tracks_SS_23, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+   filter(vesselLength >= 100)  #remove vessels under 100m in length
 ```
 
-Plot
+Match AIS points with buoy points
 ```{r}
-ggplot() +
-    geom_path(data=tracks_SS_07, aes(x=Longitude, y=Latitude), col='black') +
-    geom_path(data=ais_near_07, aes(x=Longitude, y=Latitude, group=factor(MMSI), col=inDist)) +
-    xlim(min(tracks_SS_07$Longitude), max(tracks_SS_07$Longitude)) +
-    ylim(min(tracks_SS_07$Latitude), max(tracks_SS_07$Latitude))
+gpsClose07 <- addAIS(tracks_SS_07, ais_near_07, interpType = 'close', interpTime = 120)
+gpsClose08 <- addAIS(tracks_SS_08, ais_near_08, interpType = 'close', interpTime = 120)
+gpsClose10 <- addAIS(tracks_SS_10, ais_near_10, interpType = 'close', interpTime = 120)
+gpsClose12 <- addAIS(tracks_SS_12, ais_near_12, interpType = 'close', interpTime = 120)
+gpsClose13 <- addAIS(tracks_SS_13, ais_near_13, interpType = 'close', interpTime = 120)
+gpsClose14 <- addAIS(tracks_SS_14, ais_near_14, interpType = 'close', interpTime = 120)
+gpsClose16 <- addAIS(tracks_SS_16, ais_near_16, interpType = 'close', interpTime = 120)
+gpsClose18 <- addAIS(tracks_SS_18, ais_near_18, interpType = 'close', interpTime = 120)
+gpsClose19 <- addAIS(tracks_SS_19, ais_near_19, interpType = 'close', interpTime = 120)
+gpsClose20 <- addAIS(tracks_SS_20, ais_near_20, interpType = 'close', interpTime = 120)
+gpsClose21 <- addAIS(tracks_SS_21, ais_near_21, interpType = 'close', interpTime = 120) #empty table
+gpsClose22 <- addAIS(tracks_SS_22, ais_near_22, interpType = 'close', interpTime = 120)
+gpsClose23 <- addAIS(tracks_SS_23, ais_near_23, interpType = 'close', interpTime = 120)
+```
 
-
-baseGps <- ggplot(data=tracks7, aes(x=Longitude, y=Latitude), col='black') +
-    geom_path() +
-    xlim(min(tracks7$Longitude), max(tracks7$Longitude)) +
-    ylim(min(tracks7$Latitude), max(tracks7$Latitude))
-
-baseGps + geom_path(data=gpsClose_raw7, aes(x=shipLong, y=shipLat, group=factor(MMSI), color=shipDist < 10e3)) +
-     geom_point(data=gpsClose_raw7, aes(x=shipLong, y=shipLat, color=shipDist < 10e3), size = 0.1) +
-    ggtitle('CloseInterp')
-
-
+Create column 'shipsin10km' that displays number of ships associated with timestamp
+Need to make a loop!
+```{r}
 # Viewing only ships within 10 km of buoys.
-close2ships7 <- gpsClose %>% filter(shipDist < 10e3)
+close2ships7 <- gpsClose07 %>% filter(shipDist < 10e3)
+
+#Add column of ROUNDED UTC values to the lowest minute. Allows common field to bind
+z <- as.POSIXct(close2ships7$UTC)
+close2ships7$UTCrnd <- lubridate::floor_date(z, "minute")
+
+#Bind rows with ship nearby
+#Summarize unique ships and display number of nearby vessels
+nearbyShp07 <- inner_join(tracks_ss_07, close2ships7, by = join_by("UTC" == "UTCrnd")) %>%
+  select(UTC, UTC2, MMSI, vesselLength, vesselType, shipLat, shipLong, shipDist) %>%
+  group_by(UTC2) %>%
+  summarize(shipin10km = n_distinct(MMSI))
+    
+# ready to join to main df and add zeros to Null values
 ```
 
 
