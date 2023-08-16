@@ -7,6 +7,9 @@ library(randomForest)
 library(dplyr)
 library(rfPermute)
 
+# Load in main dataframe
+load(file = "allDrifts.rda")
+
 #Define response variable (presence/absence as 0/1)
 #I suggest creating a variable for presence of each species, and then create a
 #random forest model for each species 
@@ -51,12 +54,25 @@ set.seed(123)
 # create balanced sample size random forest model
 #By ZC
 RF.model.ZC <- rfPermute(ZcPresence ~ ., data=DF.modelZC[,include.covars],
-                            replace=FALSE, ntree=10000, sampsize=sampsizeZC, proximity=FALSE)
+                            replace=FALSE, ntree=15000, sampsize=sampsizeZC, proximity=FALSE)
 RF.model.ZC
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use random forest, not rfPermute
+# This code associated with PDF from 8/15/23 at 2:53 am
+RanFor.model.ZC <- randomForest(ZcPresence ~ ., data=DF.modelZC[,include.covars],
+                         replace=FALSE, ntree=70000, sampsize=sampsizeZC, 
+                         proximity=FALSE, importance = TRUE)
+RanFor.model.ZC
 
-#Playing around with no balanced sample size
-RF.model.ZC.nosamp <- rfPermute(ZcPresence ~ ., data=DF.modelZC[,include.covars],
-                         replace=FALSE, ntree=10000, proximity=FALSE)
+pdf(paste(Dep,"_",string.covars.used,".pdf"), width=14, height=10)
+round(importance(RanFor.model.ZC),3) #ranking of importance for each variable
+plotImportance(RanFor.model.ZC) #visualize importance
+plotTrace(RanFor.model.ZC)   #model stability w/number of trees (this should be flat!)
+plotImpPreds(RanFor.model.ZC, DF.modelZC, "ZcPresence")  #distribution of predictors 
+plotPredictedProbs(RanFor.model.ZC)
+dev.off()
+save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #Evaluate RF models
 #Create a PDF of summary plots
@@ -77,4 +93,4 @@ save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 
 
 
-
+## Could this be difficult due to a "zero-rich dataset" @barlow2019??
