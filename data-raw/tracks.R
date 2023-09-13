@@ -2,35 +2,17 @@
 
 library(tidyverse)
 
-# Load raw rda file
-load("data-raw/CCES2018_DriftTracks_Modified_03Nov2022.rda")
+# Read in csv with GPS points
+AllTracks_raw <- read_csv("data-raw/AllCCES_GPS.csv")
 
 # Read in tracks, filter out lost buoys (1,2,3,5,6,9,11) and corrupted buoys (4,17)
-tracks <- AllTracks %>%
-  dplyr::select(-dist, -speed) %>%
-  mutate(dateTime = round_date(.$dateTime, "20 minutes")) %>% # round to nearest 20 minutes, will create duplicated in the data
-  filter(!station %in% c('1','2','3','4','5','6','9','11', '17')) %>%
-  rename(Longitude = long,              # Need these columns to specifically say this for ERDDAP matching
-         Latitude = lat,
-         UTC = dateTime)
-tracks <- tracks[!duplicated(tracks[c('UTC', 'station')]),]    # Remove duplicates
+AllTracks <- AllTracks_raw %>%
+  dplyr::select(Latitude, Longitude, UTC, DriftName) %>%
+  #mutate(dateTime = round_date(.$dateTime, "20 minutes")) %>% # round to nearest 20 minutes, will create duplicated in the data
+  filter(!DriftName %in% c('CCES_004','CCES_017'))
+
+AllTracks <- AllTracks[!duplicated(AllTracks[c('Longitude', 'Latitude','UTC', 'DriftName')]),]    # Remove duplicate timestamps
 
 # Save as RDS
-saveRDS(tracks, 'data/tracks.rda')
-
-# Filter by buoy
-#tracks_08 <- tracks %>% dplyr::filter(station == "8") 
-track4 <- AllTracks %>% dplyr::filter(station == "4")
-
-
-
-### Option to create AllTracks before rounding to nearest 20 min, for AIS
-tracks2 <- AllTracks %>%
-  dplyr::select(-dist, -speed) %>%
-  filter(!station %in% c('1','2','3','4','5','6','9','11', '17')) %>%
-  rename(Longitude = long,            # Need these columns to specifically say this for ERDDAP matching
-         Latitude = lat,
-         UTC = dateTime)
-
-tracks7 <- tracks2 %>%
-  filter(station== 7)
+saveRDS(AllTracks, 'data/AllTracks.rda')
+ 
