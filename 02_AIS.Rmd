@@ -17,21 +17,20 @@ library(tidyverse)
 
 -----------------------
 From Taiki's AIS Workflow
-
 ```{r}
-#marcadFiles07 <- downloadMarCadAIS(tracks_SS_07, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles08 <- downloadMarCadAIS(tracks_SS_08, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles10 <- downloadMarCadAIS(tracks_SS_10, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles12 <- downloadMarCadAIS(tracks_SS_12, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles13 <- downloadMarCadAIS(tracks_SS_13, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles14 <- downloadMarCadAIS(tracks_SS_14, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles16 <- downloadMarCadAIS(tracks_SS_16, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles18 <- downloadMarCadAIS(tracks_SS_18, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles19 <- downloadMarCadAIS(tracks_SS_19, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles20 <- downloadMarCadAIS(tracks_SS_20, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles21 <- downloadMarCadAIS(tracks_SS_21, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles22 <- downloadMarCadAIS(tracks_SS_22, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
-#marcadFiles23 <- downloadMarCadAIS(tracks_SS_23, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles07 <- downloadMarCadAIS(GPSwhale7, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles08 <- downloadMarCadAIS(GPSwhale8, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles10 <- downloadMarCadAIS(GPSwhale10, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles12 <- downloadMarCadAIS(GPSwhale12, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles13 <- downloadMarCadAIS(GPSwhale13, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles14 <- downloadMarCadAIS(GPSwhale14, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles16 <- downloadMarCadAIS(GPSwhale16, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles18 <- downloadMarCadAIS(GPSwhale18, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles19 <- downloadMarCadAIS(GPSwhale19, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles20 <- downloadMarCadAIS(GPSwhale20, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles21 <- downloadMarCadAIS(GPSwhale21, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles22 <- downloadMarCadAIS(GPSwhale22, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles23 <- downloadMarCadAIS(GPSwhale23, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
 ```
 
 Subset to US West Coast
@@ -42,82 +41,213 @@ subsetMarCadAIS(inDir="D:/AIS", outDir="D:/AIS/AIS_West", name='West_',
 ```
 Now read into R only ais points that come in contact with buoys
 ```{r}
-ais_near_07 <- readLocalAIS(tracks_SS_07, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_07 <- readLocalAIS(GPSwhale7, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_08 <- readLocalAIS(tracks_SS_08, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_08 <- readLocalAIS(GPSwhale8, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_10 <- readLocalAIS(tracks_SS_10, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_10 <- readLocalAIS(GPSwhale10, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_12 <- readLocalAIS(tracks_SS_12, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_12 <- readLocalAIS(GPSwhale12, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_13 <- readLocalAIS(tracks_SS_13, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_13 <- readLocalAIS(GPSwhale13, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_14 <- readLocalAIS(tracks_SS_14, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_14 <- readLocalAIS(GPSwhale14, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_16 <- readLocalAIS(tracks_SS_16, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_16 <- readLocalAIS(GPSwhale16, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_18 <- readLocalAIS(tracks_SS_18, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_18 <- readLocalAIS(GPSwhale18, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_19 <- readLocalAIS(tracks_SS_19, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_19 <- readLocalAIS(GPSwhale19, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_20 <- readLocalAIS(tracks_SS_20, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_20 <- readLocalAIS(GPSwhale20, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_21 <- readLocalAIS(tracks_SS_21, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_21 <- readLocalAIS(GPSwhale21, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 #empty table because no large vessels interacted with this buoy
 
-ais_near_22 <- readLocalAIS(tracks_SS_22, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_22 <- readLocalAIS(GPSwhale22, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#     filter(vesselLength >= 100)  #remove vessels under 100m in length
 
-ais_near_23 <- readLocalAIS(tracks_SS_23, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#ais_near_23 <- readLocalAIS(GPSwhale23, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
 ```
+
+Save `ais_near_` for all buoys
+```{r}
+#saveRDS(ais_near_07, file = "D:AIS/ais_near_07.rda")
+#saveRDS(ais_near_08, file = "D:AIS/ais_near_08.rda")
+#saveRDS(ais_near_10, file = "D:AIS/ais_near_10.rda")
+#saveRDS(ais_near_12, file = "D:AIS/ais_near_12.rda")
+#saveRDS(ais_near_13, file = "D:AIS/ais_near_13.rda")
+#saveRDS(ais_near_14, file = "D:AIS/ais_near_14.rda")
+#saveRDS(ais_near_16, file = "D:AIS/ais_near_16.rda")
+#saveRDS(ais_near_18, file = "D:AIS/ais_near_18.rda")
+#saveRDS(ais_near_19, file = "D:AIS/ais_near_19.rda")
+#saveRDS(ais_near_20, file = "D:AIS/ais_near_20.rda")
+#saveRDS(ais_near_21, file = "D:AIS/ais_near_21.rda")
+#saveRDS(ais_near_22, file = "D:AIS/ais_near_22.rda")
+#saveRDS(ais_near_23, file = "D:AIS/ais_near_23.rda")
+```
+
+
+Load rds files into R with AIS points near buoys
+```{r}
+ais_near_07 <- readRDS("D:/AIS/ais_near_07.rda")
+ais_near_08 <- readRDS('D:/AIS/ais_near_08.rda')
+ais_near_10 <- readRDS('D:/AIS/ais_near_10.rda')
+ais_near_12 <- readRDS('D:/AIS/ais_near_12.rda')
+ais_near_13 <- readRDS('D:/AIS/ais_near_13.rda')
+ais_near_14 <- readRDS('D:/AIS/ais_near_14.rda')
+ais_near_16 <- readRDS('D:/AIS/ais_near_16.rda')
+ais_near_18 <- readRDS('D:/AIS/ais_near_18.rda')
+ais_near_19 <- readRDS('D:/AIS/ais_near_19.rda')
+ais_near_20 <- readRDS('D:/AIS/ais_near_20.rda')
+ais_near_21 <- readRDS('D:/AIS/ais_near_21.rda')
+ais_near_22 <- readRDS('D:/AIS/ais_near_22.rda')
+ais_near_23 <- readRDS('D:/AIS/ais_near_23.rda')
+```
+
+
 
 Match AIS points with buoy points
 ```{r}
-gpsClose07 <- addAIS(tracks_SS_07, ais_near_07, interpType = 'close', interpTime = 120)
-gpsClose08 <- addAIS(tracks_SS_08, ais_near_08, interpType = 'close', interpTime = 120)
-gpsClose10 <- addAIS(tracks_SS_10, ais_near_10, interpType = 'close', interpTime = 120)
-gpsClose12 <- addAIS(tracks_SS_12, ais_near_12, interpType = 'close', interpTime = 120)
-gpsClose13 <- addAIS(tracks_SS_13, ais_near_13, interpType = 'close', interpTime = 120)
-gpsClose14 <- addAIS(tracks_SS_14, ais_near_14, interpType = 'close', interpTime = 120)
-gpsClose16 <- addAIS(tracks_SS_16, ais_near_16, interpType = 'close', interpTime = 120)
-gpsClose18 <- addAIS(tracks_SS_18, ais_near_18, interpType = 'close', interpTime = 120)
-gpsClose19 <- addAIS(tracks_SS_19, ais_near_19, interpType = 'close', interpTime = 120)
-gpsClose20 <- addAIS(tracks_SS_20, ais_near_20, interpType = 'close', interpTime = 120)
-gpsClose21 <- addAIS(tracks_SS_21, ais_near_21, interpType = 'close', interpTime = 120) #empty table
-gpsClose22 <- addAIS(tracks_SS_22, ais_near_22, interpType = 'close', interpTime = 120)
-gpsClose23 <- addAIS(tracks_SS_23, ais_near_23, interpType = 'close', interpTime = 120)
+gpsClose07 <- addAIS(GPSwhale7, ais_near_07, interpType = 'close', interpTime = 120)
+gpsClose08 <- addAIS(GPSwhale8, ais_near_08, interpType = 'close', interpTime = 120)
+gpsClose10 <- addAIS(GPSwhale10, ais_near_10, interpType = 'close', interpTime = 120)
+gpsClose12 <- addAIS(GPSwhale12, ais_near_12, interpType = 'close', interpTime = 120)
+gpsClose13 <- addAIS(GPSwhale13, ais_near_13, interpType = 'close', interpTime = 120)
+gpsClose14 <- addAIS(GPSwhale14, ais_near_14, interpType = 'close', interpTime = 120)
+gpsClose16 <- addAIS(GPSwhale16, ais_near_16, interpType = 'close', interpTime = 120)
+gpsClose18 <- addAIS(GPSwhale18, ais_near_18, interpType = 'close', interpTime = 120)
+gpsClose19 <- addAIS(GPSwhale19, ais_near_19, interpType = 'close', interpTime = 120)
+gpsClose20 <- addAIS(GPSwhale20, ais_near_20, interpType = 'close', interpTime = 120)
+gpsClose21 <- addAIS(GPSwhale21, ais_near_21, interpType = 'close', interpTime = 120) #empty table
+gpsClose22 <- addAIS(GPSwhale22, ais_near_22, interpType = 'close', interpTime = 120)
+gpsClose23 <- addAIS(GPSwhale23, ais_near_23, interpType = 'close', interpTime = 120)
 ```
 
 Create column 'shipsin10km' that displays number of ships associated with timestamp
-Need to make a loop!
 ```{r}
 # Viewing only ships within 10 km of buoys.
-close2ships7 <- gpsClose07 %>% filter(shipDist < 10e3)
+close2ships07 <- gpsClose07 %>% filter(shipDist < 10e3)
+close2ships08 <- gpsClose08 %>% filter(shipDist < 10e3)
+close2ships10 <- gpsClose10 %>% filter(shipDist < 10e3)
+close2ships12 <- gpsClose12 %>% filter(shipDist < 10e3)
+close2ships13 <- gpsClose13 %>% filter(shipDist < 10e3)
+close2ships14 <- gpsClose14 %>% filter(shipDist < 10e3)
+close2ships16 <- gpsClose16 %>% filter(shipDist < 10e3)
+close2ships18 <- gpsClose18 %>% filter(shipDist < 10e3)
+close2ships19 <- gpsClose19 %>% filter(shipDist < 10e3)
+close2ships20 <- gpsClose20 %>% filter(shipDist < 10e3)
+#close2ships21 <- gpsClose21 %>% filter(shipDist < 10e3) #not long enough of a buoy to detect
+close2ships22 <- gpsClose22 %>% filter(shipDist < 10e3)
+close2ships23 <- gpsClose23 %>% filter(shipDist < 10e3)
 
 #Add column of ROUNDED UTC values to the lowest minute. Allows common field to bind
-z <- as.POSIXct(close2ships7$UTC)
-close2ships7$UTCrnd <- lubridate::floor_date(z, "minute")
+# Close2ships21 removed because no ships nearby
+sslist <- c("close2ships07", "close2ships08", "close2ships10", "close2ships12", "close2ships13",
+        "close2ships14", "close2ships16", "close2ships18", "close2ships19", "close2ships20",
+        "close2ships22", "close2ships23")
 
+for (sx in sslist) {
+  dta <- get(sx)
+  dta$UTCrnd <- lubridate::floor_date(as.POSIXct(dta$UTC), "minute")
+  assign(sx, dta)
+}
+  
+# Function that creates a column with number of ships within 10 km (shipin10km)
 #Bind rows with ship nearby
 #Summarize unique ships and display number of nearby vessels
-nearbyShp07 <- inner_join(tracks_ss_07, close2ships7, by = join_by("UTC" == "UTCrnd")) %>%
-  select(UTC, UTC2, MMSI, vesselLength, vesselType, shipLat, shipLong, shipDist) %>%
-  group_by(UTC2) %>%
-  summarize(shipin10km = n_distinct(MMSI))
-    
-# ready to join to main df and add zeros to Null values
+ShpRows <- function(w, s) {
+  z <- inner_join(w, s, by = join_by("UTC" == "UTCrnd")) %>%
+    select(UTC, UTC.y, MMSI, vesselLength, vesselType, shipLat, shipLong, shipDist)%>%
+    group_by(UTC) %>%
+    summarize(shipin10km = n_distinct(MMSI))
+}
+ 
 ```
 
+
+Join to main df, add zeros to null values
+```{r}
+nearbyShp07 <- ShpRows(GPSwhale7, close2ships07)
+GPSwhaleAIS7 <- left_join(GPSwhale7, nearbyShp07, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp08 <- ShpRows(GPSwhale8, close2ships08)
+GPSwhaleAIS8 <- left_join(GPSwhale8, nearbyShp08, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp10 <- ShpRows(GPSwhale10, close2ships10)
+GPSwhaleAIS10 <- left_join(GPSwhale10, nearbyShp10, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp12 <- ShpRows(GPSwhale12, close2ships12)
+GPSwhaleAIS12 <- left_join(GPSwhale12, nearbyShp12, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp13 <- ShpRows(GPSwhale13, close2ships13)
+GPSwhaleAIS13 <- left_join(GPSwhale13, nearbyShp13, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp14 <- ShpRows(GPSwhale14, close2ships14)
+GPSwhaleAIS14 <- left_join(GPSwhale14, nearbyShp14, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp16 <- ShpRows(GPSwhale16, close2ships16)
+GPSwhaleAIS16 <- left_join(GPSwhale16, nearbyShp16, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp18 <- ShpRows(GPSwhale18, close2ships18)
+GPSwhaleAIS18 <- left_join(GPSwhale18, nearbyShp18, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp19 <- ShpRows(GPSwhale19, close2ships19)
+GPSwhaleAIS19 <- left_join(GPSwhale19, nearbyShp19, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp20 <- ShpRows(GPSwhale20, close2ships20)
+GPSwhaleAIS20 <- left_join(GPSwhale20, nearbyShp20, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+# Manually create column for buoys with no vessel activity
+GPSwhaleAIS21 <- GPSwhale21 %>% add_column(shipin10km = 0)
+
+
+nearbyShp22 <- ShpRows(GPSwhale22, close2ships22)
+GPSwhaleAIS22 <- left_join(GPSwhale22, nearbyShp22, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+
+nearbyShp23 <- ShpRows(GPSwhale23, close2ships23)
+GPSwhaleAIS23 <- left_join(GPSwhale23, nearbyShp23, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+```
+
+
+Save new fulltrack rdas to D drive
+```{r}
+saveRDS(GPSwhaleAIS7, file = "data/GPSwhaleAIS7.rda")
+saveRDS(GPSwhaleAIS8, file = "data/GPSwhaleAIS8.rda")
+saveRDS(GPSwhaleAIS10, file = "data/GPSwhaleAIS10.rda")
+saveRDS(GPSwhaleAIS12, file = "data/GPSwhaleAIS12.rda")
+saveRDS(GPSwhaleAIS13, file = "data/GPSwhaleAIS13.rda")
+saveRDS(GPSwhaleAIS14, file = "data/GPSwhaleAIS14.rda")
+saveRDS(GPSwhaleAIS16, file = "data/GPSwhaleAIS16.rda")
+saveRDS(GPSwhaleAIS18, file = "data/GPSwhaleAIS18.rda")
+saveRDS(GPSwhaleAIS19, file = "data/GPSwhaleAIS19.rda")
+saveRDS(GPSwhaleAIS20, file = "data/GPSwhaleAIS20.rda")
+saveRDS(GPSwhaleAIS21, file = "data/GPSwhaleAIS21.rda")
+saveRDS(GPSwhaleAIS22, file = "data/GPSwhaleAIS22.rda")
+saveRDS(GPSwhaleAIS23, file = "data/GPSwhaleAIS23.rda")
+```
 
