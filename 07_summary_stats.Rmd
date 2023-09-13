@@ -7,6 +7,13 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(lubridate)
+library(PAMpal)
+library(PAMmisc)
+library(PAMscapes)
+library(patchwork)
+library(knitr)
+library(kableExtra)
 ```
 
 Read in RDS files of each buoy + all environ variables + AIS (pending)
@@ -22,14 +29,14 @@ for (ft in ftlist) {
 Read in RDA files for percentiles
 ```{r}
 ## Make list of rda files to read in
-pclist <- c("BB_pct01_07", "BB_pct01_08", "BB_pct01_10", "BB_pct01_12", "BB_pct01_13", "BB_pct01_14", "BB_pct01_16", 
-            "BB_pct01_18", "BB_pct01_19", "BB_pct01_20", "BB_pct01_21", "BB_pct01_22", "BB_pct01_23", "TO_pct01_07",
-            "TO_pct01_08", "TO_pct01_10", "TO_pct01_12", "TO_pct01_13", "TO_pct01_14", "TO_pct01_16", "TO_pct01_18", 
-            "TO_pct01_19", "TO_pct01_20", "TO_pct01_21", "TO_pct01_22", "TO_pct01_23", "BB_pct99_07", "BB_pct99_08", 
-            "BB_pct99_10", "BB_pct99_12", "BB_pct99_13", "BB_pct99_14", "BB_pct99_16", "BB_pct99_18", "BB_pct99_19", 
-            "BB_pct99_20", "BB_pct99_21", "BB_pct99_22", "BB_pct99_23", "TO_pct99_07", "TO_pct99_08", "TO_pct99_10", 
-            "TO_pct99_12", "TO_pct99_13", "TO_pct99_14", "TO_pct99_16", "TO_pct99_18", "TO_pct99_19", "TO_pct99_20", 
-            "TO_pct99_21", "TO_pct99_22", "TO_pct99_23")
+pclist <- c("pct10_07", "pct10_08", "pct10_10", "pct10_12", "pct10_13",
+            "pct10_14", "pct10_16", "pct10_18", "pct10_19", "pct10_20",
+            "pct10_21", "pct10_22", "pct10_23", "pct90_07", "pct90_08",
+            "pct90_10", "pct90_12", "pct90_13", "pct90_14", "pct90_16",
+            "pct90_18", "pct90_19", "pct90_20", "pct90_21", "pct90_22",
+            "pct90_23", "pct50_07", "pct50_08", "pct50_10", "pct50_12",
+            "pct50_13", "pct50_14", "pct50_16", "pct50_18", "pct50_19", 
+            "pct50_20", "pct50_21", "pct50_22", "pct50_23")
 
 ## Read in rda files and assign to object
 for (ii in pclist) {
@@ -38,6 +45,10 @@ for (ii in pclist) {
   assign(ii, dta)
 }
 
+```
+
+Create df from 1 percentile
+```{r}
 # 1 Percentile
 pct01_07 <- cbind(BB_pct01_07, TO_pct01_07) %>%
   select(., -3)
@@ -66,11 +77,33 @@ pct01_22 <- cbind(BB_pct01_22, TO_pct01_22) %>%
 pct01_23 <- cbind(BB_pct01_23, TO_pct01_23) %>%
   select(., -3)
 
+pct01_07$buoy <- ("07")
+pct01_08$buoy <- ("08")
+pct01_10$buoy <- ("10")
+pct01_12$buoy <- ("12")
+pct01_13$buoy <- ("13")
+pct01_14$buoy <- ("14")
+pct01_16$buoy <- ("16")
+pct01_18$buoy <- ("18")
+pct01_19$buoy <- ("19")
+pct01_20$buoy <- ("20")
+pct01_21$buoy <- ("21")
+pct01_22$buoy <- ("22")
+pct01_23$buoy <- ("23")
+
 pct01_all <- rbind(pct01_07, pct01_08, pct01_10, pct01_12, pct01_13,
                    pct01_14, pct01_16, pct01_18, pct01_19, pct01_20,
                    pct01_21, pct01_22, pct01_23)
-# need to add column with buoy name
 
+# Group by and summarize
+pct01_all %>%
+  group_by(buoy) %>%
+  summarize(max(`TOL_125`))
+
+```
+
+Create df from 99 percentile
+```{r}
 # 99 Percentile
 pct99_07 <- cbind(BB_pct99_07, TO_pct99_07) %>%
   select(., -3)
@@ -98,7 +131,957 @@ pct99_22 <- cbind(BB_pct99_22, TO_pct99_22) %>%
   select(., -3)
 pct99_23 <- cbind(BB_pct99_23, TO_pct99_23) %>%
   select(., -3)
+
+# Add column with buoy number
+pct99_07$buoy <- ("07")
+pct99_08$buoy <- ("08")
+pct99_10$buoy <- ("10")
+pct99_12$buoy <- ("12")
+pct99_13$buoy <- ("13")
+pct99_14$buoy <- ("14")
+pct99_16$buoy <- ("16")
+pct99_18$buoy <- ("18")
+pct99_19$buoy <- ("19")
+pct99_20$buoy <- ("20")
+pct99_21$buoy <- ("21")
+pct99_22$buoy <- ("22")
+pct99_23$buoy <- ("23")
+
+pct99_all <- rbind(pct99_07, pct99_08, pct99_10, pct99_12, pct99_13,
+                   pct99_14, pct99_16, pct99_18, pct99_19, pct99_20,
+                   pct99_21, pct99_22, pct99_23)
 ```
+
+Plot 99pct and 1pct by buoy
+```{r fig.height=5, fig.width=13}
+# Group by and summarize
+pct99_all %>%
+  group_by(buoy) %>%
+  summarize(max(`TOL_125`)) %>%
+  ggplot(aes(x = buoy, y = `max(TOL_125)`)) + geom_bar(stat = "identity")
+
+#TOL timeline by buoy
+pct99_all %>%
+  ggplot(aes(x = dateTime, y = TOL_2000, color = buoy)) + geom_line()
+
+# Average dB by hour for each frequency
+pct99_16 %>%
+  group_by(time = floor_date(dateTime, "1 hour")) %>%
+  summarize(mean_BB = mean(`BB_20-24000`),
+            meanTOL_125 = mean(TOL_125),
+            meanTOL_250 = mean(TOL_250),
+            meanTOL_500 = mean(TOL_500),
+            meanTOL_2000 = mean(TOL_2000),
+            meanTOL_4000 = mean(TOL_4000),
+            meanTOL_20000 = mean(TOL_20000)) %>%
+  pivot_longer(cols = mean_BB:meanTOL_20000,
+               names_to = "frequency",
+               values_to="dB") %>%
+  ggplot(aes(x = time, y = dB)) + geom_line(aes(color = frequency)) #+
+  #geom_point(data = allDrifts, aes(color = species))
+# Show more dates/times on x axis
+# 99pct, buoy 16 has a strong peak later in journey at 4kHz
+
+
+ggplot() +
+  geom_point(data = pct01_23, aes(x = lubridate::round_date(dateTime, "2 hours"), y = TOL_125), color = 'steelblue') +
+  #geom_line(data = pct99_23, aes(x = dateTime, y = TOL_125), color = 'coral') +
+  facet_grid()
+
+```
+
+
+
+
+Bind percentile df (pctx_x) with GPS track df (GPSwhalex)
+
+Buoy 7
+```{r}
+# Create columns with percentiles and BIND
+pct50_07_select <- pct50_07 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_07_select <- pct10_07 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_07_select <- pct90_07 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct07 <- cbind(pct10_07_select, pct50_07_select, pct90_07_select)
+
+# Join GPS points with the three percentiles
+pct07_whl <- timeJoin(GPSwhale7, pct07, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy7pctSummary <- pct07_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+Buoy 8
+```{r}
+# Create columns with percentiles and BIND
+pct50_08_select <- pct50_08 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_08_select <- pct10_08 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_08_select <- pct90_08 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct08 <- cbind(pct10_08_select, pct50_08_select, pct90_08_select)
+
+# Join GPS points with the three percentiles
+pct08_whl <- timeJoin(GPSwhale8, pct08, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy8pctSummary <- pct08_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+
+Buoy 10
+```{r}
+# Create columns with percentiles and BIND
+pct50_10_select <- pct50_10 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_10_select <- pct10_10 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_10_select <- pct90_10 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct10 <- cbind(pct10_10_select, pct50_10_select, pct90_10_select)
+
+# Join GPS points with the three percentiles
+pct10_whl <- timeJoin(GPSwhale10, pct10, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy10pctSummary <- pct10_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+
+Buoy 12
+```{r}
+# Create columns with percentiles and BIND
+pct50_12_select <- pct50_12 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_12_select <- pct10_12 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_12_select <- pct90_12 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct12 <- cbind(pct10_12_select, pct50_12_select, pct90_12_select)
+
+# Join GPS points with the three percentiles
+pct12_whl <- timeJoin(GPSwhale12, pct12, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy12pctSummary <- pct12_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+
+Buoy 13
+```{r}
+# Create columns with percentiles and BIND
+pct50_13_select <- pct50_13 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_13_select <- pct10_13 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_13_select <- pct90_13 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct13 <- cbind(pct10_13_select, pct50_13_select, pct90_13_select)
+
+# Join GPS points with the three percentiles
+pct13_whl <- timeJoin(GPSwhale13, pct13, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy13pctSummary <- pct13_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+
+
+Buoy 14 # Issue binding pct50 with others due to differing number of rows
+```{r}
+# Create columns with percentiles and BIND
+pct50_14_select <- pct50_14 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_14_select <- pct10_14 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_14_select <- pct90_14 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+#pct14 <- cbind(pct10_14_select, pct50_14_select, pct90_14_select)
+
+# Join GPS points with the three percentiles
+pct14_whl <- timeJoin(GPSwhale14, pct14, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy14pctSummary <- pct14_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+Buoy 16
+```{r}
+# Create columns with percentiles and BIND
+pct50_16_select <- pct50_16 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_16_select <- pct10_16 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_16_select <- pct90_16 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct16 <- cbind(pct10_16_select, pct50_16_select, pct90_16_select)
+
+# Join GPS points with the three percentiles
+pct16_whl <- timeJoin(GPSwhale16, pct16, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy16pctSummary <- pct16_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+
+Buoy 18
+```{r}
+# Create columns with percentiles and BIND
+pct50_18_select <- pct50_18 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_18_select <- pct10_18 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_18_select <- pct90_18 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct18 <- cbind(pct10_18_select, pct50_18_select, pct90_18_select)
+
+# Join GPS points with the three percentiles
+pct18_whl <- timeJoin(GPSwhale18, pct18, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy18pctSummary <- pct18_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+
+Buoy 19
+```{r}
+# Create columns with percentiles and BIND
+pct50_19_select <- pct50_19 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_19_select <- pct10_19 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_19_select <- pct90_19 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct19 <- cbind(pct10_19_select, pct50_19_select, pct90_19_select)
+
+# Join GPS points with the three percentiles
+pct19_whl <- timeJoin(GPSwhale19, pct19, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy19pctSummary <- pct19_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+
+
+Buoy 20
+```{r}
+# Create columns with percentiles and BIND
+pct50_20_select <- pct50_20 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_20_select <- pct10_20 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_20_select <- pct90_20 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct20 <- cbind(pct10_20_select, pct50_20_select, pct90_20_select)
+
+# Join GPS points with the three percentiles
+pct20_whl <- timeJoin(GPSwhale20, pct20, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy20pctSummary <- pct20_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+Buoy 21
+```{r}
+# Create columns with percentiles and BIND
+pct50_21_select <- pct50_21 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_21_select <- pct10_21 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_21_select <- pct90_21 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct21 <- cbind(pct10_21_select, pct50_21_select, pct90_21_select)
+
+# Join GPS points with the three percentiles
+pct21_whl <- timeJoin(GPSwhale21, pct21, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy21pctSummary <- pct21_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+Buoy 22
+```{r}
+# Create columns with percentiles and BIND
+pct50_22_select <- pct50_22 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_22_select <- pct10_22 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_22_select <- pct90_22 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct22 <- cbind(pct10_22_select, pct50_22_select, pct90_22_select)
+
+# Join GPS points with the three percentiles
+pct22_whl <- timeJoin(GPSwhale22, pct22, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy22pctSummary <- pct22_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+
+Buoy 23
+```{r}
+# Create columns with percentiles and BIND
+pct50_23_select <- pct50_23 %>% select(UTC, TOL_125, TOL_2000) %>% 
+  rename(pct50_TOL125 = TOL_125,
+         pct50_TOL2000 = TOL_2000)
+pct10_23_select <- pct10_23 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct10_TOL125 = TOL_125,
+         pct10_TOL2000 = TOL_2000)
+pct90_23_select <- pct90_23 %>% select(UTC, TOL_125, TOL_2000) %>%
+   rename(pct90_TOL125 = TOL_125,
+         pct90_TOL2000 = TOL_2000)
+
+# Bind
+pct23 <- cbind(pct10_23_select, pct50_23_select, pct90_23_select)
+
+# Join GPS points with the three percentiles
+pct23_whl <- timeJoin(GPSwhale23, pct23, thresh = 3600, interpolate = FALSE)
+
+#Summarize
+buoy23pctSummary <- pct23_whl %>%
+  group_by(species) %>%
+  summarize(pct10_125_mean = mean(pct10_TOL125),
+            pct50_125_mean = mean(pct50_TOL125),
+            pct90_125_mean = mean(pct90_TOL125),
+            pct10_2000_mean = mean(pct10_TOL2000),
+            pct50_2000_mean = mean(pct50_TOL2000),
+            pct90_2000_mean = mean(pct90_TOL2000))
+```
+
+Knit all summary percentiles into a table
+```{r}
+
+## Buoy 7 ##
+sumPct7 <- kable(buoy7pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 7") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 8 ##
+sumPct8 <- kable(buoy8pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 8") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 10 ##
+sumPct10 <- kable(buoy10pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 10") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 12 ##
+sumPct12 <- kable(buoy12pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 12") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 13 ##
+sumPct13 <- kable(buoy13pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 13") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 14 ##
+#kable(buoy14pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+#                                     caption = "Summary Percentiles for Buoy 14") %>%
+#  kableExtra::kable_classic() %>%
+#  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 16 ##
+sumPct16 <- kable(buoy16pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 16") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 18 ##
+sumPct18 <- kable(buoy18pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 18") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 19 ##
+sumPct19 <- kable(buoy19pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 19") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 20 ##
+sumPct20 <- kable(buoy20pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 20") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 21 ##
+sumPct21 <- kable(buoy21pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 21") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 22 ##
+sumPct22 <- kable(buoy22pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 22") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+## Buoy 23 ##
+sumPct23 <- kable(buoy23pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 23") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+
+```
+
+
+
+
+Time Series Heat Map
+```{r fig.width=12}
+
+pdf(paste("timeSeries8-31",".pdf"), width=14, height=10)
+
+### Buoy 7 ####
+W.07 <- fulltrack07 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.07plot <- plotPresGrid(W.07, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack07, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 7: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.07, bin = 'hour', type = 'presence', start = min(fulltrack07$UTC),
+                         end = max(fulltrack07$UTC), fill = NA, color = "white")
+
+# Create plot with TOL125
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+
+t1 <- plotTimeseries(fulltrack07, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 7: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.07, bin = 'hour', type = 'presence', start = min(fulltrack07$UTC),
+                         end = max(fulltrack07$UTC), fill = NA, color = "white")
+
+# Create plot with TOL2000
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+```{r fig.width=12}
+###### Buoy 8 ####
+W.08 <- fulltrack08 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.08plot <- plotPresGrid(W.08, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack08, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.08, bin = 'hour', type = 'presence', start = min(fulltrack08$UTC),
+                         end = max(fulltrack08$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack08, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.08, bin = 'hour', type = 'presence', start = min(fulltrack08$UTC),
+                         end = max(fulltrack08$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+
+```{r fig.width=12}
+#### Buoy 10  ######
+
+W.10 <- fulltrack10 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.10plot <- plotPresGrid(W.10, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack10, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
+                         end = max(fulltrack10$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
+                         end = max(fulltrack10$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+
+```{r fig.width=12}
+## Buoy 12
+W.12 <- fulltrack12 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.12plot <- plotPresGrid(W.12, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack12, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 12: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.12, bin = 'hour', type = 'presence', start = min(fulltrack12$UTC),
+                         end = max(fulltrack12$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack12, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 12: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.12, bin = 'hour', type = 'presence', start = min(fulltrack12$UTC),
+                         end = max(fulltrack12$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+```{r fig.width=12}
+## Buoy 13
+W.13 <- fulltrack13 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.13plot <- plotPresGrid(W.13, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack13, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(fulltrack13$UTC),
+                         end = max(fulltrack13$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack13, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(fulltrack13$UTC),
+                         end = max(fulltrack13$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+```{r fig.width=12}
+## Buoy 14
+W.14 <- fulltrack14 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.14plot <- plotPresGrid(W.14, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack14, column='TOL_125', bin='hour', style = 'heatmap', title='Buoy 14: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.14, bin = 'hour', type = 'presence', start = min(fulltrack14$UTC),
+                         end = max(fulltrack14$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack14, column='TOL_2000', bin='hour', style = 'heatmap', title='Buoy 14: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.14, bin = 'hour', type = 'presence', start = min(fulltrack14$UTC),
+                         end = max(fulltrack14$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+
+```{r fig.width=12}
+## Buoy 16
+W.16 <- fulltrack16 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.16plot <- plotPresGrid(W.16, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack16, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 16: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.16, bin = 'hour', type = 'presence', start = min(fulltrack16$UTC),
+                         end = max(fulltrack16$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack16, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 16: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.16, bin = 'hour', type = 'presence', start = min(fulltrack16$UTC),
+                         end = max(fulltrack16$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+```{r fig.width=12}
+## Buoy 18
+W.18 <- fulltrack18 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.18plot <- plotPresGrid(W.18, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack18, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 18: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.18, bin = 'hour', type = 'presence', start = min(fulltrack18$UTC),
+                         end = max(fulltrack18$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack18, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 18: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.18, bin = 'hour', type = 'presence', start = min(fulltrack18$UTC),
+                         end = max(fulltrack18$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+```{r fig.width=12}
+## Buoy 19
+W.19 <- fulltrack19 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.19plot <- plotPresGrid(W.19, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack19, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 19: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.19, bin = 'hour', type = 'presence', start = min(fulltrack19$UTC),
+                         end = max(fulltrack19$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack19, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 19: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.19, bin = 'hour', type = 'presence', start = min(fulltrack19$UTC),
+                         end = max(fulltrack19$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+```{r fig.width=12}
+## Buoy 20
+W.20 <- fulltrack20 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.20plot <- plotPresGrid(W.20, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack20, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(fulltrack20$UTC),
+                         end = max(fulltrack20$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack20, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(fulltrack20$UTC),
+                         end = max(fulltrack20$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+```{r fig.width=12}
+## Buoy 21
+W.21 <- fulltrack21 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.21plot <- plotPresGrid(W.21, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack21, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 21: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.21, bin = 'hour', type = 'presence', start = min(fulltrack21$UTC),
+                         end = max(fulltrack21$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack21, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 21: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.21, bin = 'hour', type = 'presence', start = min(fulltrack21$UTC),
+                         end = max(fulltrack21$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+
+```{r fig.width=12}
+## Buoy 12
+W.22 <- fulltrack22 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.22plot <- plotPresGrid(W.22, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack22, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 22: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.22, bin = 'hour', type = 'presence', start = min(fulltrack22$UTC),
+                         end = max(fulltrack22$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack22, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 22: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.22, bin = 'hour', type = 'presence', start = min(fulltrack22$UTC),
+                         end = max(fulltrack22$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+```{r fig.width=12}
+## Buoy 23
+W.23 <- fulltrack23 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.23plot <- plotPresGrid(W.23, bin = 'hour', type = 'presence')
+
+g1 <- (plotTimeseries(fulltrack23, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 23: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.23, bin = 'hour', type = 'presence', start = min(fulltrack23$UTC),
+                         end = max(fulltrack23$UTC), fill = NA, color = "white")
+
+combined.g <- g1
+combined.g$layers <- c(combined.g$layers, g2$layers)
+#####
+t1 <- plotTimeseries(fulltrack23, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 23: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.23, bin = 'hour', type = 'presence', start = min(fulltrack23$UTC),
+                         end = max(fulltrack23$UTC), fill = NA, color = "white")
+
+combined.t <- t1
+combined.t$layers <- c(combined.t$layers, t2$layers)
+
+combined.g + combined.t
+```
+
+
+```{r}
+save.image(file = ".RData")
+```
+
+plot whale presence and SS side by side. Stacked?
+```{r}
+W.08 <- fulltrack08 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.08plot <- plotPresGrid(W.08, bin = 'hour', type = 'presence')
+
+plotTimeseries(fulltrack08, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 2000 Plot') +  W.08plot
+
+#############
+
+W.10 <- fulltrack10 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.10plot <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
+                         end = max(fulltrack10$UTC), by = 'BWpresence', alpha = 0.01, color = "red")
+
+plotTimeseries(fulltrack10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot') +  W.10plot
+plotTimeseries(fulltrack10, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 125 Plot') +  W.10plot
+#############
+
+W.13 <- fulltrack13 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.13plot <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(fulltrack13$UTC),
+                         end = max(fulltrack13$UTC), by = 'BWpresence', alpha = 0.5)
+
+plotTimeseries(fulltrack13, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 2000 Plot') +  W.13plot
+plotTimeseries(fulltrack13, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 125 Plot') +  W.13plot
+##############
+
+W.20 <- fulltrack20 %>%
+  select(UTC, BWpresence, species) %>%
+  filter(species == "ZC")
+
+W.20plot <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(fulltrack20$UTC),
+                         end = max(fulltrack20$UTC),  by = 'BWpresence', alpha = 0.5)
+
+plotTimeseries(fulltrack20, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 2000 Plot') +  W.20plot
+plotTimeseries(fulltrack20, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 125 Plot') +  W.20plot
+
+##########
+
+g1 <- plotTimeseries(fulltrack10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot')
+g2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
+                         end = max(fulltrack10$UTC), fill = NA, color = "white")
+S.10 <- fulltrack10 %>% select(UTC, shipin10km) %>% filter(shipin10km == "1")
+g3 <- plotPresGrid(S.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
+                         end = max(fulltrack10$UTC), fill = NA, color = "red")
+
+combined <- g1
+combined$layers <- c(combined$layers, g2$layers, g3$layers)
+combined
+```
+
+
+
+
 
 Bind ALL DRIFTS into one dataframe
 ```{r}
@@ -113,13 +1096,6 @@ Where are loudest sound levels? See @haver2020 for details on percentiles
 90th percentile = exceeded 10% of the time, so refers to PEAKS in sound level
 Also see @haver2021 (fig 2) for daily TOL levels by site (can do by buoy)
 ```{r}
-# For buoy 7
-pct01_07 %>%
-  summarise_if(is.numeric, list(~ min(., na.rm=TRUE)))
-
-pct01_07 %>% filter(.$`BB_20-24000` > 120)
-
-########################
 
 pctlist <- c("07", "08", "10", "12", "14", "16", "18", "19",
              "20", "21", "22", "23")
@@ -139,6 +1115,7 @@ ggplot(data = TO_pct01_07, aes()) +
 
 summary(TO_pct01_07)
 ```
+
 
 
 
@@ -180,7 +1157,6 @@ ggplot() +
 
 
 
-
 Summary of each species: highest/lowest sound levels, avg sound levels they're exposed to
 ```{r}
 # Sort sperm whale detection by decreasing BB sound levels
@@ -191,6 +1167,12 @@ allDrifts %>%
 
 PM <- allDrifts %>%
   dplyr::filter(species == "PM")
+
+PM %>%
+  group_by(station) %>%
+  summarize(mean = mean(TOL_2000), n = n())
+
+
 
 print(paste("PM Max BB sound level: ", max(PM$BB_20.24000, na.rm = TRUE)))
 print(paste("PM Min BB sound level: ", min(PM$BB_20.24000, na.rm = TRUE)))
