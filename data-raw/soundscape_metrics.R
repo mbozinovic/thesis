@@ -37,7 +37,7 @@ for (i in dirlist) {
 ####### Read in Percentiles ###############
 
 # Path to folder on my external hard drive
-pclist <- dir("D:/Soundscape_metrics/percentiles", 
+pclist <- dir("D:/Soundscape_metrics/10_90_percentiles", 
                recursive=TRUE, full.names=TRUE, pattern="CCES_")
 
 
@@ -45,7 +45,8 @@ pclist <- dir("D:/Soundscape_metrics/percentiles",
 for (i in pclist) {
   data <- read_csv(i, show_col_types = FALSE) %>%
     rename(dateTime = `yyyy-mm-ddTHH:MM:SSZ`) %>%
-    mutate(dateTime = round_date(ymd_hms(dateTime), "20 minutes"))
+    mutate(UTC = as.POSIXct(dateTime))
   
-  saveRDS(data, file = paste0("data/", substr(i, 50, 57), "_", substr(i, 40, 41), ".rda"))
+  saveRDS(data, file = paste0("data/", substr(i, 60, 64), "_", substr(i, 46, 47), ".rda"))
 }
+
