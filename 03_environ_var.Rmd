@@ -19,24 +19,23 @@ library(sf)
 library(terra)
 library(PAMpal)
 library(PAMmisc)
-library(rerddap)
 ```
 
 Read in GPSwhale rdas
 ```{r}
-env07 <- readRDS(file = "data/GPSwhaleAIS7.rda")
-env08 <- readRDS(file = "data/GPSwhaleAIS8.rda")
-env10 <- readRDS(file = "data/GPSwhaleAIS10.rda")
-env12 <- readRDS(file = "data/GPSwhaleAIS12.rda")
-env13 <- readRDS(file = "data/GPSwhaleAIS13.rda")
-env14 <- readRDS(file = "data/GPSwhaleAIS14.rda")
-env16 <- readRDS(file = "data/GPSwhaleAIS16.rda")
-env18 <- readRDS(file = "data/GPSwhaleAIS18.rda")
-env19 <- readRDS(file = "data/GPSwhaleAIS19.rda")
-env20 <- readRDS(file = "data/GPSwhaleAIS20.rda")
-env21 <- readRDS(file = "data/GPSwhaleAIS21.rda")
-env22 <- readRDS(file = "data/GPSwhaleAIS22.rda")
-env23 <- readRDS(file = "data/GPSwhaleAIS23.rda")
+GPSwhaleAIS7 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS07.rda')
+GPSwhaleAIS8 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS08.rda')
+GPSwhaleAIS10 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS10.rda')
+GPSwhaleAIS12 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS12.rda')
+GPSwhaleAIS13 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS13.rda')
+GPSwhaleAIS14 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS14.rda')
+GPSwhaleAIS16 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS16.rda')
+GPSwhaleAIS18 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS18.rda')
+GPSwhaleAIS19 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS19.rda')
+GPSwhaleAIS20 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS20.rda')
+GPSwhaleAIS21 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS21.rda')
+GPSwhaleAIS22 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS22.rda')
+GPSwhaleAIS23 <- readRDS(file = 'D:/Buoy_dfs/GPSwhaleAIS23.rda')
 ```
 
 
@@ -47,20 +46,34 @@ Sea Surface Temperature from ERDDAP using PAMPal function
 Daily Multi-scale Ultra-high Resolution (MUR) SST Analysis fv04.1, Global, 0.01°
 ```{r}
 # Downloads data from servers onto external hard drive. Uncomment and only run once.
-#env07 <- matchEnvData(GPSwhaleAIS7, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST07", var = c('analysed_sst'))
-#env08 <- matchEnvData(GPSwhaleAIS8, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST08", var = c('analysed_sst'))
-#env10 <- matchEnvData(GPSwhaleAIS10, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST10", var = c('analysed_sst'))
-#env12 <- matchEnvData(GPSwhaleAIS12, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST12", var = c('analysed_sst'))
-#env13 <- matchEnvData(GPSwhaleAIS13, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST13", var = c('analysed_sst'))
-#env14 <- matchEnvData(GPSwhaleAIS14, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST14", var = c('analysed_sst'))
-#env16 <- matchEnvData(GPSwhaleAIS16, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST16", var = c('analysed_sst'))
-#env18 <- matchEnvData(GPSwhaleAIS18, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST18", var = c('analysed_sst'))
-#env19 <- matchEnvData(GPSwhaleAIS19, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST19", var = c('analysed_sst'))
-#env20 <- matchEnvData(GPSwhaleAIS20, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST20", var = c('analysed_sst'))
-#env21 <- matchEnvData(GPSwhaleAIS21, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST21", var = c('analysed_sst'))
-#env22 <- matchEnvData(GPSwhaleAIS22, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST22", var = c('analysed_sst'))
-#env23 <- matchEnvData(GPSwhaleAIS23, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST23", var = c('analysed_sst'))
+env07 <- matchEnvData(GPSwhaleAIS7, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST07", var = c('analysed_sst'))
+env08 <- matchEnvData(GPSwhaleAIS8, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST08", var = c('analysed_sst'))
+env10 <- matchEnvData(GPSwhaleAIS10, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST10", var = c('analysed_sst'))
+env12 <- matchEnvData(GPSwhaleAIS12, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST12", var = c('analysed_sst'))
+env13 <- matchEnvData(GPSwhaleAIS13, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST13", var = c('analysed_sst'))
+env14 <- matchEnvData(GPSwhaleAIS14, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST14", var = c('analysed_sst'))
+env16 <- matchEnvData(GPSwhaleAIS16, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST16", var = c('analysed_sst'))
+env18 <- matchEnvData(GPSwhaleAIS18, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST18", var = c('analysed_sst'))
+env19 <- matchEnvData(GPSwhaleAIS19, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST19", var = c('analysed_sst'))
+env20 <- matchEnvData(GPSwhaleAIS20, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST20", var = c('analysed_sst'))
+env21 <- matchEnvData(GPSwhaleAIS21, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST21", var = c('analysed_sst'))
+env22 <- matchEnvData(GPSwhaleAIS22, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST22", var = c('analysed_sst'))
+env23 <- matchEnvData(GPSwhaleAIS23, nc = 'jplMURSST41', 
+                      fileName = "D:/Environ_variables/analysedSST23", var = c('analysed_sst'))
 ```
+
 
 Once downloaded, matches SST from file
 ```{r}
@@ -74,23 +87,25 @@ for (ss in SSTlist) {
   assign(paste0("env", substr(ss, 33, 34)), data)
 }
 ```
-### Wind Stress Curl from ERDDAP using PAMPal function
-Wind Stress, Metop-A ASCAT, 0.25°, Global, Near Real Time, 2009-present (1 Day) 
+
+### Curl of Surface Wind Stress from ERDDAP using PAMPal function
+FNMOC Ekman Transports, 1°, 6-hourly, Lon+/-180, Units: M Pa m-1
 ```{r}
 # Downloads data from servers onto external hard drive. Uncomment and only run once.
-#env07 <- matchEnvData(env07, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress07.nc", var = c('curl'))
-#env08 <- matchEnvData(env08, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress08.nc", var = c('curl'))
-#env10 <- matchEnvData(env10, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress10.nc", var = c('curl'))
-#env12 <- matchEnvData(env12, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress12.nc", var = c('curl'))
-#env13 <- matchEnvData(env13, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress13.nc", var = c('curl'))
-#env14 <- matchEnvData(env14, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress14.nc", var = c('curl'))
-#env16 <- matchEnvData(env16, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress16.nc", var = c('curl'))
-#env18 <- matchEnvData(env18, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress18.nc", var = c('curl'))
-#env19 <- matchEnvData(env19, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress19.nc", var = c('curl'))
-#env20 <- matchEnvData(env20, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress20.nc", var = c('curl'))
-#env21 <- matchEnvData(env21, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress21.nc", var = c('curl'))
-#env22 <- matchEnvData(env22, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress22.nc", var = c('curl'))
-#env23 <- matchEnvData(env23, nc = 'erdQAstress1day', fileName = "D:/Environ_variables/windstress23.nc", var = c('curl'))
+#env07 <- matchEnvData(env07, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress07.nc", var = c('curl'))
+#env08 <- matchEnvData(env08, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress08.nc", var = c('curl'))
+#env10 <- matchEnvData(env10, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress10.nc", var = c('curl'))
+#env12 <- matchEnvData(env12, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress12.nc", var = c('curl'))
+#env13 <- matchEnvData(env13, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress13.nc", var = c('curl'))
+#env14 <- matchEnvData(env14, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress14.nc", var = c('curl'))
+#env16 <- matchEnvData(env16, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress16.nc", var = c('curl'))
+#env18 <- matchEnvData(env18, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress18.nc", var = c('curl'))
+#env19 <- matchEnvData(env19, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress19.nc", var = c('curl'))
+#env20 <- matchEnvData(env20, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress20.nc", var = c('curl'))
+#env21 <- matchEnvData(env21, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress21.nc", var = c('curl'))
+#env22 <- matchEnvData(env22, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress22.nc", var = c('curl'))
+#env23 <- matchEnvData(env23, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress23.nc", var = c('curl'))
+
 ```
 Once downloaded, matches wind stress curl from file
 ```{r}
@@ -98,13 +113,14 @@ windlist <- dir("D:/Environ_variables", recursive=TRUE, full.names=TRUE, pattern
 
 for (w in windlist) {
   data <- matchEnvData(get(paste0("env", substr(w, 32, 33))), nc = w) %>%
-     dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean, -matchDepth_mean)   # remove unnecessary columns
+     dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)   # remove unnecessary columns
   
   assign(paste0("env", substr(w, 32, 33)), data)
 }
 ```
 
 ### Distance to continental slope (uses terra and sf package)
+## Takes about 20 minutes to run
 ```{r}
 bathy <- rast("D:/CCES_gebco_bathy.tif") # Bathymetry for all of CCE from https://download.gebco.net/
 agg <- terra::aggregate(bathy, 5)  # Increase cell size by factor of 5 to be visible
@@ -112,6 +128,7 @@ agg <- terra::aggregate(bathy, 5)  # Increase cell size by factor of 5 to be vis
 cont <- st_as_sf(as.contour(bathy, )) # Create contour lines from bathymetry 
 cont_slope <- cont %>% filter(level == -2000) # Establish continental shelf. Is 2000m the correct depth for continental shelf?
 
+#Make sure to clear Global Environment of other objects with "env"
 tracklist <- grep(pattern = "env", names(.GlobalEnv), value = T)
 
 for (t in tracklist) {
@@ -128,6 +145,18 @@ for (t in tracklist) {
   assign(paste0("env", substr(t, 4, 5)), dbind)
 }
 ```
+```{r} 
+sf <- st_as_sf(get(t), coords = c("Longitude", "Latitude"), crs=4326, remove=F)
+  trk <- terra::rasterize(vect(sf), agg)
+  slop <- terra::distance(trk, vect(cont_slope))
+  ext <- terra::extract(slop, vect(sf))
+  
+  dbind <- cbind(sf, ext) %>%
+  dplyr::select(-ID) %>%
+  rename("dist2slope" = last) %>%
+  st_set_geometry(NULL) # remove geometry to prevent buoy dataframe from becoming sf object for future 
+```
+
 
 Depth from ERDDAP using PAMPal function
 SRTM15_PLUS Estimated Topography, 15 seconds, Global, v1 
@@ -146,6 +175,7 @@ SRTM15_PLUS Estimated Topography, 15 seconds, Global, v1
 #env21 <- matchEnvData(env21, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth21.nc", var = c('z'))
 #env22 <- matchEnvData(env22, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth22.nc", var = c('z'))
 #env23 <- matchEnvData(env23, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth23.nc", var = c('z'))
+
 ```
 
 Once downloaded, matches depth from file
@@ -178,6 +208,7 @@ for (t in tracklist) {
 ```
 
 Distance to Shore from ERDDAP using PAMPal function
+Distance to Nearest Coastline: 0.01-Degree Grid
 ```{r}
 # Downloads data from servers onto external hard drive. Uncomment and only run once.
 #env07 <- matchEnvData(env07, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore07.nc", var = c('dist'))
@@ -193,6 +224,7 @@ Distance to Shore from ERDDAP using PAMPal function
 #env21 <- matchEnvData(env21, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore21.nc", var = c('dist'))
 #env22 <- matchEnvData(env22, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore22.nc", var = c('dist'))
 #env23 <- matchEnvData(env23, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore23.nc", var = c('dist'))
+
 ```
 
 Once downloaded, matches Distance to Shore from file
@@ -210,7 +242,8 @@ for (d2 in distlist) {
 
 ### Chlorophyll from ERDDAP using PAMPal function
 Chlorophyll-a, Aqua MODIS, NPP, L3SMI, Global, 4km, Science Quality, 2003-
-present (Monthly Composite) 
+present (Monthly Composite)
+Monthly is a better resolution because anything finer leaves NaN in columns
 ```{r}
 # Downloads data from servers onto external hard drive. Uncomment and only run once.
 #env07 <- matchEnvData(env07, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll07.nc", var = c('chlorophyll'))
@@ -226,6 +259,7 @@ present (Monthly Composite)
 #env21 <- matchEnvData(env21, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll21.nc", var = c('chlorophyll'))
 #env22 <- matchEnvData(env22, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll22.nc", var = c('chlorophyll'))
 #env23 <- matchEnvData(env23, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll23.nc", var = c('chlorophyll'))
+
 ```
 
 Once downloaded, matches chlorophyll from file
@@ -258,7 +292,9 @@ present (meters)
 #env21 <- matchEnvData(env21, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh21.nc", var = c('sla'))
 #env22 <- matchEnvData(env22, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh22.nc", var = c('sla'))
 #env23 <- matchEnvData(env23, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh23.nc", var = c('sla'))
+
 ```
+
 
 Once downloaded, matches sea surface height anomalies from file
 ```{r}
@@ -274,7 +310,7 @@ for (sh in sshlist) {
 ```
 
 
-#### HyCOM Data - MLDepth, MLTemp, TTemp, TDepth, Salinity
+#### Download HYCOM Data - MLDepth, MLTemp, TTemp, TDepth, Salinity
 
 Create function to estimate thermocline variables using the temperature at depth data
 ```{r}
@@ -319,13 +355,14 @@ calcThermoVars <- function(depth, temp, mldMode='SST8', thermMode='variso', plot
 }
 ```
 
-
 ```{r}
-# Create loop for each buoy to download HYCOM data
-
-## This only downloads 11 of 13 successfully - FIX
+# Create loop for each buoy to download HYCOM data. Takes a long time to run.
 for (t in tracklist) {
-  Hdata <- matchEnvData(as.data.frame(get(paste0("env", substr(t, 4, 5)))), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
+  Hdata <- matchEnvData(as.data.frame(get(paste0("env", substr(t, 4, 5)))), 
+                        nc=PAMmisc::hycomList, 
+                        var=c('water_temp', 'salinity'), 
+                        raw=TRUE, 
+                        depth = 0:1000)
   
   thermData <- bind_rows(lapply(Hdata, function(x) {
     # do thermo calcs
@@ -340,21 +377,20 @@ for (t in tracklist) {
 }
 ```
 
-# runs hycom variable download and bind for one drift. can ignore if above works.
+# runs hycom variable download and bind for one drift. Run if above does not work.
 ```{r}
-## HYCOM function above stops at buoys 07 and 08, need to manually run it here. FIX!!
-#test08 <- matchEnvData(as.data.frame(tracks_SS_08), nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
+Htest <- matchEnvData(env23, nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
 
-#thermData08 <- bind_rows(lapply(test08, function(x) {
-#    # do thermo calcs
-#    result <- calcThermoVars(x$matchDepth, x$water_temp)
-#    # get specific values
-#    result$temp400 <- x$water_temp[x$matchDepth == 400]
-#    result$sal400 <- x$salinity[x$matchDepth == 400]
-#    result
-#}))
+thermData <- bind_rows(lapply(Htest, function(x) {
+    # do thermo calcs
+    result <- calcThermoVars(x$matchDepth, x$water_temp)
+    # get specific values
+    result$temp400 <- x$water_temp[x$matchDepth == 400]
+    result$sal400 <- x$salinity[x$matchDepth == 400]
+    result
+}))
 
-#tracks_SS_08 <- cbind(tracks_SS_08, thermData08)
+env23 <- cbind(env23, thermData)
 ```
 
 
