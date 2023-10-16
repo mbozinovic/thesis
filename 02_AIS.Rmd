@@ -10,10 +10,30 @@ AIS download from Marine Cadastre and match to buoy datasets.
 
 
 Required Packages
-```{r, }
+```{r setup}
 library(PAMscapes)
 library(tidyverse)
 ```
+
+Read in GPS/whale detections
+```{r}
+GPSwhale7 <- readRDS(file = "D:Buoy_dfs/GPSwhale7.rda")
+GPSwhale8 <- readRDS(file = "D:Buoy_dfs/GPSwhale8.rda")
+GPSwhale10 <- readRDS(file = "D:Buoy_dfs/GPSwhale10.rda")
+GPSwhale12 <- readRDS(file = "D:Buoy_dfs/GPSwhale12.rda")
+GPSwhale13 <- readRDS(file = "D:Buoy_dfs/GPSwhale13.rda")
+GPSwhale14 <- readRDS(file = "D:Buoy_dfs/GPSwhale14.rda")
+GPSwhale16 <- readRDS(file = "D:Buoy_dfs/GPSwhale16.rda")
+GPSwhale18 <- readRDS(file = "D:Buoy_dfs/GPSwhale18.rda")
+GPSwhale19 <- readRDS(file = "D:Buoy_dfs/GPSwhale19.rda")
+GPSwhale20 <- readRDS(file = "D:Buoy_dfs/GPSwhale20.rda")
+GPSwhale21 <- readRDS(file = "D:Buoy_dfs/GPSwhale21.rda")
+GPSwhale22 <- readRDS(file = "D:Buoy_dfs/GPSwhale22.rda")
+GPSwhale23 <- readRDS(file = "D:Buoy_dfs/GPSwhale23.rda")
+GPSwhale20.alt <- readRDS(file = "D:Buoy_dfs/GPSwhale20_alt.rda")
+```
+
+
 
 -----------------------
 From Taiki's AIS Workflow
@@ -31,6 +51,7 @@ From Taiki's AIS Workflow
 #marcadFiles21 <- downloadMarCadAIS(GPSwhale21, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
 #marcadFiles22 <- downloadMarCadAIS(GPSwhale22, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
 #marcadFiles23 <- downloadMarCadAIS(GPSwhale23, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
+#marcadFiles20.alt <- downloadMarCadAIS(GPSwhale20.alt, outDir = "D:/AIS", overwrite = FALSE, unzip = TRUE)
 ```
 
 Subset to US West Coast
@@ -40,6 +61,7 @@ subsetMarCadAIS(inDir="D:/AIS", outDir="D:/AIS/AIS_West", name='West_',
                 overwrite=FALSE, progress=TRUE)
 ```
 Now read into R only ais points that come in contact with buoys
+Uncomment and run -- otherwise is saved in D: drive.
 ```{r}
 #ais_near_07 <- readLocalAIS(GPSwhale7, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
 #   filter(vesselLength >= 100)  #remove vessels under 100m in length
@@ -48,7 +70,7 @@ Now read into R only ais points that come in contact with buoys
 #   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
 #ais_near_10 <- readLocalAIS(GPSwhale10, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-#   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#  filter(vesselLength >= 100)  #remove vessels under 100m in length
 
 #ais_near_12 <- readLocalAIS(GPSwhale12, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
 #   filter(vesselLength >= 100)  #remove vessels under 100m in length
@@ -72,7 +94,7 @@ Now read into R only ais points that come in contact with buoys
 #   filter(vesselLength >= 100)  #remove vessels under 100m in length
 
 #ais_near_21 <- readLocalAIS(GPSwhale21, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
-#   filter(vesselLength >= 100)  #remove vessels under 100m in length
+#  filter(vesselLength >= 100)  #remove vessels under 100m in length
 #empty table because no large vessels interacted with this buoy
 
 #ais_near_22 <- readLocalAIS(GPSwhale22, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
@@ -80,6 +102,10 @@ Now read into R only ais points that come in contact with buoys
 
 #ais_near_23 <- readLocalAIS(GPSwhale23, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
 #   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
+#ais_near_20.alt <- readLocalAIS(GPSwhale20.alt, aisDir="D:/AIS/AIS_West", distance=10e3) %>%
+#   filter(vesselLength >= 100)  #remove vessels under 100m in length
+
 ```
 
 Save `ais_near_` for all buoys
@@ -97,6 +123,7 @@ Save `ais_near_` for all buoys
 #saveRDS(ais_near_21, file = "D:AIS/ais_near_21.rda")
 #saveRDS(ais_near_22, file = "D:AIS/ais_near_22.rda")
 #saveRDS(ais_near_23, file = "D:AIS/ais_near_23.rda")
+#saveRDS(ais_near_20.alt, file = "D:AIS/ais_near_20_alt.rda")
 ```
 
 
@@ -115,11 +142,13 @@ ais_near_20 <- readRDS('D:/AIS/ais_near_20.rda')
 ais_near_21 <- readRDS('D:/AIS/ais_near_21.rda')
 ais_near_22 <- readRDS('D:/AIS/ais_near_22.rda')
 ais_near_23 <- readRDS('D:/AIS/ais_near_23.rda')
+ais_near_20.alt <- readRDS('D:/AIS/ais_near_20_alt.rda')
 ```
 
 
 
 Match AIS points with buoy points
+Warning of collpsing to unique x values.
 ```{r}
 gpsClose07 <- addAIS(GPSwhale7, ais_near_07, interpType = 'close', interpTime = 120)
 gpsClose08 <- addAIS(GPSwhale8, ais_near_08, interpType = 'close', interpTime = 120)
@@ -134,6 +163,7 @@ gpsClose20 <- addAIS(GPSwhale20, ais_near_20, interpType = 'close', interpTime =
 gpsClose21 <- addAIS(GPSwhale21, ais_near_21, interpType = 'close', interpTime = 120) #empty table
 gpsClose22 <- addAIS(GPSwhale22, ais_near_22, interpType = 'close', interpTime = 120)
 gpsClose23 <- addAIS(GPSwhale23, ais_near_23, interpType = 'close', interpTime = 120)
+gpsClose20.alt <- addAIS(GPSwhale20.alt, ais_near_20.alt, interpType = 'close', interpTime = 120)
 ```
 
 Create column 'shipsin10km' that displays number of ships associated with timestamp
@@ -152,12 +182,13 @@ close2ships20 <- gpsClose20 %>% filter(shipDist < 10e3)
 #close2ships21 <- gpsClose21 %>% filter(shipDist < 10e3) #not long enough of a buoy to detect
 close2ships22 <- gpsClose22 %>% filter(shipDist < 10e3)
 close2ships23 <- gpsClose23 %>% filter(shipDist < 10e3)
+close2ships20.alt <- gpsClose20.alt %>% filter(shipDist < 10e3)
 
 #Add column of ROUNDED UTC values to the lowest minute. Allows common field to bind
 # Close2ships21 removed because no ships nearby
 sslist <- c("close2ships07", "close2ships08", "close2ships10", "close2ships12", "close2ships13",
         "close2ships14", "close2ships16", "close2ships18", "close2ships19", "close2ships20",
-        "close2ships22", "close2ships23")
+        "close2ships22", "close2ships23", "close2ships20.alt")
 
 for (sx in sslist) {
   dta <- get(sx)
@@ -181,11 +212,11 @@ ShpRows <- function(w, s) {
 Join to main df, add zeros to null values
 ```{r}
 nearbyShp07 <- ShpRows(GPSwhale7, close2ships07)
-GPSwhaleAIS7 <- left_join(GPSwhale7, nearbyShp07, by = join_by("UTC")) %>%
+GPSwhaleAIS07 <- left_join(GPSwhale7, nearbyShp07, by = join_by("UTC")) %>%
   mutate(shipin10km = coalesce(shipin10km, 0))
 
 nearbyShp08 <- ShpRows(GPSwhale8, close2ships08)
-GPSwhaleAIS8 <- left_join(GPSwhale8, nearbyShp08, by = join_by("UTC")) %>%
+GPSwhaleAIS08 <- left_join(GPSwhale8, nearbyShp08, by = join_by("UTC")) %>%
   mutate(shipin10km = coalesce(shipin10km, 0))
 
 nearbyShp10 <- ShpRows(GPSwhale10, close2ships10)
@@ -231,13 +262,172 @@ GPSwhaleAIS22 <- left_join(GPSwhale22, nearbyShp22, by = join_by("UTC")) %>%
 nearbyShp23 <- ShpRows(GPSwhale23, close2ships23)
 GPSwhaleAIS23 <- left_join(GPSwhale23, nearbyShp23, by = join_by("UTC")) %>%
   mutate(shipin10km = coalesce(shipin10km, 0))
+
+
+nearbyShp20.alt <- ShpRows(GPSwhale20.alt, close2ships20.alt)
+GPSwhaleAIS20.alt <- left_join(GPSwhale20.alt, nearbyShp20.alt, by = join_by("UTC")) %>%
+  mutate(shipin10km = coalesce(shipin10km, 0))
+```
+
+## Add time elapsed after last ship event
+
+```{r}
+shiplist <- c("GPSwhaleAIS10", "GPSwhaleAIS12", "GPSwhaleAIS07", "GPSwhaleAIS08",
+              "GPSwhaleAIS13", "GPSwhaleAIS14", "GPSwhaleAIS16", "GPSwhaleAIS18",
+              "GPSwhaleAIS19", "GPSwhaleAIS20", "GPSwhaleAIS21", "GPSwhaleAIS22",
+              "GPSwhaleAIS23")
+
+for (ship in shiplist) {
+  data <- get(ship) %>%
+   arrange(UTC) %>%
+   mutate(tmpG = cumsum(c(FALSE, as.logical(diff(shipin10km))))) %>%
+   mutate(tmp_a = c(0, diff(UTC)) * !shipin10km) %>%
+   group_by(tmpG) %>%
+   mutate(timeAfterShip = cumsum(tmp_a)) %>%
+   ungroup() %>%
+   select(-c(tmp_a, tmpG))
+    
+  assign(paste0("GPSwhaleAIS", substr(ship,12, 13)), data)
+  
+}
+```
+
+For buoy 20 alt. only
+```{r}
+GPSwhaleAIS20.alt <- GPSwhaleAIS20.alt %>%
+   arrange(UTC) %>%
+   mutate(tmpG = cumsum(c(FALSE, as.logical(diff(shipin10km))))) %>%
+   mutate(tmp_a = c(0, diff(UTC)) * !shipin10km) %>%
+   group_by(tmpG) %>%
+   mutate(timeAfterShip = cumsum(tmp_a)) %>%
+   ungroup() %>%
+   select(-c(tmp_a, tmpG))
 ```
 
 
-Save new fulltrack rdas to D drive
+
+Change times before first ship event to NA
 ```{r}
-saveRDS(GPSwhaleAIS7, file = "data/GPSwhaleAIS7.rda")
-saveRDS(GPSwhaleAIS8, file = "data/GPSwhaleAIS8.rda")
+# Buoy 7
+# Find index of first ship
+whereShips <- GPSwhaleAIS07$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS07[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS07[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+
+# Buoy 8
+whereShips <- GPSwhaleAIS08$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS08[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS08[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+
+# Buoy 10
+whereShips <- GPSwhaleAIS10$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS10[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS10[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+
+# Buoy 12
+whereShips <- GPSwhaleAIS12$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS12[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS12[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+
+#Buoy 13
+whereShips <- GPSwhaleAIS13$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS13[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS13[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+# Buoy 14
+whereShips <- GPSwhaleAIS14$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS14[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS14[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+# Buoy 16
+whereShips <- GPSwhaleAIS16$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS16[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS16[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+
+# Buoy 18
+whereShips <- GPSwhaleAIS18$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS18[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS18[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+
+
+# Buoy 19
+whereShips <- GPSwhaleAIS19$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS19[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS19[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+# Buoy 20
+whereShips <- GPSwhaleAIS20$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS20[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS20[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+
+# Buoy 21 -- no ships occur, make all NAs
+GPSwhaleAIS21[,"timeAfterShip"] = NA
+
+# Buoy 22
+whereShips <- GPSwhaleAIS22$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS22[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS22[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+
+# Buoy 23 - no ships occur, make all NAs
+GPSwhaleAIS23[,"timeAfterShip"] = NA 
+
+
+#Buoy 20 with interpolated data
+whereShips <- GPSwhaleAIS20.alt$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAIS20.alt[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAIS20.alt[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+```
+
+
+
+Save new GPSwhaleAISx .rda
+```{r}
+saveRDS(GPSwhaleAIS07, file = "data/GPSwhaleAIS07.rda")
+saveRDS(GPSwhaleAIS08, file = "data/GPSwhaleAIS08.rda")
 saveRDS(GPSwhaleAIS10, file = "data/GPSwhaleAIS10.rda")
 saveRDS(GPSwhaleAIS12, file = "data/GPSwhaleAIS12.rda")
 saveRDS(GPSwhaleAIS13, file = "data/GPSwhaleAIS13.rda")
@@ -249,5 +439,24 @@ saveRDS(GPSwhaleAIS20, file = "data/GPSwhaleAIS20.rda")
 saveRDS(GPSwhaleAIS21, file = "data/GPSwhaleAIS21.rda")
 saveRDS(GPSwhaleAIS22, file = "data/GPSwhaleAIS22.rda")
 saveRDS(GPSwhaleAIS23, file = "data/GPSwhaleAIS23.rda")
+saveRDS(GPSwhaleAIS20.alt, file = "data/GPSwhaleAIS20_alt.rda")
+```
+
+Also save to external D: drive
+```{r}
+saveRDS(GPSwhaleAIS10, 'D:/Buoy_dfs/GPSwhaleAIS10.rda')
+saveRDS(GPSwhaleAIS12, 'D:/Buoy_dfs/GPSwhaleAIS12.rda')
+saveRDS(GPSwhaleAIS13, 'D:/Buoy_dfs/GPSwhaleAIS13.rda')
+saveRDS(GPSwhaleAIS14, 'D:/Buoy_dfs/GPSwhaleAIS14.rda')
+saveRDS(GPSwhaleAIS16, 'D:/Buoy_dfs/GPSwhaleAIS16.rda')
+saveRDS(GPSwhaleAIS18, 'D:/Buoy_dfs/GPSwhaleAIS18.rda')
+saveRDS(GPSwhaleAIS19, 'D:/Buoy_dfs/GPSwhaleAIS19.rda')
+saveRDS(GPSwhaleAIS20, 'D:/Buoy_dfs/GPSwhaleAIS20.rda')
+saveRDS(GPSwhaleAIS21, 'D:/Buoy_dfs/GPSwhaleAIS21.rda')
+saveRDS(GPSwhaleAIS22, 'D:/Buoy_dfs/GPSwhaleAIS22.rda')
+saveRDS(GPSwhaleAIS23, 'D:/Buoy_dfs/GPSwhaleAIS23.rda')
+saveRDS(GPSwhaleAIS07, 'D:/Buoy_dfs/GPSwhaleAIS07.rda')
+saveRDS(GPSwhaleAIS08, 'D:/Buoy_dfs/GPSwhaleAIS08.rda')
+saveRDS(GPSwhaleAIS20.alt, 'D:/Buoy_dfs/GPSwhaleAIS20_alt.rda')
 ```
 
