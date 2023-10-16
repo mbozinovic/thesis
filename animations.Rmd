@@ -1,0 +1,156 @@
+---
+title: "animations"
+author: "Marina Bozinovic"
+date: "2023-02-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Map Animations
+
+```{r}
+# Install
+#devtools::install_github("ropenscilabs/rnaturalearth")
+#install.packages("rnaturalearth",
+#                 repos = "http://packages.ropensci.org",
+#                 type = "source")
+#install.packages("gganimate")
+#install.packages("gifski")
+#install.packages("marmap")
+
+# Libraries
+library(sf)
+library(tidyverse)
+library(marmap)
+library(gifski)
+library(gganimate)
+library(rnaturalearth)
+```
+
+### New ggplot wtih bplot as basemap
+
+```{r}
+library(mapproj)
+drift <- track_BB_OL_10
+
+# Get bathymetry (code from Ocean Tracking Network #https://www.youtube.com/watch?v=xT2F-Y9bKLk)
+bgo <- getNOAA.bathy(lon1 = min(drift$long-0.7), lon2 = max(drift$long + 0.7),
+                     lat1 = min(drift$lat-0.7), lat2=max(drift$lat + 0.7), resolution = 1)
+
+# Create basemap
+#bf <- fortify.bathy(bgo, geom=c("r", "c")) + scale_fill_etopo() # converts bathy object to data frame 
+# ABOVE DOESNT WORK
+bplot <- autoplot(bgo, geom = c("raster", "contour"), coast = TRUE) + 
+  scale_fill_etopo() #creates ggplot object
+
+# Plot drift
+p <- bplot + 
+  geom_path(data = drift, 
+            aes(x=long,y=lat,group=spotID), 
+            alpha = 0.5) +
+  geom_point(data = drift, 
+             aes(x=long,y=lat,group=spotID, size = OL_125, color = OL_125),
+             shape=19, stroke = 1) +
+
+  #formatting  
+  scale_color_viridis_c(option = "inferno") +
+  scale_size_continuous(range = c(0.1,10)) +
+  labs(x=NULL, y=NULL, 
+       fill = 'Depth',
+       color = 'OL 125')+
+  theme(panel.grid = element_blank())
+
+# Plot AIS
+b <- bplot + 
+  geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName)) +
+  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
+  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7))) +
+  theme(panel.grid = element_blank())
+
+# Plot AIS + drift
+z <- bplot +
+  geom_point(data = AIS_sf, mapping = aes(x=LON,y=LAT, group = VesselName)) +
+  geom_path(data = drift, 
+            aes(x=long,y=lat,group=spotID), 
+            alpha = 0.5) +
+  geom_point(data = drift, 
+             aes(x=long,y=lat,group=spotID, size = OL_125, color = OL_125),
+             shape=19, stroke = 1) +
+  #formatting  
+  scale_color_viridis_c(option = "inferno") +
+  scale_size_continuous(range = c(0.1,10)) +
+  labs(x=NULL, y=NULL, 
+       fill = 'Depth',
+       color = 'OL 125')+
+  scale_x_continuous(limits = c(min(drift$long-0.7), max(drift$long + 0.7))) + 
+  scale_y_continuous(limits = c(min(drift$lat-0.7), max(drift$lat + 0.7)))
+```
+
+```{r}
+# Animate drift
+anim <- p +
+  transition_reveal(along = dateTime)+
+  ease_aes('linear')+
+  shadow_wake(0.1) +
+  ggtitle("Date: {frame_along}") +
+
+# Animate with control over frames per second and number of frames
+animate(anim, nframes = 70, fps = 3)
+anim_save("gifs/drift10.gif")
+
+
+# Animate AIS. Need to continue working on this.
+anim <-  b +
+  transition_reveal(BaseDateTime) +
+  ease_aes('linear') +
+  shadow_wake(wake_length = 0.5) +
+  ggtitle("Date: {frame_along}")
+
+# Animate with control over frames per second and number of frames
+animate(anim, nframes = 400, fps = 3)
+
+```
+
+### Plotting whale data
+
+```{r}
+# shorten time range
+#whales10 <- whales10 %>% filter(StartTime > "2018-10-05 00:00:00")
+
+# too smooth, doesnt work.
+d <- bplot +
+  geom_point(data = whales10, aes(x = as.numeric(Longitude), y = as.numeric(Latitude)), color = "cyan") +
+  ggtitle("Drift 10: Whale detections")
+  
+
+anim <-  d +
+  transition_reveal(along = StartTime) +
+  exit_shrink() +
+  ggtitle("Date: {frame_along}")
+
+animate(anim, nframes = 400, fps = 3)
+
+## The issue with showing drift path and whale detections is that gganimate only allows one type of transition for the whole plot. May need to join drift and whale detections and include null values?
+```
+
+### Join whale detections with drift 10
+
+```{r}
+w_d <- left_join(drift, whales10, by = "lat", keep = TRUE)
+
+w_d_plt <- ggplot() +
+  geom_path(data = w_d, aes(x=lon, y=lat.x)) +
+  geom_point(data = w_d, aes(x=lon, y = lat.x, color = "species"))
+
+w_d_plt + 
+  transition_reveal(along = dateTime) +
+  ease_aes() +
+  shadow_trail(distance = 0.7) +
+  ggtitle("Date:{frame_along}")
+
+## Needs shorter time frame
+
+```
