@@ -5,6 +5,8 @@ date: "2023-06-28"
 output: html_document
 ---
 
+# 10th, 50th (mean), and 90th Percentiles
+
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(lubridate)
@@ -14,16 +16,6 @@ library(PAMscapes)
 library(patchwork)
 library(knitr)
 library(kableExtra)
-```
-
-Read in RDS files of each buoy + all environ variables + AIS (pending)
-```{r}
-ftlist <- dir("data/", recursive=TRUE, full.names=TRUE, pattern="fulltrack")
-
-for (ft in ftlist) {
-  df <- readRDS(ft)
-  assign(paste0("fulltrack", substr(ft, 15, 16)), df)
-}
 ```
 
 Read in RDA files for percentiles
@@ -46,151 +38,6 @@ for (ii in pclist) {
 }
 
 ```
-
-Create df from 1 percentile
-```{r}
-# 1 Percentile
-pct01_07 <- cbind(BB_pct01_07, TO_pct01_07) %>%
-  select(., -3)
-pct01_08 <- cbind(BB_pct01_08, TO_pct01_08) %>%
-  select(., -3)
-pct01_10 <- cbind(BB_pct01_10, TO_pct01_10) %>%
-  select(., -3)
-pct01_12 <- cbind(BB_pct01_12, TO_pct01_12) %>%
-  select(., -3)
-pct01_13 <- cbind(BB_pct01_13, TO_pct01_13) %>%
-  select(., -3)
-pct01_14 <- cbind(BB_pct01_14, TO_pct01_14) %>%
-  select(., -3)
-pct01_16 <- cbind(BB_pct01_16, TO_pct01_16) %>%
-  select(., -3)
-pct01_18 <- cbind(BB_pct01_18, TO_pct01_18) %>%
-  select(., -3)
-pct01_19 <- cbind(BB_pct01_19, TO_pct01_19) %>%
-  select(., -3)
-pct01_20 <- cbind(BB_pct01_20, TO_pct01_20) %>%
-  select(., -3)
-pct01_21 <- cbind(BB_pct01_21, TO_pct01_21) %>%
-  select(., -3)
-pct01_22 <- cbind(BB_pct01_22, TO_pct01_22) %>%
-  select(., -3)
-pct01_23 <- cbind(BB_pct01_23, TO_pct01_23) %>%
-  select(., -3)
-
-pct01_07$buoy <- ("07")
-pct01_08$buoy <- ("08")
-pct01_10$buoy <- ("10")
-pct01_12$buoy <- ("12")
-pct01_13$buoy <- ("13")
-pct01_14$buoy <- ("14")
-pct01_16$buoy <- ("16")
-pct01_18$buoy <- ("18")
-pct01_19$buoy <- ("19")
-pct01_20$buoy <- ("20")
-pct01_21$buoy <- ("21")
-pct01_22$buoy <- ("22")
-pct01_23$buoy <- ("23")
-
-pct01_all <- rbind(pct01_07, pct01_08, pct01_10, pct01_12, pct01_13,
-                   pct01_14, pct01_16, pct01_18, pct01_19, pct01_20,
-                   pct01_21, pct01_22, pct01_23)
-
-# Group by and summarize
-pct01_all %>%
-  group_by(buoy) %>%
-  summarize(max(`TOL_125`))
-
-```
-
-Create df from 99 percentile
-```{r}
-# 99 Percentile
-pct99_07 <- cbind(BB_pct99_07, TO_pct99_07) %>%
-  select(., -3)
-pct99_08 <- cbind(BB_pct99_08, TO_pct99_08) %>%
-  select(., -3)
-pct99_10 <- cbind(BB_pct99_10, TO_pct99_10) %>%
-  select(., -3)
-pct99_12 <- cbind(BB_pct99_12, TO_pct99_12) %>%
-  select(., -3)
-pct99_13 <- cbind(BB_pct99_13, TO_pct99_13) %>%
-  select(., -3)
-pct99_14 <- cbind(BB_pct99_14, TO_pct99_14) %>%
-  select(., -3)
-pct99_16 <- cbind(BB_pct99_16, TO_pct99_16) %>%
-  select(., -3)
-pct99_18 <- cbind(BB_pct99_18, TO_pct99_18) %>%
-  select(., -3)
-pct99_19 <- cbind(BB_pct99_19, TO_pct99_19) %>%
-  select(., -3)
-pct99_20 <- cbind(BB_pct99_20, TO_pct99_20) %>%
-  select(., -3)
-pct99_21 <- cbind(BB_pct99_21, TO_pct99_21) %>%
-  select(., -3)
-pct99_22 <- cbind(BB_pct99_22, TO_pct99_22) %>%
-  select(., -3)
-pct99_23 <- cbind(BB_pct99_23, TO_pct99_23) %>%
-  select(., -3)
-
-# Add column with buoy number
-pct99_07$buoy <- ("07")
-pct99_08$buoy <- ("08")
-pct99_10$buoy <- ("10")
-pct99_12$buoy <- ("12")
-pct99_13$buoy <- ("13")
-pct99_14$buoy <- ("14")
-pct99_16$buoy <- ("16")
-pct99_18$buoy <- ("18")
-pct99_19$buoy <- ("19")
-pct99_20$buoy <- ("20")
-pct99_21$buoy <- ("21")
-pct99_22$buoy <- ("22")
-pct99_23$buoy <- ("23")
-
-pct99_all <- rbind(pct99_07, pct99_08, pct99_10, pct99_12, pct99_13,
-                   pct99_14, pct99_16, pct99_18, pct99_19, pct99_20,
-                   pct99_21, pct99_22, pct99_23)
-```
-
-Plot 99pct and 1pct by buoy
-```{r fig.height=5, fig.width=13}
-# Group by and summarize
-pct99_all %>%
-  group_by(buoy) %>%
-  summarize(max(`TOL_125`)) %>%
-  ggplot(aes(x = buoy, y = `max(TOL_125)`)) + geom_bar(stat = "identity")
-
-#TOL timeline by buoy
-pct99_all %>%
-  ggplot(aes(x = dateTime, y = TOL_2000, color = buoy)) + geom_line()
-
-# Average dB by hour for each frequency
-pct99_16 %>%
-  group_by(time = floor_date(dateTime, "1 hour")) %>%
-  summarize(mean_BB = mean(`BB_20-24000`),
-            meanTOL_125 = mean(TOL_125),
-            meanTOL_250 = mean(TOL_250),
-            meanTOL_500 = mean(TOL_500),
-            meanTOL_2000 = mean(TOL_2000),
-            meanTOL_4000 = mean(TOL_4000),
-            meanTOL_20000 = mean(TOL_20000)) %>%
-  pivot_longer(cols = mean_BB:meanTOL_20000,
-               names_to = "frequency",
-               values_to="dB") %>%
-  ggplot(aes(x = time, y = dB)) + geom_line(aes(color = frequency)) #+
-  #geom_point(data = allDrifts, aes(color = species))
-# Show more dates/times on x axis
-# 99pct, buoy 16 has a strong peak later in journey at 4kHz
-
-
-ggplot() +
-  geom_point(data = pct01_23, aes(x = lubridate::round_date(dateTime, "2 hours"), y = TOL_125), color = 'steelblue') +
-  #geom_line(data = pct99_23, aes(x = dateTime, y = TOL_125), color = 'coral') +
-  facet_grid()
-
-```
-
-
 
 
 Bind percentile df (pctx_x) with GPS track df (GPSwhalex)
@@ -352,6 +199,9 @@ buoy13pctSummary <- pct13_whl %>%
 
 Buoy 14 # Issue binding pct50 with others due to differing number of rows
 ```{r}
+# 50th Percentile for Buoy 14 was calculated later and somehow has a differing number of rows with slightly different UTCs
+# To allow for a cbind, I add two rows that are missing and use NAs for soundscape metrics.
+
 # Create columns with percentiles and BIND
 pct50_14_select <- pct50_14 %>% select(UTC, TOL_125, TOL_2000) %>% 
   rename(pct50_TOL125 = TOL_125,
@@ -363,8 +213,11 @@ pct90_14_select <- pct90_14 %>% select(UTC, TOL_125, TOL_2000) %>%
    rename(pct90_TOL125 = TOL_125,
          pct90_TOL2000 = TOL_2000)
 
+# Remove last two rows of pct50_14_select in order to bind.
+pct50_14_select <- pct50_14_select[1:1979,]
+  
 # Bind
-#pct14 <- cbind(pct10_14_select, pct50_14_select, pct90_14_select)
+pct14 <- cbind(pct10_14_select, pct50_14_select, pct90_14_select)
 
 # Join GPS points with the three percentiles
 pct14_whl <- timeJoin(GPSwhale14, pct14, thresh = 3600, interpolate = FALSE)
@@ -592,6 +445,8 @@ buoy23pctSummary <- pct23_whl %>%
             pct10_2000_mean = mean(pct10_TOL2000),
             pct50_2000_mean = mean(pct50_TOL2000),
             pct90_2000_mean = mean(pct90_TOL2000))
+
+ggplot(buoy23pctSummary) + geom_bar(aes(x = species))
 ```
 
 Knit all summary percentiles into a table
@@ -628,10 +483,10 @@ sumPct13 <- kable(buoy13pctSummary, col.names = c("Animal", "10th", "Mean", "90t
   kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
 
 ## Buoy 14 ##
-#kable(buoy14pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
-#                                     caption = "Summary Percentiles for Buoy 14") %>%
-#  kableExtra::kable_classic() %>%
-#  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
+sumPct14 <- kable(buoy14pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
+                                     caption = "Summary Percentiles for Buoy 14") %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::add_header_above(c(" " = 1, "TOL 125" = 3, "TOL 2000" = 3))
 
 ## Buoy 16 ##
 sumPct16 <- kable(buoy16pctSummary, col.names = c("Animal", "10th", "Mean", "90th", "10th", "Mean", "90th"),
@@ -678,31 +533,29 @@ sumPct23 <- kable(buoy23pctSummary, col.names = c("Animal", "10th", "Mean", "90t
 ```
 
 
-
-
 Time Series Heat Map
 ```{r fig.width=12}
 
-pdf(paste("timeSeries8-31",".pdf"), width=14, height=10)
+#pdf(paste("timeSeries8-31",".pdf"), width=14, height=10)
 
 ### Buoy 7 ####
-W.07 <- fulltrack07 %>%
-  select(UTC, BWpresence, species) %>%
+W.07 <- GPSwhaleAISenvSS07 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.07plot <- plotPresGrid(W.07, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack07, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 7: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.07, bin = 'hour', type = 'presence', start = min(fulltrack07$UTC),
-                         end = max(fulltrack07$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS07, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 7: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.07, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS07$UTC),
+                         end = max(GPSwhaleAISenvSS07$UTC), fill = NA, color = "white")
 
 # Create plot with TOL125
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 
-t1 <- plotTimeseries(fulltrack07, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 7: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.07, bin = 'hour', type = 'presence', start = min(fulltrack07$UTC),
-                         end = max(fulltrack07$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS07, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 7: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.07, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS07$UTC),
+                         end = max(GPSwhaleAISenvSS07$UTC), fill = NA, color = "white")
 
 # Create plot with TOL2000
 combined.t <- t1
@@ -713,22 +566,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ###### Buoy 8 ####
-W.08 <- fulltrack08 %>%
-  select(UTC, BWpresence, species) %>%
-  filter(species == "ZC")
+W.08 <- GPSwhaleAISenvSS08 %>%
+  select(UTC, Wpresence, species) %>%
+  filter(species == "PM")
 
 W.08plot <- plotPresGrid(W.08, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack08, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.08, bin = 'hour', type = 'presence', start = min(fulltrack08$UTC),
-                         end = max(fulltrack08$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS08, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 125 Plot + PM'))
+g2 <- plotPresGrid(W.08, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS08$UTC),
+                         end = max(GPSwhaleAISenvSS08$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack08, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.08, bin = 'hour', type = 'presence', start = min(fulltrack08$UTC),
-                         end = max(fulltrack08$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS08, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 2000 Plot + PM')
+t2 <- plotPresGrid(W.08, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS08$UTC),
+                         end = max(GPSwhaleAISenvSS08$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -740,22 +593,22 @@ combined.g + combined.t
 ```{r fig.width=12}
 #### Buoy 10  ######
 
-W.10 <- fulltrack10 %>%
-  select(UTC, BWpresence, species) %>%
-  filter(species == "ZC")
+W.10 <- GPSwhaleAISenvSS10 %>%
+  select(UTC, Wpresence, species) %>%
+  filter(species == "PM")
 
 W.10plot <- plotPresGrid(W.10, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack10, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
-                         end = max(fulltrack10$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS10, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 125 Plot + PM'))
+g2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS10$UTC),
+                         end = max(GPSwhaleAISenvSS10$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
-                         end = max(fulltrack10$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot + PM')
+t2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS10$UTC),
+                         end = max(GPSwhaleAISenvSS10$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -766,22 +619,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 12
-W.12 <- fulltrack12 %>%
-  select(UTC, BWpresence, species) %>%
-  filter(species == "ZC")
+W.12 <- GPSwhaleAISenvSS12 %>%
+  select(UTC, Wpresence, species) %>%
+  filter(species == "PM")
 
 W.12plot <- plotPresGrid(W.12, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack12, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 12: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.12, bin = 'hour', type = 'presence', start = min(fulltrack12$UTC),
-                         end = max(fulltrack12$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS12, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 12: TOL 125 Plot + PM'))
+g2 <- plotPresGrid(W.12, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS12$UTC),
+                         end = max(GPSwhaleAISenvSS12$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack12, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 12: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.12, bin = 'hour', type = 'presence', start = min(fulltrack12$UTC),
-                         end = max(fulltrack12$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS12, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 12: TOL 2000 Plot + PM')
+t2 <- plotPresGrid(W.12, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS12$UTC),
+                         end = max(GPSwhaleAISenvSS12$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -791,22 +644,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 13
-W.13 <- fulltrack13 %>%
-  select(UTC, BWpresence, species) %>%
+W.13 <- GPSwhaleAISenvSS13 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.13plot <- plotPresGrid(W.13, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack13, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(fulltrack13$UTC),
-                         end = max(fulltrack13$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS13, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS13$UTC),
+                         end = max(GPSwhaleAISenvSS13$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack13, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(fulltrack13$UTC),
-                         end = max(fulltrack13$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS13, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS13$UTC),
+                         end = max(GPSwhaleAISenvSS13$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -816,22 +669,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 14
-W.14 <- fulltrack14 %>%
-  select(UTC, BWpresence, species) %>%
-  filter(species == "ZC")
+W.14 <- GPSwhaleAISenvSS14 %>%
+  select(UTC, Wpresence, species) %>%
+  filter(species == "PM")
 
 W.14plot <- plotPresGrid(W.14, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack14, column='TOL_125', bin='hour', style = 'heatmap', title='Buoy 14: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.14, bin = 'hour', type = 'presence', start = min(fulltrack14$UTC),
-                         end = max(fulltrack14$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS14, column='TOL_125', bin='hour', style = 'heatmap', title='Buoy 14: TOL 125 Plot + PM'))
+g2 <- plotPresGrid(W.14, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS14$UTC),
+                         end = max(GPSwhaleAISenvSS14$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack14, column='TOL_2000', bin='hour', style = 'heatmap', title='Buoy 14: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.14, bin = 'hour', type = 'presence', start = min(fulltrack14$UTC),
-                         end = max(fulltrack14$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS14, column='TOL_2000', bin='hour', style = 'heatmap', title='Buoy 14: TOL 2000 Plot + PM')
+t2 <- plotPresGrid(W.14, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS14$UTC),
+                         end = max(GPSwhaleAISenvSS14$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -842,22 +695,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 16
-W.16 <- fulltrack16 %>%
-  select(UTC, BWpresence, species) %>%
+W.16 <- GPSwhaleAISenvSS16 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.16plot <- plotPresGrid(W.16, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack16, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 16: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.16, bin = 'hour', type = 'presence', start = min(fulltrack16$UTC),
-                         end = max(fulltrack16$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS16, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 16: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.16, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS16$UTC),
+                         end = max(GPSwhaleAISenvSS16$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack16, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 16: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.16, bin = 'hour', type = 'presence', start = min(fulltrack16$UTC),
-                         end = max(fulltrack16$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS16, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 16: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.16, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS16$UTC),
+                         end = max(GPSwhaleAISenvSS16$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -867,22 +720,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 18
-W.18 <- fulltrack18 %>%
-  select(UTC, BWpresence, species) %>%
+W.18 <- GPSwhaleAISenvSS18 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.18plot <- plotPresGrid(W.18, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack18, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 18: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.18, bin = 'hour', type = 'presence', start = min(fulltrack18$UTC),
-                         end = max(fulltrack18$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS18, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 18: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.18, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS18$UTC),
+                         end = max(GPSwhaleAISenvSS18$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack18, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 18: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.18, bin = 'hour', type = 'presence', start = min(fulltrack18$UTC),
-                         end = max(fulltrack18$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS18, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 18: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.18, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS18$UTC),
+                         end = max(GPSwhaleAISenvSS18$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -892,22 +745,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 19
-W.19 <- fulltrack19 %>%
-  select(UTC, BWpresence, species) %>%
+W.19 <- GPSwhaleAISenvSS19 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.19plot <- plotPresGrid(W.19, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack19, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 19: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.19, bin = 'hour', type = 'presence', start = min(fulltrack19$UTC),
-                         end = max(fulltrack19$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS19, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 19: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.19, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS19$UTC),
+                         end = max(GPSwhaleAISenvSS19$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack19, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 19: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.19, bin = 'hour', type = 'presence', start = min(fulltrack19$UTC),
-                         end = max(fulltrack19$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS19, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 19: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.19, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS19$UTC),
+                         end = max(GPSwhaleAISenvSS19$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -917,22 +770,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 20
-W.20 <- fulltrack20 %>%
-  select(UTC, BWpresence, species) %>%
+W.20 <- GPSwhaleAISenvSS20 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.20plot <- plotPresGrid(W.20, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack20, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(fulltrack20$UTC),
-                         end = max(fulltrack20$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS20, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS20$UTC),
+                         end = max(GPSwhaleAISenvSS20$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack20, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(fulltrack20$UTC),
-                         end = max(fulltrack20$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS20, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS20$UTC),
+                         end = max(GPSwhaleAISenvSS20$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -942,22 +795,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 21
-W.21 <- fulltrack21 %>%
-  select(UTC, BWpresence, species) %>%
+W.21 <- GPSwhaleAISenvSS21 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.21plot <- plotPresGrid(W.21, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack21, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 21: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.21, bin = 'hour', type = 'presence', start = min(fulltrack21$UTC),
-                         end = max(fulltrack21$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS21, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 21: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.21, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS21$UTC),
+                         end = max(GPSwhaleAISenvSS21$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack21, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 21: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.21, bin = 'hour', type = 'presence', start = min(fulltrack21$UTC),
-                         end = max(fulltrack21$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS21, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 21: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.21, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS21$UTC),
+                         end = max(GPSwhaleAISenvSS21$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -967,23 +820,23 @@ combined.g + combined.t
 
 
 ```{r fig.width=12}
-## Buoy 12
-W.22 <- fulltrack22 %>%
-  select(UTC, BWpresence, species) %>%
-  filter(species == "ZC")
+## Buoy 22
+W.22 <- GPSwhaleAISenvSS22 %>%
+  select(UTC, Wpresence, species) %>%
+  filter(species == "PM")
 
 W.22plot <- plotPresGrid(W.22, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack22, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 22: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.22, bin = 'hour', type = 'presence', start = min(fulltrack22$UTC),
-                         end = max(fulltrack22$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS22, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 22: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.22, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS22$UTC),
+                         end = max(GPSwhaleAISenvSS22$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack22, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 22: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.22, bin = 'hour', type = 'presence', start = min(fulltrack22$UTC),
-                         end = max(fulltrack22$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS22, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 22: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.22, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS22$UTC),
+                         end = max(GPSwhaleAISenvSS22$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -993,22 +846,22 @@ combined.g + combined.t
 
 ```{r fig.width=12}
 ## Buoy 23
-W.23 <- fulltrack23 %>%
-  select(UTC, BWpresence, species) %>%
+W.23 <- GPSwhaleAISenvSS23 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.23plot <- plotPresGrid(W.23, bin = 'hour', type = 'presence')
 
-g1 <- (plotTimeseries(fulltrack23, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 23: TOL 125 Plot + ZC'))
-g2 <- plotPresGrid(W.23, bin = 'hour', type = 'presence', start = min(fulltrack23$UTC),
-                         end = max(fulltrack23$UTC), fill = NA, color = "white")
+g1 <- (plotTimeseries(GPSwhaleAISenvSS23, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 23: TOL 125 Plot + ZC'))
+g2 <- plotPresGrid(W.23, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS23$UTC),
+                         end = max(GPSwhaleAISenvSS23$UTC), fill = NA, color = "white")
 
 combined.g <- g1
 combined.g$layers <- c(combined.g$layers, g2$layers)
 #####
-t1 <- plotTimeseries(fulltrack23, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 23: TOL 2000 Plot + ZC')
-t2 <- plotPresGrid(W.23, bin = 'hour', type = 'presence', start = min(fulltrack23$UTC),
-                         end = max(fulltrack23$UTC), fill = NA, color = "white")
+t1 <- plotTimeseries(GPSwhaleAISenvSS23, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 23: TOL 2000 Plot + ZC')
+t2 <- plotPresGrid(W.23, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS23$UTC),
+                         end = max(GPSwhaleAISenvSS23$UTC), fill = NA, color = "white")
 
 combined.t <- t1
 combined.t$layers <- c(combined.t$layers, t2$layers)
@@ -1023,56 +876,56 @@ save.image(file = ".RData")
 
 plot whale presence and SS side by side. Stacked?
 ```{r}
-W.08 <- fulltrack08 %>%
-  select(UTC, BWpresence, species) %>%
+W.08 <- GPSwhaleAISenvSS08 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
 W.08plot <- plotPresGrid(W.08, bin = 'hour', type = 'presence')
 
-plotTimeseries(fulltrack08, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 2000 Plot') +  W.08plot
+plotTimeseries(GPSwhaleAISenvSS08, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 8: TOL 2000 Plot') +  W.08plot
 
 #############
 
-W.10 <- fulltrack10 %>%
-  select(UTC, BWpresence, species) %>%
+W.10 <-  GPSwhaleAISenvSS10 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
-W.10plot <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
-                         end = max(fulltrack10$UTC), by = 'BWpresence', alpha = 0.01, color = "red")
+W.10plot <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min( GPSwhaleAISenvSS10$UTC),
+                         end = max( GPSwhaleAISenvSS10$UTC), by = 'Wpresence', alpha = 0.01, color = "red")
 
-plotTimeseries(fulltrack10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot') +  W.10plot
-plotTimeseries(fulltrack10, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 125 Plot') +  W.10plot
+plotTimeseries( GPSwhaleAISenvSS10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot') +  W.10plot
+plotTimeseries( GPSwhaleAISenvSS10, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 125 Plot') +  W.10plot
 #############
 
-W.13 <- fulltrack13 %>%
-  select(UTC, BWpresence, species) %>%
+W.13 <-  GPSwhaleAISenvSS13 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
-W.13plot <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(fulltrack13$UTC),
-                         end = max(fulltrack13$UTC), by = 'BWpresence', alpha = 0.5)
+W.13plot <- plotPresGrid(W.13, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS13$UTC),
+                         end = max(GPSwhaleAISenvSS13$UTC), by = 'Wpresence', alpha = 0.5)
 
-plotTimeseries(fulltrack13, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 2000 Plot') +  W.13plot
-plotTimeseries(fulltrack13, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 125 Plot') +  W.13plot
+plotTimeseries(GPSwhaleAISenvSS13, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 2000 Plot') +  W.13plot
+plotTimeseries(GPSwhaleAISenvSS13, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 13: TOL 125 Plot') +  W.13plot
 ##############
 
-W.20 <- fulltrack20 %>%
-  select(UTC, BWpresence, species) %>%
+W.20 <- GPSwhaleAISenvSS20 %>%
+  select(UTC, Wpresence, species) %>%
   filter(species == "ZC")
 
-W.20plot <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(fulltrack20$UTC),
-                         end = max(fulltrack20$UTC),  by = 'BWpresence', alpha = 0.5)
+W.20plot <- plotPresGrid(W.20, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS20$UTC),
+                         end = max(GPSwhaleAISenvSS20$UTC),  by = 'Wpresence', alpha = 0.5)
 
-plotTimeseries(fulltrack20, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 2000 Plot') +  W.20plot
-plotTimeseries(fulltrack20, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 125 Plot') +  W.20plot
+plotTimeseries(GPSwhaleAISenvSS20, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 2000 Plot') +  W.20plot
+plotTimeseries(GPSwhaleAISenvSS20, column='TOL_125', bin='1hour', style = 'heatmap', title='Buoy 20: TOL 125 Plot') +  W.20plot
 
 ##########
 
-g1 <- plotTimeseries(fulltrack10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot')
-g2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
-                         end = max(fulltrack10$UTC), fill = NA, color = "white")
-S.10 <- fulltrack10 %>% select(UTC, shipin10km) %>% filter(shipin10km == "1")
-g3 <- plotPresGrid(S.10, bin = 'hour', type = 'presence', start = min(fulltrack10$UTC),
-                         end = max(fulltrack10$UTC), fill = NA, color = "red")
+g1 <- plotTimeseries(GPSwhaleAISenvSS10, column='TOL_2000', bin='1hour', style = 'heatmap', title='Buoy 10: TOL 2000 Plot')
+g2 <- plotPresGrid(W.10, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS10$UTC),
+                         end = max(GPSwhaleAISenvSS10$UTC), fill = NA, color = "white")
+S.10 <- GPSwhaleAISenvSS10 %>% select(UTC, shipin10km) %>% filter(shipin10km == "1")
+g3 <- plotPresGrid(S.10, bin = 'hour', type = 'presence', start = min(GPSwhaleAISenvSS10$UTC),
+                         end = max(GPSwhaleAISenvSS10$UTC), fill = NA, color = "red")
 
 combined <- g1
 combined$layers <- c(combined$layers, g2$layers, g3$layers)
@@ -1083,12 +936,9 @@ combined
 
 
 
-Bind ALL DRIFTS into one dataframe
+Load ALL DRIFTS into one dataframe
 ```{r}
-allDrifts <- rbind(fulltrack07, fulltrack08, fulltrack10, 
-                   fulltrack12, fulltrack13, fulltrack14, 
-                   fulltrack16, fulltrack18, fulltrack19, 
-                   fulltrack20, fulltrack21, fulltrack22, fulltrack23)
+load('data/allDrifts.rda')
 ```
 
 Where are loudest sound levels? See @haver2020 for details on percentiles
@@ -1145,14 +995,14 @@ allDrifts %>%
 
 #Which buoy had the most detections?
 allDrifts %>%
-  count(station, BWpresence) %>%
-  filter(!BWpresence == 0) %>%
+  count(Deployment, Wpresence) %>%
+  filter(!Wpresence == 0) %>%
   arrange(desc(n))
 ## Buoy 18 has the most
 
 #Plot buoys
 ggplot() +
-     geom_path(data=allDrifts, aes(x=Longitude, y=Latitude, group=factor(station), col=factor(station))) 
+     geom_path(data=allDrifts, aes(x=Longitude, y=Latitude, group=factor(Deployment), col=factor(Deployment))) 
 ```
 
 
@@ -1160,78 +1010,61 @@ ggplot() +
 Summary of each species: highest/lowest sound levels, avg sound levels they're exposed to
 ```{r}
 # Sort sperm whale detection by decreasing BB sound levels
-allDrifts %>%
-  dplyr::filter(species == "PM") %>%
-  arrange(desc(BB_20.24000))
-
-
 PM <- allDrifts %>%
   dplyr::filter(species == "PM")
 
 PM %>%
-  group_by(station) %>%
+  group_by(Deployment) %>%
   summarize(mean = mean(TOL_2000), n = n())
 
-
-
-print(paste("PM Max BB sound level: ", max(PM$BB_20.24000, na.rm = TRUE)))
-print(paste("PM Min BB sound level: ", min(PM$BB_20.24000, na.rm = TRUE)))
 print(paste("PM Max TOL125 sound level: ", max(PM$TOL_125, na.rm = TRUE)))
 print(paste("PM Min TOL125 sound level: ", min(PM$TOL_125, na.rm = TRUE)))
-print(paste("PM Max TOL20000 sound level: ", max(PM$TOL_20000, na.rm = TRUE)))
-print(paste("PM Min TOL20000 sound level: ", min(PM$TOL_20000, na.rm = TRUE)))
+print(paste("PM Max TOL20000 sound level: ", max(PM$TOL_2000, na.rm = TRUE)))
+print(paste("PM Min TOL20000 sound level: ", min(PM$TOL_2000, na.rm = TRUE)))
 
 
 # One detection value for BWC
 BWC <- allDrifts %>%
   dplyr::filter(species == "BWC")
-print(paste("BWC Max BB sound level: ", max(BWC$BB_20.24000, na.rm = TRUE)))
-print(paste("BWC Min BB sound level: ", min(BWC$BB_20.24000, na.rm = TRUE)))
 print(paste("BWC Max TOL125 sound level: ", max(BWC$TOL_125, na.rm = TRUE)))
 print(paste("BWC Min TOL125 sound level: ", min(BWC$TOL_125, na.rm = TRUE)))
-print(paste("BWC Max TOL20000 sound level: ", max(BWC$TOL_20000, na.rm = TRUE)))
-print(paste("BWC Min TOL20000 sound level: ", min(BWC$TOL_20000, na.rm = TRUE)))
+print(paste("BWC Max TOL20000 sound level: ", max(BWC$TOL_2000, na.rm = TRUE)))
+print(paste("BWC Min TOL20000 sound level: ", min(BWC$TOL_2000, na.rm = TRUE)))
 
 BB <- allDrifts %>%
   dplyr::filter(species == "BB")
-print(paste("BB Max BB sound level: ", max(BB$BB_20.24000, na.rm = TRUE)))
-print(paste("BB Min BB sound level: ", min(BB$BB_20.24000, na.rm = TRUE)))
 print(paste("BB Max TOL125 sound level: ", max(BB$TOL_125, na.rm = TRUE)))
 print(paste("BB Min TOL125 sound level: ", min(BB$TOL_125, na.rm = TRUE)))
-print(paste("BB Max TOL20000 sound level: ", max(BB$TOL_20000, na.rm = TRUE)))
-print(paste("BB Min TOL20000 sound level: ", min(BB$TOL_20000, na.rm = TRUE)))
+print(paste("BB Max TOL20000 sound level: ", max(BB$TOL_2000, na.rm = TRUE)))
+print(paste("BB Min TOL20000 sound level: ", min(BB$TOL_2000, na.rm = TRUE)))
  
 BW37V <- allDrifts %>%
   dplyr::filter(species == "BW37V")
-print(paste("BW37V Max BB sound level: ", max(BW37V$BB_20.24000, na.rm = TRUE)))
-print(paste("BW37V Min BB sound level: ", min(BW37V$BB_20.24000, na.rm = TRUE)))
 print(paste("BW37V Max TOL125 sound level: ", max(BW37V$TOL_125, na.rm = TRUE)))
 print(paste("BW37V Min TOL125 sound level: ", min(BW37V$TOL_125, na.rm = TRUE)))
-print(paste("BW37V Max TOL20000 sound level: ", max(BW37V$TOL_20000, na.rm = TRUE)))
-print(paste("BW37V Min TOL20000 sound level: ", min(BW37V$TOL_20000, na.rm = TRUE)))
+print(paste("BW37V Max TOL20000 sound level: ", max(BW37V$TOL_2000, na.rm = TRUE)))
+print(paste("BW37V Min TOL20000 sound level: ", min(BW37V$TOL_2000, na.rm = TRUE)))
  
 BW43 <- allDrifts %>%
   dplyr::filter(species == "BW43")
-print(paste("BW43 Max BB sound level: ", max(BW43$BB_20.24000, na.rm = TRUE)))
-print(paste("BW43 Min BB sound level: ", min(BW43$BB_20.24000, na.rm = TRUE)))
 print(paste("BW43 Max TOL125 sound level: ", max(BW43$TOL_125, na.rm = TRUE)))
 print(paste("BW43 Min TOL125 sound level: ", min(BW43$TOL_125, na.rm = TRUE)))
-print(paste("BW43 Max TOL20000 sound level: ", max(BW43$TOL_20000, na.rm = TRUE)))
-print(paste("BW43 Min TOL20000 sound level: ", min(BW43$TOL_20000, na.rm = TRUE)))
+print(paste("BW43 Max TOL20000 sound level: ", max(BW43$TOL_2000, na.rm = TRUE)))
+print(paste("BW43 Min TOL20000 sound level: ", min(BW43$TOL_2000, na.rm = TRUE)))
 
 ZC <- allDrifts %>%
   dplyr::filter(species == "ZC")
-print(paste("ZC Max BB sound level: ", max(ZC$BB_20.24000, na.rm = TRUE)))
-print(paste("ZC Min BB sound level: ", min(ZC$BB_20.24000, na.rm = TRUE)))
 print(paste("ZC Max TOL125 sound level: ", max(ZC$TOL_125, na.rm = TRUE)))
 print(paste("ZC Min TOL125 sound level: ", min(ZC$TOL_125, na.rm = TRUE)))
-print(paste("ZC Max TOL20000 sound level: ", max(ZC$TOL_20000, na.rm = TRUE)))
-print(paste("ZC Min TOL20000 sound level: ", min(ZC$TOL_20000, na.rm = TRUE)))
- 
-
+print(paste("ZC Max TOL20000 sound level: ", max(ZC$TOL_2000, na.rm = TRUE)))
+print(paste("ZC Min TOL20000 sound level: ", min(ZC$TOL_2000, na.rm = TRUE)))
 ```
+
 Number of detections
 ```{r}
+# Percent of time whales are detected
+print(paste(nrow(allDrifts[allDrifts$Wpresence == 1,]) / nrow(allDrifts) * 100,"%"))
+
 print(paste("Number of PM detections: ", nrow(PM)))
 print(paste("Number of ZC detections: ", nrow(ZC)))
 print(paste("Number of BW43 detections: ", nrow(BW43)))
@@ -1243,28 +1076,5 @@ print(paste("Number of BW37V detections: ", nrow(BW37V)))
 sp <- allDrifts %>% filter(!species == 'NA')
 ggplot(sp, aes(species)) +
   geom_bar()
-```
-How do I find WHERE the highest/lowest detections are happening?
-```{r}
-ZC <- allDrifts %>%
-  dplyr::filter(species == "ZC")
-
-ZC[which.max(ZC$BB_20.24000),]
-ZCmax2000 <- ZC[which.max(ZC$TOL_2000),]
-
-#Point of ZC max TOL2000 sound level. Need to put in context of map.
-ggplot(data = ZCmax2000, aes(x = Longitude, y = Latitude)) +
-  geom_point()
-
-
-#not working
-allDrifts %>%
-  group_by(species) %>%
-  filter(max(allDrifts$BB_20.24000))
-
-allDrifts %>%
-  summarise_if(is.numeric, list(~ min(., na.rm=TRUE)))
-
-
 ```
 
