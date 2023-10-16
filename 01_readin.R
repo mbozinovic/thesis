@@ -2,101 +2,53 @@
 ## Prerequisites include whales.R, tracks.R
 ## Results in dataframe for each buoy containing whale detections and buoy GPS points.
 
-
-# libraries #######
+#### libraries #######
 
 library(tidyverse)
 library(PAMpal)
 library(here)
 
-# set up #####
+##### set up #####
 
 # Set system time zone to UTC
 Sys.setenv(TZ='UTC')
 here()
 
-# Read in GPS tracks and whale detections
-AllTracks <- readRDS('data/AllTracks.rda')
-whales <- readRDS('data/whales.rda')
+# Read in whale detections
+whale7 <- readRDS('data/whale7.rda')
+whale8 <- readRDS('data/whale8.rda')
+whale10 <- readRDS('data/whale10.rda')
+whale12 <- readRDS('data/whale12.rda')
+whale13 <- readRDS('data/whale13.rda')
+whale14 <- readRDS('data/whale14.rda')
+whale16 <- readRDS('data/whale16.rda')
+whale18 <- readRDS('data/whale18.rda')
+whale19 <- readRDS('data/whale19.rda')
+whale20 <- readRDS('data/whale20.rda')
+whale21 <- readRDS('data/whale21.rda')
+whale22 <- readRDS('data/whale22.rda')
+whale23 <- readRDS('data/whale23.rda')
+whale20.alt <- readRDS('data/whale20_alt.rda')
 
-###############
-# Filter whales by drift
-##############
-
-# Create list of drifts
-#d <- unique(trk_whale$station)
-
-# Filter by drifts and assign to new variable
-#for (drift in d) {
-#  assign(paste0("trk_whales", drift), trk_whale %>% dplyr::filter(station == drift))
-#}
-# Results in trk_whales7, trk_whales8... objects
-
-##############################################################
-# Joining tracks with soundscape metrics with whale detections
-##############################################################
-
-## Make list of rda files to read in
-#iilist <- c("BB_07", "BB_08", "BB_10", "BB_12", "BB_13", "BB_14", "BB_16", 
-#            "BB_18", "BB_19", "BB_20", "BB_21", "BB_22", "BB_23", "TO_07",
-#            "TO_08", "TO_10", "TO_12", "TO_13", "TO_14", "TO_16", "TO_18", 
-#            "TO_19", "TO_20", "TO_21", "TO_22", "TO_23")
-
-## Read in rda files and assign to object
-#for (ii in iilist) {
-#  dta <- readRDS(paste0('data/', ii, '.rda'))
-  
-#  assign(ii, dta)
-#}
-
-# Make function to join whales + tracks, broadband, and TOL soundscape metrics and edit columns
-#joinTable <- function(w, s, t) {
-#  left_join(w, s, by = join_by(closest("UTC" <= "dateTime"))) %>%     # join tracks with broadband metrics
-#    .[!duplicated(.['UTC']),] %>%                                     # removes duplicates
-#  left_join(., t, by = join_by(closest("UTC" <= "dateTime"))) %>%    # joins tracks/BB with TOL metrics
-#    .[!duplicated(.['UTC']),] %>%                                     # removes duplicates formed from new join
-#  mutate(Wpresence = if_else(is.na(nClicks), 0, 1)) %>%    # Add column to specify whale presence (1) or absence (0)
-#  dplyr::select(UTC, spotID, Latitude, Longitude, station, 
-#                `BB_20-24000`,TOL_63, TOL_125, TOL_1600, 
-#                TOL_2000, TOL_3150, TOL_5000, TOL_8000, 
-#                TOL_10000, TOL_12500, TOL_20000, species, Wpresence)
-#}
- 
-
-# join whales detections + soundscape metrics (BB and TO) to each buoy track
-# How can I loop this?
-#tracks_SS_07 <- joinTable(trk_whales7, BB_07, TO_07)
-#tracks_SS_08 <- joinTable(trk_whales8, BB_08, TO_08)
-#tracks_SS_10 <- joinTable(trk_whales10, BB_10, TO_10)
-#tracks_SS_12 <- joinTable(trk_whales12, BB_12, TO_12)
-#tracks_SS_13 <- joinTable(trk_whales13, BB_13, TO_13)
-#tracks_SS_14 <- joinTable(trk_whales14, BB_14, TO_14)
-#tracks_SS_16 <- joinTable(trk_whales16, BB_16, TO_16)
-#tracks_SS_18 <- joinTable(trk_whales18, BB_18, TO_18)
-#tracks_SS_19 <- joinTable(trk_whales19, BB_19, TO_19)
-#tracks_SS_20 <- joinTable(trk_whales20, BB_20, TO_20)
-#tracks_SS_21 <- joinTable(trk_whales21, BB_21, TO_21)
-#tracks_SS_22 <- joinTable(trk_whales22, BB_22, TO_22)
-#tracks_SS_23 <- joinTable(trk_whales23, BB_23, TO_23)
-
-
-#################################################
-# Filter by drifts and assign TRACK to new variable
-d <- unique(AllTracks$DriftName)
-
-for (drift in d) {
-  assign(paste0("track", substr(drift, 5,8)), AllTracks %>% dplyr::filter(DriftName == drift))
-}
-
-# Filter by drifts and assign WHALE to new variable
-g <- unique(whales$Deployment)
-
-for (whale in g) {
-  assign(paste0("whale", whale), whales %>% dplyr::filter(Deployment == whale))
-}
-
+# Read in GPS tracks
+track_007 <- readRDS('data/track_007.rda')
+track_008 <- readRDS('data/track_008.rda')
+track_010 <- readRDS('data/track_010.rda')
+track_012 <- readRDS('data/track_012.rda')
+track_013 <- readRDS('data/track_013.rda')
+track_014 <- readRDS('data/track_014.rda')
+track_016 <- readRDS('data/track_016.rda')
+track_018 <- readRDS('data/track_018.rda')
+track_019 <- readRDS('data/track_019.rda')
+track_020 <- readRDS('data/track_020.rda')
+track_021 <- readRDS('data/track_021.rda')
+track_022 <- readRDS('data/track_022.rda')
+track_023 <- readRDS('data/track_023.rda')
+track_020.alt <- readRDS('data/track_020_alt.rda')
 
 # timeJoin whales and tracks by buoy. Threshold times differ by buoy
+# Results in the same whale detection dataframe but WITH nearest GPS point
+# A join to this point happens next.
 trk_whl7 <- PAMpal::timeJoin(whale7, track_007,
                              thresh = 34000, interpolate = FALSE) #large threshold to accommodate one
                                                                   # oddly functioning GPS transmission.
@@ -119,8 +71,11 @@ trk_whl18 <- PAMpal::timeJoin(whale18, track_018,
                              thresh = 3600, interpolate = FALSE)
 trk_whl19 <- PAMpal::timeJoin(whale19, track_019, 
                              thresh = 3600, interpolate = FALSE)
-#trk_whl20 <- PAMpal::timeJoin(whale20, track_020, 
-                            # thresh = 36000, interpolate = TRUE)   # Still has some unmatched whale detections
+trk_whl20 <- PAMpal::timeJoin(whale20, track_020, 
+                             thresh = 7100, interpolate = FALSE)
+# Alternative buoy20 for interpolation analysis
+trk_whl20.alt <- PAMpal::timeJoin(whale20.alt, track_020.alt,
+                                  thresh = 3600, interpolate = FALSE)
 
 trk_whl21 <- PAMpal::timeJoin(whale21, track_021, 
                              thresh = 3600, interpolate = FALSE)
@@ -131,18 +86,6 @@ trk_whl22 <- PAMpal::timeJoin(whale22, track_022,
                                                                   # coordinate.
 trk_whl23 <- PAMpal::timeJoin(whale23, track_023, 
                              thresh = 3600, interpolate = FALSE)
-
-# Should I interpolate trk_whl20 to get more refined coordinates for some detections?
-#whale20NA <- whale20 %>% 
-#  filter(UTC >= "2018-11-15 07:45:11" & UTC <= "2018-11-19 09:35:29")
-
-#x <- c(29.75768, 29.37579)
-#y <- c(-116.8591, -116.6891)
-#approx(x,y)
-
-#replace(whale20NA[4,2:19], whales20NA$Latitude, NA)
-#df.zoo <- zoo(whale20NA)
-#na.approx(df.zoo,)
 
 ##########################################################
 # Create two dfs with identical column names to rbind 'species' with closest timestamp
@@ -164,8 +107,10 @@ bind7 <- rbind(track7_new, trk_whl_7_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale7 <- bind7 %>% distinct()
-
+GPSwhale7 <- bind7 %>% 
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 ##### Buoy 8 #########
 #Create empty 'species' column
@@ -184,8 +129,10 @@ bind8 <- rbind(track8_new, trk_whl_8_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale8 <- bind8 %>% distinct()
-
+GPSwhale8 <- bind8 %>% 
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 10 ######
@@ -205,7 +152,10 @@ bind10 <- rbind(track10_new, trk_whl_10_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale10 <- bind10 %>% distinct()
+GPSwhale10 <- bind10 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 12 ######
@@ -225,8 +175,10 @@ bind12 <- rbind(track12_new, trk_whl_12_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale12 <- bind12 %>% distinct()
-
+GPSwhale12 <- bind12 %>% 
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 13 ######
@@ -246,7 +198,10 @@ bind13 <- rbind(track13_new, trk_whl_13_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale13 <- bind13 %>% distinct()
+GPSwhale13 <- bind13 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 14 ######
@@ -266,7 +221,10 @@ bind14 <- rbind(track14_new, trk_whl_14_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale14 <- bind14 %>% distinct()
+GPSwhale14 <- bind14 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 16 ######
@@ -286,8 +244,10 @@ bind16 <- rbind(track16_new, trk_whl_16_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale16 <- bind16 %>% distinct()
-
+GPSwhale16 <- bind16 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 18 ######
@@ -307,7 +267,10 @@ bind18 <- rbind(track18_new, trk_whl_18_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale18 <- bind18 %>% distinct()
+GPSwhale18 <- bind18 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 19 ######
@@ -327,8 +290,10 @@ bind19 <- rbind(track19_new, trk_whl_19_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale19 <- bind19 %>% distinct()
-
+GPSwhale19 <- bind19 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 20 ######
@@ -348,7 +313,10 @@ bind20 <- rbind(track20_new, trk_whl_20_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale20 <- bind20 %>% distinct()
+GPSwhale20 <- bind20 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 21 ######
@@ -368,8 +336,10 @@ bind21 <- rbind(track21_new, trk_whl_21_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale21 <- bind21 %>% distinct()
-
+GPSwhale21 <- bind21 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 22 ######
@@ -389,9 +359,10 @@ bind22 <- rbind(track22_new, trk_whl_22_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale22 <- bind22 %>% distinct()
-
-
+GPSwhale22 <- bind22 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 ##### Buoy 23 ######
@@ -411,7 +382,33 @@ bind23 <- rbind(track23_new, trk_whl_23_new)
 # Final output with UTC, lat/long, and Whale detections.
 # It's important to keep duplicate timestamps because they may be associated with 1) multiple species
 # or 2) same species, multiple vocalizations
-GPSwhale23 <- bind23 %>% distinct()
+GPSwhale23 <- bind23 %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  distinct() %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
+
+
+##### Buoy 20.alt ################
+#Create empty 'species' column
+track20_new.alt <- track_020.alt %>% 
+  select(UTC, Latitude, Longitude) %>% 
+  add_column(species = NA)
+
+# Select UTC, lat/long species from df
+trk_whl_20_new.alt <- trk_whl20.alt %>% 
+  select(UTC, Latitude, Longitude, species)
+
+# Bind GPS tracks to whale detection's nearest GPS point. Duplicates are created where spp exist due to rbind.
+# Will remove empty spp in next line WITHOUT removing multiple spp per GPS pt.
+bind20.alt <- rbind(track20_new.alt, trk_whl_20_new.alt)
+
+# Final output with UTC, lat/long, and Whale detections.
+# remove duplicates in this case because there are identical UTC,Lat,Long columns with interpolated pts.
+GPSwhale20.alt <- bind20.alt %>%
+  mutate(Wpresence = if_else(is.na(species), 0, 1)) %>%
+  group_by(UTC) %>%
+  slice(which.max(!is.na(species))) %>%
+  arrange(UTC)  # whale detections are stratified until this point -- arrange() puts them in chron. order
 
 
 # Save files to external drive
@@ -428,4 +425,5 @@ saveRDS(GPSwhale20, file = "D:Buoy_dfs/GPSwhale20.rda")
 saveRDS(GPSwhale21, file = "D:Buoy_dfs/GPSwhale21.rda")
 saveRDS(GPSwhale22, file = "D:Buoy_dfs/GPSwhale22.rda")
 saveRDS(GPSwhale23, file = "D:Buoy_dfs/GPSwhale23.rda")
+saveRDS(GPSwhale20.alt, file = "D:Buoy_dfs/GPSwhale20_alt.rda")
 
