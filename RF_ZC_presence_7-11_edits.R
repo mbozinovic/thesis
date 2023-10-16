@@ -29,8 +29,7 @@ allDrifts$ZcPresence<-factor(ifelse(allDrifts$species=='ZC',1,0))
  #                      'sst_mean','dist2slope','depth',
   #                     'chlorophyll_mean','mldDepth'))
 #more parameters
-covariate.list<-list(c('ZcPresence','BB_20.24000','TOL_63','TOL_125','TOL_2000','TOL_5000',
-                       'TOL_20000', 'curl_mean', 'bathy_slope', 'ssh_mean',  
+covariate.list<-list(c('ZcPresence', 'curl_mean', 'bathy_slope', 'ssh_mean',  
                        'sst_mean','dist2slope','depth',
                        'chlorophyll_mean','mldDepth', 'mldTemp', 'ttDepth',
                        'ttTemp', 'temp400', 'sal400'))
@@ -53,14 +52,34 @@ set.seed(123)
 
 # create balanced sample size random forest model
 #By ZC
-RF.model.ZC <- rfPermute(ZcPresence ~ ., data=DF.modelZC[,include.covars],
-                            replace=FALSE, ntree=15000, sampsize=sampsizeZC, proximity=FALSE)
-RF.model.ZC
+#RF.model.ZC <- rfPermute(ZcPresence ~ ., data=DF.modelZC[,include.covars],
+#                            replace=FALSE, ntree=15000, sampsize=sampsizeZC, proximity=FALSE)
+#RF.model.ZC
+# Error message - "Error in randomForest.default(x = list(BB_20.24000 = c(101.991578, 98.486802,  : 
+#'R_Calloc' could not allocate memory (9976 of 8 bytes)"
+
+#Evaluate RF models
+#Create a PDF of summary plots
+#pdf(paste(Dep,"_",string.covars.used,".pdf"), width=14, height=10)
+#round(importance(RF.model.ZC),3) #ranking of importance for each variable
+#plotImportance(RF.model.ZC) #visualize importance
+#plotTrace(RF.model.ZC)   #model stability w/number of trees (this should be flat!)
+#plotImpPreds(RF.model.ZC, DF.modelZC, "ZcPresence")  #distribution of predictors 
+#plotPredictedProbs(RF.model.ZC)
+#plotProximity(RF.model.ZC) ## Not working??
+#dev.off()
+
+#Confusion matrix
+#confusionMatrix(RF.model.ZC)
+
+#Save a Rdata file with the dataframe & RF model
+#save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use random forest, not rfPermute
-# This code associated with PDF from 8/15/23 at 2:53 am
+# This code associated with PDF from 8/22/23 at 12:12 pm
 RanFor.model.ZC <- randomForest(ZcPresence ~ ., data=DF.modelZC[,include.covars],
-                         replace=FALSE, ntree=70000, sampsize=sampsizeZC, 
+                         replace=FALSE, ntree=5000, sampsize=sampsizeZC, 
                          proximity=FALSE, importance = TRUE)
 RanFor.model.ZC
 
@@ -74,22 +93,6 @@ dev.off()
 save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#Evaluate RF models
-#Create a PDF of summary plots
-pdf(paste(Dep,"_",string.covars.used,".pdf"), width=14, height=10)
-round(importance(RF.model.ZC),3) #ranking of importance for each variable
-plotImportance(RF.model.ZC) #visualize importance
-plotTrace(RF.model.ZC)   #model stability w/number of trees (this should be flat!)
-plotImpPreds(RF.model.ZC, DF.modelZC, "ZcPresence")  #distribution of predictors 
-plotPredictedProbs(RF.model.ZC)
-#plotProximity(RF.model.ZC) ## Not working??
-dev.off()
-
-#Confusion matrix
-confusionMatrix(RF.model.ZC)
-
-#Save a Rdata file with the dataframe & RF model
-save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 
 
 
