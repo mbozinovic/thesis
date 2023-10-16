@@ -1,0 +1,540 @@
+---
+title: "04_analysis"
+author: "Marina Bozinovic"
+date: "2023-05-11"
+output: html_document
+---
+# Exploratory Analysis and Modeling for all 13 buoys
+
+Required Packages
+```{r setup}
+library(tidyverse)
+```
+
+Read in RDS files of each buoy + all environ variables + AIS
+```{r}
+ftlist <- dir("D:/Buoy_dfs/", recursive=TRUE, full.names=TRUE, pattern="GPSwhaleAISenvSS")
+
+for (ft in ftlist) {
+  df <- readRDS(ft)
+  assign(paste0("GPSwhaleAISenvSS", substr(ft, 29, 30)), df)
+}
+```
+
+Bind ALL DRIFTS into one dataframe
+```{r}
+dlist <- grep(pattern = "GPSwhaleAISenvSS", names(.GlobalEnv), value = T)
+
+# Create a new column that specifies the drift number before the bind.
+for (col in dlist){
+  data <- get(col) %>% mutate(Deployment = substr(col,17,18))
+  assign(paste0("GPSwhaleAISenvSS", substr(col,17,18)), data)
+}
+
+# Bind and save allDrifts dataframe
+allDrifts <- rbind(GPSwhaleAISenvSS07, GPSwhaleAISenvSS08, GPSwhaleAISenvSS10, GPSwhaleAISenvSS12,
+                   GPSwhaleAISenvSS13, GPSwhaleAISenvSS14, GPSwhaleAISenvSS16, GPSwhaleAISenvSS18,
+                   GPSwhaleAISenvSS19, GPSwhaleAISenvSS20, GPSwhaleAISenvSS21, GPSwhaleAISenvSS22,
+                   GPSwhaleAISenvSS23)
+save(allDrifts, file = "data/allDrifts.rda")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Third octave levels histograms
+```{r each-drift-histogram}
+# create list of fulltrack dfs from global environment to loop through
+dlist <- grep(pattern = "GPSwhaleAISenvSS", names(.GlobalEnv), value = T)
+
+# all Drifts - all TOL bands, facet wrap
+for (ft in dlist) {
+pivot1 <- get(ft) %>%
+  pivot_longer(cols = starts_with("TOL"), names_to = "SL", values_to = "Hz")    # Pivot longer for histogram facet grid
+
+print(ggplot(data = pivot1, aes(Hz, fill = factor(Wpresence))) +
+  geom_histogram(binwidth = 1, color = "black") +
+  theme_classic() +
+  ggtitle(paste0("Distribution of TOL intensities: Drift", substr(ft,17,18))) +
+  labs(x = "Sound Intensity (dB)") +
+  guides(fill = guide_legend(title = "Whale Presence")) +
+  scale_fill_manual(values = c("0" = "bisque1",
+                               "1" = "brown4")) +
+  theme(legend.position = c(0.5,0.8)) +
+  (facet_grid(~factor(SL, levels = c('TOL_125', 'TOL_2000')))))
+}
+```
+
+```{r all-drifts-histogram}
+# Single plot for ALL DRIFTS
+pivot3 <- allDrifts %>%
+  # Pivot longer for histogram facet grid
+  pivot_longer(cols = starts_with("TOL"), names_to = "SL", values_to = "Hz")    
+
+ggplot(data = pivot3, aes(Hz, fill = factor(Wpresence))) +
+  geom_histogram(binwidth = 2, color = "black") +
+  theme_classic() +
+  ggtitle("Distribution of third octave level intensities: All Drifts Combined") +
+  labs(x = "Sound Intensity (dB)") +
+  guides(fill = guide_legend(title = "Whale Presence")) +
+  scale_fill_manual(values = c("0" = "bisque1",
+                               "1" = "brown4")) +
+  theme(legend.position = c(0.7,0.8)) +
+  facet_grid(~factor(SL, levels = c('TOL_125', 'TOL_2000')))
+```
+
+
+Timeline of drifts in ocean
+```{r}
+ggplot(data = allDrifts, aes(x = UTC, y = Deployment)) + geom_point(aes(color = factor(Deployment)))
+```
+
+Looking at TOl2000 sound levels for each buoy and where Whale Detections happen
+```{r fig.width=10}
+hourly <- GPSwhaleAISenvSS10 %>% group_by(time = floor_date(UTC, '4 hours')) %>%
+  summarize(mean_TOL2000 = mean(TOL_2000),
+            sum_AIS = sum(shipin10km),
+            sum_Wh = sum(Wpresence))
+
+ggplot(hourly, aes(x = time, y = mean_TOL2000)) + geom_line() + 
+  geom_smooth() + 
+  geom_point() +
+  #geom_point(aes(color = species)) +
+  #geom_vline(xintercept = hourly$UTC[hourly$shipin10km == 1], color = "yellow", alpha = 0.5) +
+  scale_color_discrete(na.translate=FALSE) #+
+ # scale_x_datetime(date_breaks = "1 day",limits = as.POSIXct(c("2018-09-24 00:00:00", "2018-10-03 00:00:00")))
+```
+# Sound levels across the whole range
+```{r fig.width = 10}
+ggplot(allDrifts, aes(UTC,TOL_2000)) + geom_point() 
+```
+
+
+
+# Using rollApply for ZC
+```{r}
+ZC_filt <- GPSwhaleAISenvSS23 %>% 
+  filter(species %in% c("ZC", NA)) %>%
+  mutate(rollAvg_Whl = zoo::rollapply(Wpresence, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_2000 = zoo::rollapply(TOL_2000, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_125 = zoo::rollapply(TOL_125, 5, mean, fill = NA))
+
+ZC_pivot <- pivot_longer(ZC_filt, cols = rollAvg_Whl:rollAvg_125, names_to = "avg", values_to = "value")
+
+#Plot facet grid
+ggplot(ZC_pivot, aes(x = UTC, y = value, color = avg)) + geom_smooth() + 
+  facet_grid(vars(avg), scales = "free") +
+  scale_x_datetime(date_breaks = "3 days") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Rolling Averages of ZC Detections alongside Soundscape Metrics - Buoy 23")
+```
+# Using rollApply for PM
+```{r}
+PM_filt <- GPSwhaleAISenvSS23 %>% 
+  filter(species %in% c("PM", NA)) %>%
+  mutate(rollAvg_Whl = zoo::rollapply(Wpresence, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_2000 = zoo::rollapply(TOL_2000, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_125 = zoo::rollapply(TOL_125, 5, mean, fill = NA))
+
+PM_pivot <- pivot_longer(PM_filt, cols = rollAvg_Whl:rollAvg_125, names_to = "avg", values_to = "value")
+
+#Plot facet grid
+ggplot(PM_pivot, aes(x = UTC, y = value, color = avg)) + geom_smooth() + 
+  facet_grid(vars(avg), scales = "free") +
+  scale_x_datetime(date_breaks = "3 days") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Rolling Averages of PM Detections alongside Soundscape Metrics - Buoy 23")
+```
+
+
+
+
+
+Compare overall TOL2000sound levels when whales are absent vs. present
+```{r}
+ggplot(allDrifts, aes(factor(Wpresence), TOL_125)) + geom_boxplot()
+```
+
+
+
+
+Scatterplots
+
+```{r}
+# SST vs TOL 2000
+ggplot(data = allDrifts, aes(x = sst_mean, y = `TOL_2000`)) +
+  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
+
+# SST over time (strange plot)
+ggplot(allDrifts, aes(x = UTC, y = sst_mean)) +
+  #geom_line() +
+  geom_point(aes(color = species)) +
+  scale_color_discrete(na.translate=FALSE)
+  #geom_smooth(method = "loess")
+
+
+# Depth vs TOL 125
+ggplot(data = allDrifts, aes(x = `TOL_125`, y = depth *(-1))) +
+  #geom_line() +
+  geom_point(aes(color = species)) +
+  scale_color_discrete(na.translate=FALSE)
+
+
+# Chlorophyll vs TOL 125
+ggplot(data = allDrifts, aes(x = chlorophyll_mean, y = `TOL_125`)) +
+  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
+
+# CHl over time
+ggplot(allDrifts, aes(x = UTC, y = chlorophyll_mean)) +
+  geom_line() +
+  geom_point(aes(color = species)) +
+  scale_color_discrete(na.translate=FALSE)
+  #geom_smooth(method = "loess")
+
+# Mixed Layer Depth vs TOL125 with species
+ggplot(data = allDrifts, aes(x = mldDepth, y = `TOL_125`)) +
+  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
+
+# Mixed Layer Depth over time
+ggplot(allDrifts, aes(x = UTC, y = mldDepth*(-1))) +
+  geom_line() +
+  geom_point(aes(color = species)) +
+  scale_color_discrete(na.translate=FALSE)
+
+ggplot(data = allDrifts, aes(x = `TOL_125`, y = bathy_slope)) +
+  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
+  
+```
+
+
+
+Facet Grids for Env. Variables
+```{r}
+#Get avg daily environmental variables
+means <- allDrifts %>%
+  group_by(as.Date(UTC))%>%
+  summarize(sst_mean = mean(sst_mean),
+            dist_slope = mean(dist2slope),
+            depth = mean(depth),
+            slope = mean(bathy_slope),
+            dist_shore = mean(dist2shore),
+            chlorophyll_mean = mean(chlorophyll_mean),
+            ssh_mean = mean(ssh_mean),
+            mldDepth = mean(mldDepth),
+            mldTemp = mean(mldTemp),
+            ttDepth = mean(ttDepth),
+            ttTemp = mean(ttTemp),
+            temp400 = mean(temp400),
+            sal400 = mean(sal400),
+            curlmean = mean(curl_mean),
+            Wh_presence = sum(Wpresence))
+View(means)
+```
+
+```{r}
+#For surface/depth variables USING DAILY MEAN VARIABLES
+trackLong <- means %>%
+  pivot_longer(cols = sst_mean:ssh_mean,
+               names_to="parameter",
+               values_to="value") %>%
+  filter(parameter %in% c("sst_mean", "dist_shore", "chlorophyll_mean", "ssh_mean")) %>%
+  rename(Date = `as.Date(UTC)`)
+
+p <- ggplot(data = trackLong, aes(x = Date, y = value)) +
+  geom_line()
+
+p + facet_grid(parameter ~ ., scales = "free_y")
+  
+
+# For MLD/Thermocline variables 
+trackLong2 <- allDrifts %>%
+  pivot_longer(cols = mldDepth:sal400,
+               names_to="parameter",
+               values_to="value") %>%
+  filter(parameter %in% c("mldDepth", "mldTemp", "ttDepth", "ttTemp", "temp400", "sal400")) %>%
+    rename(Date = UTC) %>%
+    subset(species!="?BW")
+
+q <- ggplot(data = trackLong2, aes(x = Date, y = value)) +
+  geom_line() + geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
+q + facet_grid(parameter ~ ., scales = "free_y")
+
+# For temp400 and salinity400 variables
+env.labs <- c(`sal400` = "Salinity at 400m", 
+              `temp400` = "Temperature at 400m")
+
+trackLong3 <- allDrifts %>%
+  pivot_longer(cols = temp400:sal400,
+               names_to="parameter",
+               values_to="value") %>%
+  filter(parameter %in% c("temp400", "sal400")) %>%
+  rename(`Date (2018)` = UTC)
+
+q <- ggplot(data = trackLong3, aes(x = `Date (2018)`, y = value)) +
+  #geom_line() + 
+  geom_point(aes(color = species)) + 
+  scale_color_discrete(na.translate=FALSE, labels = c("ZC" = "Cuvier's", "BW43" = "BW43", "BW" = "BW"))
+q + facet_grid(parameter ~ ., scales = "free_y", labeller = as_labeller(env.labs))
+```
+
+
+Use as reference for similar plot (potentially??)
+Co-occurrence plots of drift 8 and vessels 
+```{r}
+#### 09/04/18 co-occurrence of vessel and drift within 10 km
+#track08_09.04 <- tracks_SS_08 %>%
+#  filter(UTC >= "2018-09-04 00:00:00" & UTC <= "2018-09-05 00:00:00")
+
+#ggplot(data = track08_09.04, aes(x = UTC, y = `TOL_125`)) +
+#  geom_vline(xintercept = as.POSIXct("2018-09-04 14:13:00"), color = "yellow", linewidth = 2) +
+#  geom_text(aes(as.POSIXct("2018-09-04 14:13:00"), 88, label = "Enter vessel", hjust = 1.0)) +
+#  geom_vline(xintercept = as.POSIXct("2018-09-04 15:17:00"), color = "yellow", linewidth = 2) +
+#  geom_text(aes(as.POSIXct("2018-09-04 15:13:00"), 87, label = "Exit vessel", hjust = -0.1)) +
+#  geom_line() + 
+#  geom_point(data = track08_09.04, aes(color = species, size = 2)) +
+#  scale_color_discrete(na.translate=FALSE) +
+#  scale_size_continuous(guide = "none") +
+#  ggtitle("Sound levels during co-occurrence of Drift 8 and a vessel on 09-04-18\n(Within 7 km)") +
+#  scale_y_continuous(name = "Sound Intensity (dB) at TOL 125 Hz") +
+#  scale_color_discrete(na.translate=FALSE, labels = c("ZC" = "Cuvier's", "BW43" = "BW43"))
+```
+
+
+
+Density Plots - Species at TOL sound levels
+```{r density-plots}
+# TOL 125
+for (ft in dlist) {
+plt <- get(ft) %>%
+  filter(!is.na(species))
+
+  print(ggplot(data = plt, aes(TOL_125, fill = species)) + 
+  geom_density(alpha = 0.5) +
+  ggtitle(paste0("TOL 125, Drift ", substr(ft, 17, 18))) +
+  scale_x_continuous(name = "Sound Intensity (dB)") +
+  scale_fill_discrete(labels = c("ZC" = "Cuvier's", "BW43" = "BW43")))
+}
+
+# TOL 125 SINGLE PLOT ALL DRIFTS
+allDrifts %>%
+  filter(!is.na(species)) %>%
+  ggplot(aes(TOL_125, fill = species)) + 
+  geom_density(alpha = 0.5) +
+  ggtitle("TOL 125 ALL Drifts Combined") +
+  scale_x_continuous(name = "Sound Intensity (dB)") +
+  scale_fill_discrete(labels = c("ZC" = "Cuvier's", "BW43" = "BW43"))
+
+# TOL 2000
+for (ft in dlist) {
+plt <- get(ft) %>%
+  filter(!is.na(species))
+
+  print(ggplot(data = plt, aes(TOL_2000, fill = species)) + 
+  geom_density(alpha = 0.5) +
+  ggtitle(paste0("TOL 2000, Drift ", substr(ft, 17, 18))) +
+  scale_x_continuous(name = "Sound Intensity (dB)") +
+  scale_fill_discrete(labels = c("ZC" = "Cuvier's", "BW43" = "BW43")))
+}
+
+# TOL 2000 SINGLE PLOT ALL DRIFTS
+allDrifts %>%
+  filter(!is.na(species)) %>%
+  ggplot(aes(TOL_2000, fill = species)) + 
+  geom_density(alpha = 0.5) +
+  ggtitle("TOL 2000 ALL Drifts Combined") +
+  scale_x_continuous(name = "Sound Intensity (dB)") +
+  scale_fill_discrete(labels = c("ZC" = "Cuvier's", "BW43" = "BW43"))
+```
+
+
+Visualize SS for buoy 20 when GPS is malfunctioning
+```{r}
+# Visualize where detections are missing
+GPSwhaleAISenvSS20$missingGPS <-ifelse(is.na(GPSwhaleAISenvSS20$Latitude),
+                                       "yes", "no")
+# Need to create rollnoise column
+#ggplot(GPSwhaleAISenvSS20, aes(UTC, TOL_125)) + 
+#  geom_point(aes(color = missingGPS)) + geom_line(aes(y=rollnoise)) 
+
+
+```
+
+
+
+Does time elapsed affect whale presence?
+
+Linear model
+```{r}
+model6 <- lm(Wpresence>0 ~ timeAfterShip, data = allDrifts)
+summary(model6)
+plot(model6)
+```
+
+Avg. number of hours after ship encounter?
+```{r}
+mean(allDrifts$timeAfterShip) / 60 / 60
+```
+
+## Soundscape before, during, after ship passage?
+Elevated TOL_125 sound levels with ship presence, only slight difference with TOL_2000
+```{r}
+# During
+ship_event <- allDrifts %>% filter(shipin10km == 1)
+no_ship <- allDrifts %>% filter(shipin10km == 0)
+
+# Plot TOL 125
+ggplot(allDrifts, aes(factor(shipin10km), TOL_125)) + geom_boxplot() + labs(x = "Ship Present?")
+summary(ship_event$TOL_125)
+summary(no_ship$TOL_125)
+
+# Plot TOL_2000
+ggplot(allDrifts, aes(factor(shipin10km), TOL_2000)) + geom_boxplot() + labs(x = "Ship Present?")
+summary(ship_event$TOL_2000)
+summary(no_ship$TOL_2000)
+
+```
+
+How often are there detections immediately following ship passage?
+```{r}
+# Filter by whale detections and mutate to hrs + days after ship event
+detections <- allDrifts %>% 
+  filter(Wpresence == 1) %>%
+  mutate(hrsAfterShip = timeAfterShip/3600) %>%
+  mutate(daysAfterShip = hrsAfterShip/24)
+
+# Plot number of days after ship event by species
+ggplot(detections, aes(species, daysAfterShip)) + geom_boxplot()
+summary(detections$daysAfterShip) # Avg 5.4 days after ship
+```
+
+Visualize whale detections and ship events
+```{r fig.width=10}
+detsOnly <- GPSwhaleAISenvSS08 %>% filter(Wpresence == 1)
+shipOnly <- GPSwhaleAISenvSS08 %>% filter(shipin10km == 1)
+
+ggplot(GPSwhaleAISenvSS08) +
+  geom_bar(shipOnly, mapping = aes(x = UTC, color = "shipin10km")) +
+  geom_bar(detsOnly, mapping = aes(x = UTC, color = "Wpresence")) +
+  scale_x_datetime(date_breaks = "2 days") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+sppcolor <- factor(detsOnly$species) 
+
+# Version 1 - too busy??
+ggplot(GPSwhaleAISenvSS08) +
+  geom_point(aes(x = UTC, y = TOL_125), alpha = 0.5) +
+  geom_smooth(aes(x = UTC, y = TOL_125)) +
+  scale_x_datetime(date_breaks = "2 days") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_vline(xintercept = shipOnly$UTC, color = "green", linewidth = 1) +
+  geom_vline(xintercept = detsOnly$UTC, color = "purple", linewidth = 1)
+
+# Version 2 -  Visualize sound levels when whales present by buoy
+detsOnly2 <- GPSwhaleAISenvSS08 %>% filter(Wpresence == 1)
+shipOnly2 <- GPSwhaleAISenvSS08 %>% filter(shipin10km == 1)
+ggplot(detsOnly2) +
+  geom_vline(xintercept = shipOnly2$UTC, color = "green") +  # add line for ship presence
+  geom_point(aes(x = UTC, y = TOL_2000, color = species), size = 2) +
+  scale_x_datetime(date_breaks = "2 days") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+# Version 3 - presence/absence sound levels
+ggplot(GPSwhaleAISenvSS08) +
+  geom_point(aes(x = UTC, y = TOL_125, color = factor(species))) 
+
+  
+# All buoys
+detsOnly3 <- allDrifts %>% filter(Wpresence == 1)
+shipOnly3 <- allDrifts %>% filter(shipin10km == 1)
+ggplot(detsOnly3) +
+  geom_vline(xintercept = shipOnly3$UTC, color = "green") +  # add line for ship presence
+  geom_point(aes(x = UTC, y = TOL_125, color = species), size = 2) +
+  scale_x_datetime(date_breaks = "2 days") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#Sound levels for all species
+```{r}
+# Sound levels for all species
+ggplot(detsOnly3) + geom_boxplot(aes(x = species, y = TOL_125)) +
+  labs(title = "TOL 125 Sound levels by Species - All Buoys")
+ggplot(detsOnly3) + geom_boxplot(aes(x = species, y = TOL_2000)) +
+    labs(title = "TOL 2000 Sound levels by Species - All Buoys")
+```
+
+
+Visualize whale detections and ship events with plotPresBar
+```{r}
+detsOnly <- GPSwhaleAISenvSS07 %>% filter(Wpresence == 1)
+shipOnly <- GPSwhaleAISenvSS07 %>% filter(shipin10km == 1)
+
+PAMmisc::plotPresBar(detsOnly, bin = 'hour', by = "species")
+
+PAMmisc::plotPresBar(shipOnly, bin='hour')
+
+```
+
+Bin time elapsed after ship event into categories and plot
+```{r}
+# Drift 20
+example_drift20 <- GPSwhaleAISenvSS20 %>%
+  .[!is.na(GPSwhaleAISenvSS20$timeAfterShip),] %>%
+  mutate(timeAfterShipCat = cut(timeAfterShip, breaks = c(0, 43200, 129600, 216000, max(timeAfterShip)),
+         labels = c("12 hr", "36 hr", "60 hr", "over 60 hr"))) %>%    # cuts 12, 36, 60 hrs
+  filter(!is.na(species))
+View(example_drift20)
+
+# Plot
+ggplot(example_drift20, aes(x=species, fill=timeAfterShipCat)) + geom_bar(position="dodge") 
+
+ggplot(example_drift20) + geom_histogram(aes(x = timeAfterShip)) + facet_grid(species ~.)
+#ggplot(example_drift10) + geom_histogram(aes(x = timeAfterShip)) + facet_grid(species ~.)
+```
+
+#Hours After Ship Event by Species
+```{r}
+no_na <- allDrifts %>% filter(Wpresence == 1) %>%
+  mutate(HrsafterShip = timeAfterShip /3600)
+ggplot(no_na) + geom_histogram(aes(x = HrsafterShip), bins = 30) + facet_grid(species ~.) +
+  labs(title = "Hours Elapsed from Ship Event by Species - All buoys")
+```
+
+Same as above with different drift
+```{r}
+# Drift 10
+
+# Find index of first ship
+whereShips <- GPSwhaleAISenvSS10$shipin10km > 0
+firstship <- min(which(whereShips)) # Index of the first ship
+
+# Replace with NA where index is less than index of min value
+GPSwhaleAISenvSS10[1,"timeAfterShip"] = NA  # Need to make first row with a zero into NA separately
+GPSwhaleAISenvSS10[2:firstship - 1, "timeAfterShip"] = NA  # then can make the rest of rows NA
+
+example_drift10 <- GPSwhaleAISenvSS10 %>%
+  .[!is.na(GPSwhaleAISenvSS10$timeAfterShip),] %>%
+  mutate(timeAfterShipCat = cut(timeAfterShip, breaks = c(0, 43200, 129600, 216000, max(timeAfterShip)),
+         labels = c("12 hr", "36 hr", "60 hr", "over 60 hr"))) %>%    # cuts 12, 36, 60 hrs
+  filter(!is.na(species))
+#View(example_drift10)
+
+ggplot(example_drift10, aes(x=species, fill=timeAfterShipCat)) + geom_bar(position="dodge")
+```
+
