@@ -1,0 +1,293 @@
+---
+title: "interpolation"
+author: "Marina Bozinovic"
+date: "2023-09-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(mgcv)
+```
+
+Read in rda
+```{r}
+# Read in original buoy 20 to compare
+# Change name so as not to alter it
+env20.orig <- readRDS(file = "D:/Buoy_dfs/GPSwhaleAIS20.rda")
+
+# Interpolated buoy 20
+env20.interp <- readRDS(file = "data/GPSwhaleAIS20_alt.rda")
+```
+
+
+Download and attach environmental variables to interpolated pts for buoy 20
+```{r}
+# Sea Surface Temp
+env20.interp <- matchEnvData(env20.interp, nc = 'jplMURSST41', fileName = "D:/Environ_variables/analysedSST20_interp", var = c('analysed_sst')) # Download SST
+env20.interp <- matchEnvData(env20.interp, nc = ss) %>%
+  rename(., sst_mean = analysed_sst_mean) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)  # Match SST
+
+# Wind curl
+env20.interp <- matchEnvData(env20.interp, nc = 'erdlasFnTran6_LonPM180', fileName = "D:/Environ_variables/windstress20_interp.nc", var = c('curl')) # Download wind curl
+env20.interp <- matchEnvData(env20.interp, nc = w) %>%
+     dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean)   # Match wind curl
+
+# Distance to continental slope
+bathy <- rast("D:/CCES_gebco_bathy.tif") # Bathymetry for all of CCE from https://download.gebco.net/
+agg <- terra::aggregate(bathy, 5)  # Increase cell size by factor of 5 to be visible
+cont <- st_as_sf(as.contour(bathy, )) # Create contour lines from bathymetry 
+cont_slope <- cont %>% filter(level == -2000) # Establish continental shelf. Is 2000m the correct depth for continental shelf?
+sf <- st_as_sf(env20.interp, coords = c("Longitude", "Latitude"), crs=4326, remove=F)
+trk <- terra::rasterize(vect(sf), agg)
+slop <- terra::distance(trk, vect(cont_slope))
+ext <- terra::extract(slop, vect(sf))
+  
+dbind <- cbind(sf, ext) %>%
+  dplyr::select(-ID) %>%
+  rename("dist2slope" = last) %>%
+  st_set_geometry(NULL) # remove geometry to prevent buoy dataframe from becoming sf object for future
+
+# Depth
+env20.interp <- matchEnvData(env20.interp, nc = 'srtm15plus', fileName = "D:/Environ_variables/depth20_alt.nc", var = c('z')) #Download depth
+env20.interp <- matchEnvData(env20.interp, nc = dd) %>%
+  rename(., depth = z_mean) %>%        # rename new column to "depth"
+  mutate(depth = depth*-1) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean) #Match depth
+
+# Bathymetric slope
+bathy_slope <- terra::terrain(bathy, v = "slope")
+slope <- terra::extract(bathy_slope, env20.interp[,3:2]) %>%  # Reads latitude and longitude of buoy dataframe
+  dplyr::select(-ID) %>%
+  rename("bathy_slope" = slope)
+sbind <- cbind(env20.interp, slope)
+
+# Distance to shore
+env20.interp <- matchEnvData(env20.interp, nc = 'dist2coast_1deg', fileName = "D:/Environ_variables/dist2shore20_interp.nc", var = c('dist')) #Download bathy slope
+env20.interp <- matchEnvData(env20.interp, nc = d2) %>%
+  rename(., dist2shore = dist_mean) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean) # Match bathy slope
+
+# Chlorophyll
+env20.interp <- matchEnvData(env20.interp, nc = 'erdMH1chlamday', fileName = "D:/Environ_variables/chlorophyll20_interp.nc", var = c('chlorophyll')) #Download chl
+env20.interp <- matchEnvData(env20.interp, nc = ch) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean) #Match chl
+
+# Sea Surface Height
+env20.interp <- matchEnvData(env20.interp, nc = 'nesdisSSH1day', fileName = "D:/Environ_variables/ssh20_interp.nc", var = c('sla')) #Download SSH
+env20.interp <- matchEnvData(env20.interp, nc = sh) %>%
+  rename(., ssh_mean = sla_mean) %>%
+  dplyr::select(-matchLong_mean, -matchLat_mean, -matchTime_mean) # Match SSH
+
+# Deep ocean variables
+# Assumes themData function has run and exists in global environment
+Htest <- matchEnvData(env20.interp, nc=PAMmisc::hycomList, var=c('water_temp', 'salinity'), raw=TRUE, depth = 0:1000)
+
+thermData <- bind_rows(lapply(Htest, function(x) {
+    # do thermo calcs
+    result <- calcThermoVars(x$matchDepth, x$water_temp)
+    # get specific values
+    result$temp400 <- x$water_temp[x$matchDepth == 400]
+    result$sal400 <- x$salinity[x$matchDepth == 400]
+    result
+}))
+
+env20.interp <- cbind(env20.interp, thermData)
+
+```
+
+Save
+```{r}
+# To project
+saveRDS(env20.interp, 'data/GPSwhaleAISenv20_interp.rda')
+
+# To external hard drive
+saveRDS(env20.interp, 'D:/Buoy_dfs/GPSwhaleAISenv20_interp.rda')
+```
+
+
+
+What is GAM of Buoy 20 without interpolation (original)
+```{r}
+trk20_noInterp <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + ttDepth + sal400
+                      + TOL_125 + TOL_2000,
+              data = env20.orig, family = binomial, method = "REML")
+
+plot(trk20_noInterp, trans = plogis, all.terms = TRUE)
+summary(trk20_noInterp)
+# Env varb only: Deviance explained = 8.17%, R-sq = 0.051
+# Env + SS variables: Deviance explained = 8.9%, R-sq = 0.0532
+```  
+
+
+
+What is GAM of Buoy 20 with interpolation?
+```{r}  
+trk20_withInterp <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + ttDepth + sal400
+                        + TOL_125 + TOL_2000,
+              data = env20.interp, family = binomial, method = "REML")
+
+plot(trk20_withInterp, trans = plogis, all.terms = TRUE)
+summary(trk20_withInterp)
+# Env varb only: Deviance explained = 7.91%, R-sq = 0.0634
+# Env + SS variables: Deviance explained = 8.92%, R-sq = 0.0703
+```
+
+
+Summary Stats of Buoy 20 with/without interpolation
+```{r}
+# DF with removed questionable rows
+#Before gap
+#b4_mean <- sapply(env20.orig[830:849, 6:21], mean)
+#b4_mean <- cbind(b4_mean, rownames(b4_mean))
+
+#b4_sd <- sapply(env20.orig[830:849,6:21], sd)
+#b4_sd <- cbind(b4_sd, rownames(b4_sd))
+
+#b4_min <- sapply(env20.orig[830:849, 6:21], min)
+#b4_min <- cbind(b4_min, rownames(b4_min))
+
+#b4_max <- sapply(env20.orig[830:849, 6:21], max)
+#b4_max <- cbind(b4_max, rownames(b4_max))
+```
+
+```{r}
+#After gap
+#aft_mean <- sapply(env20.orig[871:890, 6:21], mean)
+#aft_mean <- cbind(aft_mean, rownames(aft_mean))
+
+#aft_sd <- sapply(env20.orig[871:890, 6:21], sd)
+#aft_sd <- cbind(aft_sd, rownames(aft_sd))
+
+#aft_min <- sapply(env20.orig[871:890, 6:21], min)
+#aft_min <- cbind(aft_min, rownames(aft_min))
+
+#aft_max <- sapply(env20.orig[871:890, 6:21], max)
+#aft_max <- cbind(aft_max, rownames(aft_max))
+```
+
+```{r}
+b4af_mean <- sapply(env20.orig[840:860, 6:21], mean)
+b4af_mean <- cbind(b4af_mean, rownames(b4af_mean))
+
+b4af_sd <- sapply(env20.orig[840:860, 6:21], sd)
+b4af_sd <- cbind(b4af_sd, rownames(b4af_sd))
+
+b4af_min <- sapply(env20.orig[840:860, 6:21], min)
+b4af_min <- cbind(b4af_min, rownames(b4af_min))
+
+b4af_max <- sapply(env20.orig[840:860, 6:21], max)
+b4af_max <- cbind(b4af_max, rownames(b4af_max))
+```
+
+
+```{r}
+# DF of interpolated section
+interp_mean <- sapply(env20.interp[850:870, 6:21], mean)
+interp_mean <- cbind(interp_mean, rownames(interp_mean))
+
+interp_sd <- sapply(env20.interp[850:870, 6:21], sd)
+interp_sd <- cbind(interp_sd, rownames(interp_sd))
+
+interp_min <- sapply(env20.interp[850:870, 6:21], min)
+interp_min <- cbind(interp_min, rownames(interp_min))
+
+interp_max <- sapply(env20.interp[850:870, 6:21], max)
+interp_max <- cbind(interp_max, rownames(interp_max))
+```
+
+Create df for comparing before/after with interpolated points
+```{r fig.width=10}
+env20.orig <- env20.orig %>% mutate(dist2slopekm = dist2slope/1000,
+                                  depthKm = depth/1000)
+
+env20.interp <- env20.interp %>% mutate(dist2slopekm = dist2slope/1000,
+                                  depthKm = depth/1000)
+
+
+b4af_sample <- env20.orig[840:860, 6:24] %>%
+  add_column(type = "beforeAfter")
+
+interp_sample <- env20.interp[850:870, 6:24] %>%
+  add_column(type = "interpolated")
+
+compare_pts <- rbind(b4af_sample,interp_sample)
+
+compare_longer1 <- pivot_longer(compare_pts, cols = c('sst_mean', 'mldTemp','mldTemp', 'ttTemp','temp400'),
+             names_to = "variable",
+             values_to = "values")
+
+compare_longer2 <- pivot_longer(compare_pts, cols = c('TOL_125', 'TOL_2000', 'dist2slopekm'),
+             names_to = "variable",
+             values_to = "values")
+
+compare_longer3 <- pivot_longer(compare_pts, cols = c('chlorophyll_mean', 'curl_mean', 'ssh_mean', 'depthKm'),
+             names_to = "variable",
+             values_to = "values")
+
+compare_longer4 <- pivot_longer(compare_pts, cols = c('sal400', 'bathy_slope','ttDepth'),
+             names_to = "variable",
+             values_to = "values")
+
+compare_longer5 <- pivot_longer(compare_pts, cols = c('mldDepth', 'ttDepth', 'depthKm'),
+                                names_to = "variable",
+                                values_to = "values")
+                                
+
+depthKmplot <- pivot_longer(compare_pts, cols = 'depthKm',
+                                names_to = "variable",
+                                values_to = "values")
+  
+mldDepthplot <- pivot_longer(compare_pts, cols = 'mldDepth',
+                                names_to = "variable",
+                                values_to = "values")
+  
+ttDepthplot <- pivot_longer(compare_pts, cols = 'ttDepth',
+                                names_to = "variable",
+                                values_to = "values")
+# Missing dist2shore because value does not change much
+```
+
+Plot
+```{r fig.width=8}
+ggplot(compare_longer1, aes(x = type, y = values, color = type)) + geom_boxplot() + 
+  facet_wrap(~variable)
+ggplot(compare_longer2, aes(x = type, y = values, color = type)) + geom_boxplot() + 
+  facet_wrap(~variable)
+ggplot(compare_longer3, aes(x = type, y = values, color = type)) + geom_boxplot() + 
+  facet_wrap(~variable)
+ggplot(compare_longer4, aes(x = type, y = values, color = type)) + geom_boxplot() + 
+  facet_wrap(~variable)
+#Depths only
+ggplot(compare_longer5, aes(x = type, y = values, color = type)) + geom_boxplot() + 
+  facet_wrap(~variable)
+
+ggplot(depthKmplot, aes(x = type, y = values, color = type)) + geom_boxplot() +
+  labs(title = "depth in Km")
+ggplot(mldDepthplot, aes(x = type, y = values, color = type)) + geom_boxplot() +
+  labs(title = "mldDepth")
+ggplot(ttDepthplot, aes(x = type, y = values, color = type)) + geom_boxplot() +
+  labs(title = "ttDepth")
+
+```
+
+
+
+Bind results & plot
+```{r}
+interp_results <- cbind(interp_mean, b4af_mean, interp_sd, b4af_sd, 
+                        interp_min, b4af_min, interp_max, b4af_max) %>%
+  format(scientific = F, digits = 1) %>%
+  as.data.frame()
+
+
+mean(as.numeric(interp_results$interp_sd))
+mean(as.numeric(interp_results$b4af_sd))
+
+#ggplot(interp_results) + geom_boxplot()
+
+
+write.csv(interp_results, file = "interp_stats_drift20.csv")
+```
