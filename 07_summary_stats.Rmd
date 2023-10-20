@@ -968,7 +968,6 @@ summary(TO_pct01_07)
 
 
 
-
 Where are the quietest sound levels by band?
 ```{r}
 pctlist <- c("07", "08", "10", "12", "14", "16", "18", "19",
@@ -1022,28 +1021,12 @@ print(paste("PM Min TOL125 sound level: ", min(PM$TOL_125, na.rm = TRUE)))
 print(paste("PM Max TOL20000 sound level: ", max(PM$TOL_2000, na.rm = TRUE)))
 print(paste("PM Min TOL20000 sound level: ", min(PM$TOL_2000, na.rm = TRUE)))
 
-
-# One detection value for BWC
-BWC <- allDrifts %>%
-  dplyr::filter(species == "BWC")
-print(paste("BWC Max TOL125 sound level: ", max(BWC$TOL_125, na.rm = TRUE)))
-print(paste("BWC Min TOL125 sound level: ", min(BWC$TOL_125, na.rm = TRUE)))
-print(paste("BWC Max TOL20000 sound level: ", max(BWC$TOL_2000, na.rm = TRUE)))
-print(paste("BWC Min TOL20000 sound level: ", min(BWC$TOL_2000, na.rm = TRUE)))
-
 BB <- allDrifts %>%
   dplyr::filter(species == "BB")
 print(paste("BB Max TOL125 sound level: ", max(BB$TOL_125, na.rm = TRUE)))
 print(paste("BB Min TOL125 sound level: ", min(BB$TOL_125, na.rm = TRUE)))
 print(paste("BB Max TOL20000 sound level: ", max(BB$TOL_2000, na.rm = TRUE)))
 print(paste("BB Min TOL20000 sound level: ", min(BB$TOL_2000, na.rm = TRUE)))
- 
-BW37V <- allDrifts %>%
-  dplyr::filter(species == "BW37V")
-print(paste("BW37V Max TOL125 sound level: ", max(BW37V$TOL_125, na.rm = TRUE)))
-print(paste("BW37V Min TOL125 sound level: ", min(BW37V$TOL_125, na.rm = TRUE)))
-print(paste("BW37V Max TOL20000 sound level: ", max(BW37V$TOL_2000, na.rm = TRUE)))
-print(paste("BW37V Min TOL20000 sound level: ", min(BW37V$TOL_2000, na.rm = TRUE)))
  
 BW43 <- allDrifts %>%
   dplyr::filter(species == "BW43")
@@ -1058,6 +1041,8 @@ print(paste("ZC Max TOL125 sound level: ", max(ZC$TOL_125, na.rm = TRUE)))
 print(paste("ZC Min TOL125 sound level: ", min(ZC$TOL_125, na.rm = TRUE)))
 print(paste("ZC Max TOL20000 sound level: ", max(ZC$TOL_2000, na.rm = TRUE)))
 print(paste("ZC Min TOL20000 sound level: ", min(ZC$TOL_2000, na.rm = TRUE)))
+
+
 ```
 
 Number of detections
@@ -1068,9 +1053,7 @@ print(paste(nrow(allDrifts[allDrifts$Wpresence == 1,]) / nrow(allDrifts) * 100,"
 print(paste("Number of PM detections: ", nrow(PM)))
 print(paste("Number of ZC detections: ", nrow(ZC)))
 print(paste("Number of BW43 detections: ", nrow(BW43)))
-print(paste("Number of BWC detections: ", nrow(BWC)))
 print(paste("Number of BB detections: ", nrow(BB)))
-print(paste("Number of BW37V detections: ", nrow(BW37V)))
 
 #Plot
 sp <- allDrifts %>% filter(!species == 'NA')
