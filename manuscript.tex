@@ -1,0 +1,1570 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\usepackage{soul}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\setlength{\parindent}{4em}
+\setlength{\parskip}{0em}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={manuscript},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{manuscript}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\hypertarget{manuscript-draft}{%
+\section{Manuscript Draft}\label{manuscript-draft}}
+
+\hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+
+\hypertarget{soundscapes}{%
+\subsubsection{Soundscapes}\label{soundscapes}}
+
+Sound serves as the main sensory input for many species in the ocean.
+Since sound travels over four times faster in water than in air and can
+carry information over far distances (Urick, 1983), the use of sound has
+evolved as a critical component of communication, navigation, and
+foraging for many invertebrates, fishes, and cetaceans (Duarte et al.,
+2021). Under the right conditions, sounds can travel across ocean basins
+(Miksis-Olds, Martin, and Tyack, 2018).\\
+
+The total collection of sounds in an environment is called a soundscape,
+and these sources of sound are grouped into three broad categories:
+biophonies, sound produced by animals like cetaceans, fishes, and
+invertebrates; geophonies, natural sounds like rain, wind, and
+earthquakes; and anthropophonies, human-made sounds from shipping
+vessels, sonar, and oceanographic survey activities (Duarte et al.,
+2021; Miksis-Olds et al., 2018). Every region of the ocean experiences
+high spatio-temporal variation in sound levels and sources based on
+traits such as properties of water, organism diversity, human
+activities, and bathymetry (André et al., 2011). Because of their unique
+sound signatures, ocean soundscapes can be characterized, measured, and
+monitored as indicators of ecosystem health or species diversity (Haver
+et al., 2019; Pijanowski, Farina, Gage, Dumyahn, and Krause, 2011;
+Radford, Stanley, Tindle, Montgomery, and Jeffs, 2010; Weiss et al.,
+2021).\\
+
+When noise levels reach higher than normal levels, organisms can be
+negatively impacted. Invertebrates and fishes may experience stunted
+development, elevated stress responses, and physical injuries (L.
+Weilgart, 2018), while cetaceans' behavior, calling patterns, physiology
+and stress levels, and ability to locate prey or conspecifics are
+impacted (L. S. Weilgart, 2007). Sensitivities and responses to noise
+can vary among species and even individuals (Kunc, McLaughlin, and
+Schmidt, 2016). While terrestrial ecosystem-level effects have been
+well-documented (Buxton et al., 2017; Francis, Kleist, Ortega, and Cruz,
+2012; Shannon et al., 2016), effects within aquatic ecosystems require
+further studies (Kunc et al., 2016).\\
+
+Ocean noise pollution is among the anthropogenic changes that have
+recently grown to concerning levels (Hildebrand, 2009; Tyack, 2008). The
+global ambient noise in the ocean is estimated to have increased by 12
+decibels in the last few decades and has a close correlation to global
+economic trends (Frisk, 2012). Ships have been increasing in terms of
+gross tonnage and fleet size (Hildebrand, 2009) and now account for over
+80\% of the global trade, with an estimated 1.4\% expected annual
+increase in shipping through 2027 (UNCTAD, 2022). Commercial shipping
+now accounts for most of the low-frequency anthropogenic noise in the
+ocean (Hildebrand, 2009).\\
+
+These noise-generating activities are categorized as either incidental
+or deliberate (Chahouri, Elouahmani, and Ouchene, 2022; Chou, Southall,
+Robards, and Rosenbaum, 2021). Deliberate activities such as active
+sonar pingers, resource extraction from the seabed, seismic surveys, and
+echosounders intentionally produce sound to measure an area and can
+utilize both high and low frequencies (Duarte et al., 2021). Incidental
+activities like dredging, offshore development, and shipping produce
+sound as a by-product (Hawkins and Popper, 2017; Southall et al., 2017).
+Anthropogenic noise can further be characterized by the frequency and
+duration of the sound. For example, shipping occurs in all oceans and
+produces a continuous, low-frequency (\textless200 Hz) sound that
+travels far distances (Hildebrand, 2009). Sonar for military
+surveillance or research such as seafloor mapping produces mid-frequency
+sounds, but attenuates quicker, therefore impacting a smaller acoustic
+space (Hildebrand, 2009; Richardson, Jr, Malme, and Thomson, 2013).
+Noise has been shown to propagate differently based on static features
+like bathymetry and depth (Richardson et al., 2013; Vagle, Burnham,
+O'Neill, and Yurk, 2021), as well as dynamic variables like temperature,
+salinity, and pH from a changing climate (Affatati, Scaini, and Salon,
+2022; Kunc et al., 2016).\\
+
+As soniferous animals, cetaceans have varying levels of sensitivity and
+vulnerability to certain types of noise. Generally, mysticetes are more
+affected by low-frequency noise produced by large shipping vessels
+(Southall et al., 2017). Odontocetes produce and detect mid- to
+high-frequency sounds and are more likely to interfere with human
+activities at these frequencies. These generalizations appear to have
+exceptions, as odontocete species like beaked whales have shown
+avoidance behaviors in response to broadband and low frequency vessel
+noise (Aguilar Soto et al., 2006; Pirotta et al., 2012). It remains
+uncertain how short-term effects of chronic or acute noise pollution for
+cetaceans translates into long-term or population level changes. New,
+Moretti, Hooker, Costa, and Simmons (2013) suggest enough exposure can
+cause beaked whales to cease foraging and eventually lower reproduction
+rates.\\
+
+\hypertarget{beaked-whales-and-sperm-whales}{%
+\subsubsection{Beaked Whales and Sperm
+Whales}\label{beaked-whales-and-sperm-whales}}
+
+Beaked whales (family \emph{Ziphiidae)} are a group of 24 species and
+among the least understood cetaceans and deepest divers in the ocean.
+They regularly dive for over an hour to depths greater than 800 meters,
+sometimes exceeding three hours and 2000 meters, followed by only a few
+minutes on the surface (Baird et al., 2006; Tyack, Aguilar Soto,
+Johnson, Sturlese, and Madsen, 2006). Their preference for deep water,
+coupled with a low-profile body makes them nearly invisible on the
+surface, so very little is known about them with visual observations
+(Awbery, 2022). Much of what is known comes from strandings and stomach
+content analysis (West, Walker, Baird, Mead, and Collins, 2017). Even
+when sighting events occur, they risk misidentification due to the
+paucity of data of morphological variations in some species (Aguilar de
+Soto et al., 2017). Tagging studies prove useful, but it is often
+difficult to acquire a sizable dataset (Baird, 2008; Baird et al., 2006;
+Tyack et al., 2006).
+
+Beaked whales are known to be exceptionally sensitive to noise (Hooker
+et al., 2019). There are several documented cases of naval mid-frequency
+active sonar (MFAS) activities coinciding with mass stranding events by
+beaked whales (Bernaldo de Quiros et al., 2019; DeRuiter et al., 2013;
+Fernández et al., 2005; Simonis, Brownell, et al., 2020; Stanistreet et
+al., 2022; L. S. Weilgart, 2007). The same physiological adaptations
+that allow for extreme diving are observed to increase their
+decompression risk when they alter their behavior in response to noise
+(Fahlman, Tyack, Miller, and Kvadsheim, 2014; Kvadsheim et al., 2012).
+Furthermore, these responses vary based on the individuals' age, sex,
+past experience with noise, or current activity (L. S. Weilgart, 2007).
+
+Despite their visually cryptic nature, their sound signals are very
+well-described, down to the species level (Baumann-Pickering et al.,
+2013; Baumann-Pickering et al., 2014). Beaked whales produce clicks,
+pulses, and buzzes during foraging below 500 meters of depth (Tyack et
+al., 2006). Increased acoustic surveys reported in the literature have
+detected new vocalization patterns globally (Manzano-Roth et al., 2023),
+with notable temporal patterns emerging (Yamada et al., 2019).
+
+Sperm whales (\emph{Physeter macrocephalus}) also occupy deep ocean
+habitats, but their dive depths and times are reduced in comparison.
+Sperm whales have been known to dive regularly between 400-600 meters
+and often over 1000 meters (Amano and Yoshioka, 2003; Awbery, 2022;
+Watkins, Daher, Fristrup, Howald, and Di Sciara, 1993). They also appear
+to have more acoustic tolerance than beaked whales (Madsen, Mohl,
+Nielsen, and Wahlberg, 2002; Patrick J. O. Miller et al., 2022; P. J. O.
+Miller et al., 2009; Winsor, Irvine, and Mate, 2017). While avoidance
+responses in sperm whales have been recorded following MFAS events (Curé
+et al., 2013; Sivle et al., 2012; Stanistreet et al., 2022) and seismic
+survey pulses (Madsen et al., 2002) , and can range from minor (Isojunno
+et al., 2022) to moderate (Isojunno et al., 2016) in severity, the
+circumstances surrounding the noise exposure is not well understood.
+
+Sperm whales also emit series of targeted clicks when socializing (Fais
+et al., 2015; Marcoux, Whitehead, and Rendell, 2006) and foraging (Fais,
+Johnson, Wilson, Aguilar Soto, and Madsen, 2016), but it's unlikely they
+debilitate their prey with their vocalizations as previously
+hypothesized (Norris and Harvey, 1972). More is known about sperm whales
+than beaked whales as they spend more time on the surface, lending
+themselves to better detection during visual surveys.
+
+Several studies to date have documented specific effects of acoustic
+interference from human activity in beaked and sperm whales. Intense
+noise events can affect behavior through habitat displacement, time and
+effort fleeing spent instead of foraging, and communication and
+echolocation click disruption (Aguilar Soto et al., 2006; Cholewiak,
+DeAngelis, Palka, Corkeron, and Van Parijs, 2017; DeRuiter et al., 2013;
+Falcone et al., 2017; Joyce et al., 2020; Stanistreet et al., 2022);
+cause physiological harm like hearing loss, tissue damage, and elevated
+stress levels (Cox et al., 2006; Hooker et al., 2019) even up to 100 km
+away (Falcone et al., 2017); and mask signals for communication (Erbe,
+Williams, Sandilands, and Ashe, 2014), environmental cues (Duarte et
+al., 2021), or mating (L. S. Weilgart, 2007).
+
+Under the Marine Mammal Protection Act, these species are federally
+protected, and several receive addition protection under the Endangered
+Species Act due to a vulnerable or endangered conservation status
+(Taylor et al., n.d.), but some remain listed as ``data deficient'' by
+the International Union for the Conservation of Nature (IUCN) Red List
+of Threatened Species (Pitman and Brownell, n.d., 2020). The latter
+designation has been scrutinized for not eliciting the same conservation
+urgency as species whose populations are well-documented (Parsons,
+2016), therefore emphasizing the need for population and abundance
+studies of these species.
+
+\hypertarget{passive-acoustic-monitoring}{%
+\subsubsection{Passive Acoustic
+Monitoring}\label{passive-acoustic-monitoring}}
+
+Passive acoustic monitoring (PAM) is a tool that allows researchers to
+record and listen to the soundscape. It is also an ideal method for
+assessing habitat use and improving species distribution models of
+visually cryptic cetaceans like beaked whales and sperm whales that are
+more likely to be heard than seen (Fleishman et al., 2023), live
+relatively far offshore (Robbins, Bell, Potts, Babey, and Marley, 2022),
+and have low-density populations (Arranz et al., 2023; Hildebrand et
+al., 2015; Hooker et al., 2019).
+
+Passive acoustic recorders come in two forms: fixed or mobile, each
+better suited to a certain ecological application. A mobile (towed or
+free drifting) buoy is either towed behind a vessel or moves
+autonomously with the currents for days or weeks at a time. It captures
+the dynamic nature of sound over a large spatial area, especially in
+deep and less studied parts of the ocean, making it ideal for detecting
+offshore or mobile species. Bottom-mounted recorders allow for greater
+temporal coverage and are often used when studying specific regions or
+known habitats of study species (Jarvis, DiMarzio, Watwood, Dolan, and
+Morrissey, 2022; Marques et al., 2012; Nosal and Frazer, 2007).
+
+The benefits of using PAM over visual surveys include use during night
+hours or through inclement weather, lower cost to charter and little
+experience needed to conduct a survey (Fleishman et al., 2023; Johnson,
+Soto, and Madsen, 2009). The trade-offs include costly equipment or
+deployment, high data/battery storage requirements, uncertain chance of
+return, limited spatial coverage for fixed recorders, and limited
+temporal coverage for mobile recorders. Even with experienced
+acousticians, noisy detections can obfuscate number of individuals or
+species detected and distance or direction from recorder for species
+with large call ranges such as sperm whales (Barlow and Gisiner, 2005;
+Mellinger, Stafford, Moore, Dziak, and Matsumoto, 2007).
+
+\hypertarget{automatic-identification-system}{%
+\subsubsection{Automatic Identification
+System}\label{automatic-identification-system}}
+
+Automatic Identification System (AIS) is a mandatory vessel tracking
+system for vessels over 300 gross tons to aid in position communication
+and safe navigation (Federal Register, 2003). While not originally
+intended for use in research, it has become a valuable resource for
+vessel traffic data, especially in studying effects of vessel strikes
+(Greig, Hines, Cope, and Liu, 2020; Reimer, Gravel, Brown, and Taggart,
+2016) and noise pollution (Aguilar Soto et al., 2006; Erbe et al., 2014)
+on cetaceans. Because ships are abundant throughout the study area due
+to major U.S. ports, AIS was included in this study to investigate
+patterns of co-occurrence between vessels and whales and sound levels in
+those moments. Previous studies have separated vessel and anthropogenic
+noise from ambient soundscape based on known spectral signatures,
+frequency bands, and percentiles (Haver et al., 2020; Weiss et al.,
+2021). The inclusion of AIS to soundscape metrics in this study provides
+fine-scale evaluation of sound and source.
+
+\hypertarget{laws-and-regulations}{%
+\subsubsection{\texorpdfstring{\textbf{Laws and
+Regulations}}{Laws and Regulations}}\label{laws-and-regulations}}
+
+While there is consensus that anthropogenic noise in the ocean is
+increasing, policies that aim to mitigate chronic noise are generally
+lacking. This is due to knowledge gaps regarding the long-term and
+cumulative effects of noise on certain species (Markus and Sánchez,
+2018). International and regional efforts are underway (see Chou et al.
+(2021)) but are not fully complete. Within the European Union, the
+Marine Strategy Framework Directive establishes a directive about
+environmental regulation on marine noise, specifically requiring member
+states to adopt strategies in compliance with threshold values for
+impulsive and continuous noise (Borsani, J.F., Juretzek C., Klauson A.,
+Leaper R., Le Courtois F., Liebschner A., Maglio A., Mueller A. , Norro
+A., Novellino A., Outinen O., Popit A., Prospathopoulos A., Sigray P.,
+Thomsen F., Tougaard J., Vukadin P., and Weilgart L., Borsani, J.F.,
+Andersson M., André M., Azzellino A., Bou M., Castellote M., Ceyrac L.,
+Dellong D., Folegot T., Hedgeland D., and Juretzek C., Klauson A.,
+Leaper R., Le Courtois F., Liebschner A., Maglio A., Mueller A. , Norro
+A., Novellino A., Outinen O., 2023; \emph{Directive 2008/56/EC of the
+European Parliament and of the Council of 17 June 2008 establishing a
+framework for community action in the field of marine environmental
+policy (Marine Strategy Framework Directive) (Text with EEA relevance)},
+2008). Some studies have independently tested these threshold values
+(Garrett et al., 2016; Haver et al., 2021; Sebastianutto, Fortuna,
+Mackelworth, Holcer, and Rako Gospić, 2015) or used them as guidelines
+in their study (Mustonen et al., 2019). The National Oceanic and
+Atmospheric Administration (NOAA) has developed an Ocean Noise Strategy
+Roadmap, an agency-wise approach to mitigating both chronic and acute
+effects of noise exposure to animals (NOAA, 2018). Within it, the
+authors agree upon impairment thresholds for mid-frequency cetaceans
+(NOAA, 2018). Because chronic effects are not fully understood, they
+remain to be regulated. The International Maritime Organization (IMO)
+has also been addressing noise pollution from commercial vessels through
+quieter ship design (International Maritime Organization, 2014). Updates
+to their 2014 guidelines are set to be finalized by January 2024.
+Finally, Canada has launched a Quiet Vessel Initiative and is expected
+to publish a Ocean Noise Strategy for underwater noise management in
+2023 (Breeze et al., 2022).
+
+\hypertarget{research-objective}{%
+\subsubsection{Research Objective}\label{research-objective}}
+
+With anthropogenic noise-generating activities on the rise, global
+oceanic sound levels are expected to increase. Noise is a form of
+habitat degradation, so there is a need for research on a large spatial
+scale to understand how these highly mobile animals overlap in space and
+time with human activities and how they're affected (Erbe et al., 2014;
+Haver et al., 2019; Hooker et al., 2019). Acquiring information on these
+federally protected and acoustically sensitive species is challenging,
+but certain PAM techniques can be well-suited for this type of research.
+Logistical difficulties associated with offshore research and
+low-density populations of visually cryptic deep diving whales have
+created a paucity of data in the California Current Ecosystem. This
+research provides a step towards understanding soundscape variation in
+the area and beaked and sperm whale distributions and their acoustic
+environment.
+
+The purpose of this study is to characterize the spatial and temporal
+acoustic variability of beaked and sperm whale habitat in the California
+Current Ecosystem using soundscape metrics, environmental variables, and
+AIS. We determine significant predictors of whale presence for each
+species with the use of Random Forest models and generalized additive
+models and provide explicit sources for noise-generating human
+activities through overlay of large vessel activity.
+
+\hypertarget{methods}{%
+\subsection{Methods}\label{methods}}
+
+\hypertarget{study-area}{%
+\subsubsection{\texorpdfstring{\textbf{Study
+Area}}{Study Area}}\label{study-area}}
+
+The California Current Ecosystem (CCE) is a highly productive and
+complex ecosystem that contains one proposed and five current national
+marine sanctuaries (Office of National Marine Sanctuaries, n.d.),
+supports several wild fisheries (Field and Francis, 2006), and is home
+to nineteen protected whale species (NOAA Fisheries, n.d.). The
+1,141,800 km2 area extends along the US' Economic Exclusion Zone from
+southern Canada to northern Mexico and is a characterized by deep
+canyons and a continental shelf (Barlow et al., 2009; Barlow and Forney,
+2007). Characteristic of the area are upwelling events that carry
+nutrients to the surface and drive primary productivity, creating an
+ideal habitat where whales' prey are found (Ryther, 1969). The year 2018
+was characterized in the CCE with slightly warmer than average sea
+surface temperatures as the recent El-Nino and marine heatwave events
+were ending (Harvey et al., n.d.). Because this area has high economic
+value and natural ecological activity, it's a well-managed and
+well-researched area (Coleman, 2008; Oldach et al., 2022; Peña and
+Bograd, 2007).\\
+\strut \\
+In 2021, California, Washington, and Oregon ranked 3rd, 5th, and 23rd in
+most trafficked U.S. waterways, respectively (United States Army Corps
+of Engineers {[}USACE{]}, 2018). Between vessel activity like fishing,
+shipping and naval exercises in California alone, there is notable
+overlap of anthropogenic presence with important habitat for protected
+species. Furthermore, the future development of offshore wind turbines
+off of Morro Bay and Humboldt, California are expected to be
+noise-producing activities during construction and operation, increasing
+sound levels in those regions (Cooperman et al., 2022; Madsen, Wahlberg,
+Tougaard, Lucke, and Tyack, 2006).
+
+\hypertarget{data-collection-and-processing}{%
+\subsubsection{Data Collection and
+Processing}\label{data-collection-and-processing}}
+
+Acoustic detections were collected as part of the 2018 California
+Current Ecosystem Survey (CCES) by the Southwest Fisheries Science
+Center (SWFSC). Twenty-three free drifting buoys (numbered 1-23) were
+deployed at varying times between July and November in the offshore
+waters of the study area. These buoys contained two satellite
+geo-locators above water to monitor GPS information and two hydrophones
+at depth attached by a 150-meter line. They collected a total of 1910
+hours of data. SWFSC detected and classified acoustic detections in
+PAMGuard to species level as per methods mentioned in Simonis, Trickey,
+et al. (2020).
+
+Acoustic data were duty-cycled, with most buoys sampling at a rate of 18
+minutes off and 2 minutes on. The SWFSC team analyzed the data and
+detected echolocation pulses produced by beaked and sperm whales. These
+were classified by peak frequency and spectral signature and identified
+to the species level (see Simonis, Trickey, et al. (2020) for details on
+this survey and Rand, Wood, and Oswald (2022) for duty-cycle study).
+Soundscape metrics were binned by peak frequency into low, medium, high
+frequency bands, along with the 1, 5, 10, 25, 75, 95, and 99 percentile
+distribution from each metric.
+
+\st{Soundscape metrics were rounded to the nearest 20 minutes (:00, :20,
+:40) and converted to the UTC time zone. These metrics include
+third-octave level (TOL) bands from 63 to 20,000 Hz and broadband
+(20-24,000 Hz) metrics.} Several TOL levels were chosen as proxies to
+vessel or sonar frequencies.
+
+\st{Whale detection timestamps were rounded to nearest 20 minutes based
+on start time to align with the soundscape metrics. A separate column
+was created as a common join field that contained nearest timestamp in
+UTC to that of buoy tracks (see below).} Two types of beaked whale
+detections (species code \emph{?BW} and \emph{?BWC}) were removed from
+analysis as the species was unknown.
+
+**\[New addition as of 08/25/23 -** Two SPOT buoys sit on every buoy, so some GPS points were recorded twice. These duplicate tracks were eliminated.\]
+\st{Buoy tracks were similarly rounded to nearest 20 minutes.} Seven
+buoys (1,2,3,5,6,9,11) were lost at sea and two buoys had corrupted data
+(4,17) so these were removed from the analysis. Buoys 14 and 15 were the
+same and therefore consolidated to 14. These three preliminary datasets
+were joined together based on a common buoy number (column ``station'')
+and time field column ``UTC''). Whale detections (column ``Wpresence'')
+were reduced to binary data for absence/presence and all other fields of
+that dataset were eliminated.
+
+\hypertarget{environmental-data}{%
+\subsubsection{\texorpdfstring{\textbf{Environmental
+Data}}{Environmental Data}}\label{environmental-data}}
+
+Possible environmental and oceanographic predictors of cetacean habitat
+were extracted from the NOAA Environmental Research Division Data Access
+Program (ERDDAP) server
+((\url{https://coastwatch.pfeg.noaa.gov/erddap/}) and Hybrid Coordinate
+Ocean Model (HYCOM) using the \emph{matchEnvData} function in R package
+\emph{PAMmisc}. Six modeled variables at depth (mixed layer depth, mixed
+layer temperature, temperature at 400m, thermocline temperature,
+thermocline depth, salinity at 400m) were calculated using a formula
+from McCullough et al. (2021). Such variables are especially important
+to incorporate as it better reflects the deep environment that beaked
+and sperm whales are known to inhabit. Distance to slope and bathymetric
+slope were calculated from a bathymetry TIF acquired from the General
+Bathymetric Chart of the Oceans (GEBCO).
+
+\[See Virgili et al 2019 for extracting slope from GEBCO Data and dynamic variables!!\]
+
+\hypertarget{modeling}{%
+\subsubsection{\texorpdfstring{\textbf{Modeling}}{Modeling}}\label{modeling}}
+
+We used a Random Forest (RF) model in R (R Core Team, 2023) using the
+package () to identify most important environmental or acoustic
+predictors for beaked and sperm whales. A separate model was run for
+each species.
+
+We built generalized additive models in R using the package \emph{mcgv}
+to relate beaked and sperm whale detections to an environmental or
+acoustic variable.
+
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
+
+(Describe simple statistical relationships, correlations, exploratory
+data findings (highest, lowest, etc., time of day ( Ziegenhorn et al.,
+2023 ) , drift with most detections/day), where/when were most
+detections heard, number of species)
+
+\begin{itemize}
+\item
+  Buoy 18 had the most whale detections
+\item
+  ZC was the most frequently detected whale
+\item
+  The loudest sound levels were only occupied by PM
+\item
+  Density of ship encounters
+\item
+  Report on environmental conditions for ZC/PM?
+\item
+  Report on analysis of env variables WITH and WITHOUT soundscape
+  metrics (see Fiedler, Becker, Forney, Barlow, and Moore (2023),
+  results 3.1)
+\end{itemize}
+
+Weekly/daily plot of acoustic presence of whales and ships over time
+from each drift? See JS Trickey et al.~2022, Fig 3 Which buoy had the
+most AIS overlap and when?
+
+Look at power spectral density? Haver et al. (2020)
+
+The band at 125 Hertz is often associated with shipping vessel noise and
+the 2-5 kHz range with mid-frequency naval sonar ( Garrett et al. (2016)
+). Beaked whales are known to be sensitive to sonar in this latter range
+(cite)
+
+AIC explanation Symonds and Moussalli (2011)
+
+\hypertarget{discussion}{%
+\subsection{Discussion}\label{discussion}}
+
+\[Laws and Regulations\]
+
+While there is consensus that anthropogenic noise in the ocean is
+increasing, policies that aim to mitigate chronic noise are generally
+lacking. This is due to knowledge gaps regarding the long-term and
+cumulative effects of noise on certain species (Markus and Sánchez
+2018). International and regional efforts are underway (see Chou et
+al.~(2021)) but are not fully complete. Within the European Union, the
+Marine Strategy Framework Directive establishes a directive about
+environmental regulation on marine noise, specifically requiring member
+states to adopt strategies in compliance with threshold values for
+impulsive and continuous noise (``Directive 2008/56/EC of the European
+Parliament and of the Council of 17 June 2008 Establishing a Framework
+for Community Action in the Field of Marine Environmental Policy (Marine
+Strategy Framework Directive) (Text with EEA Relevance)'' 2008; Borsani,
+J.F. et al.~2023). Some studies have independently tested these
+threshold values (Sebastianutto et al.~2015; Garrett et al.~2016; Haver
+et al.~2021) or used them as guidelines in their study (Mustonen et
+al.~2019). The National Oceanic and Atmospheric Administration (NOAA)
+has developed an Ocean Noise Strategy Roadmap, an agency-wise approach
+to mitigating both chronic and acute effects of noise exposure to
+animals (NOAA 2018). Within it, the authors agree upon impairment
+thresholds for mid-frequency cetaceans (NOAA 2018). Because chronic
+effects are not fully understood, they remain to be regulated. The
+International Maritime Organization (IMO) has also been addressing noise
+pollution from commercial vessels through quieter ship design
+(International Maritime Organization 2014). Updates to their 2014
+guidelines are set to be finalized by January 2024. Finally, Canada has
+launched a Quiet Vessel Initiative and is expected to publish a Ocean
+Noise Strategy for underwater noise management in 2023 (Breeze et
+al.~2022).
+
+\[Known limitations to this study\]\\
+Duty cycle whale detection and soundscape method knowingly omits 18 of
+20 minutes of data. A sperm whale's true location relative to buoy is
+unknown so preferred habitat may not reflect the environmental variables
+that are associated with buoy that detects it (Barkley et al.~2021)
+Rounding tracks and soundscape metrics date/times to nearest 20 minutes
+is not perfect. Often, times did not line up with :00, :20, :40 and were
+either omitted or duplicated.
+
+This study only captures half of the year. If BW/SW have seasonal
+preferences outside of the study period, it was not captured here.
+
+Are BW or SW known to have seasonal movements? Robbins et al. (2022)
+suggest they do, though there's conflicting evidence.
+
+Non-AIS vessels or small vessels (fishing, recreational) may contribute
+to the soundscape in relevant frequency bands (Hermannsen et al. (2019)
+, Hildebrand (2009) ) and this does not get captured here.
+
+Does not account for the differences in relative noise contribution by
+vessel type (as Hatch et al. (2008) does)
+
+\[Add here.\]
+
+This work will contribute to establishing baseline conditions of noise
+exposure to inform wind farm development and shipping lane changes. In
+better understanding this, human activities can be altered to avoid
+overlap with sensitive species Hooker et al. (2019).
+
+Both of these outcomes are of high importance to managers and agencies
+especially NOAA and BOEM (see 2023-2024 report). Within their Ocean
+Noise Strategy Roadmap, NOAA is specifically seeking 1) a quantification
+of the spatial and temporal variability of ambient noise conditions, and
+2) understanding of how anthropogenic sound sources contribute to the
+soundscape. Co-occurrence of buoys and vessels will provide fine-scale
+snapshots of sound levels surrounding vessels and concurrent whale
+foraging activity. With AIS, we can calculate distance from buoy to
+vessel and sound levels in those moments. And 3) NOAA is seeking more
+information on vocally active species' distributions. This is part of a
+bill introduced by Congress to ``assess underwater sound in
+high-priority'' environments
+(\url{https://www.congress.gov/bill/117th-congress/house-bill/6987}).
+
+Outside of cetacean research, similar designs of drifting buoys have
+been used in estuarine and coral reef soundscape studies Lillis et al.
+(2018).
+
+The year 2018 was characterized in the CCE with slightly warmer than
+average sea surface temperatures as the recent El-Nino and marine
+heatwave events were ending (Harvey et al.~2019).
+
+Croll, Clark, Calambokidis, Ellison, and Tershy (2001) found that whale
+presence more closely related to prey abundance than sound levels
+
+Can use non-parametric Kruskal-Wallis one-way analysis of variance test
+to examine \emph{if number of whale detections per hour differed
+depending on presence/absence of vessels} (see Trickey et al.~2022).
+
+\[Recommendations?\]
+
+\hypertarget{acknowledgements}{%
+\subsection{Acknowledgements}\label{acknowledgements}}
+
+Taiki - help with code!\\
+Megan McKenna - guidance on AIS questions.
+
+Add here.
+
+\hypertarget{tables}{%
+\subsubsection{Tables}\label{tables}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\tightlist
+\item
+  Species studied:\\
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  ZC Cuvier's beaked whale~\emph{Ziphius cavirostris (IUCN status: least
+  concern)\\
+  -} BW43, Perrin's beaked whale~\emph{M}.~\emph{perrini (IUCN status:
+  endangered)} confirmed in 2021 Baumann-Pickering et al. (2013) Barlow
+  et al. (2021)\\
+\item
+  BW37V, possibly Hubbs' beaked whale \emph{M. carlhubbsi (IUCN status:
+  data deficient)} Simonis, Trickey, et al. (2020)\\
+\item
+  BB, -- Baird's beaked whale \emph{B. bairidii} \emph{(IUCN status:
+  least concern)}\\
+\item
+  BWC, possibly ginkgo-toothed beaked whale \emph{M. ginkgodens (IUCN
+  status: data deficient)} Simonis, Trickey, et al. (2020)\\
+\item
+  PM, sperm whale \emph{(IUCN status: vulnerable)}
+\end{itemize}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Environmental covariates (group by physiographic, oceanographic, etc)
+\end{enumerate}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2361}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2361}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2917}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2361}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Covariate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Resolution
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Source
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Justification
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+& & & \\
+Distance to shore (m) & 0.01-Degree Grid & ERDAPP & \\
+Distance to continental slope (m) & 15 arc sec & Derived from General
+Bathymetric Chart of the Oceans (GEBCO) Weatherall et al. (2015) &
+Barlow et al. (2009) \\
+Bathymetric slope (°) & 15 arc sec & Derived from GEBCO tif & Becker et
+al. (2010) Virgili et al. (2022) \\
+Depth (m) & 15 arc sec & ERDAPP & Forney et al. (2012) Becker et al.
+(2010) Virgili et al. (2022) \\
+Wind curl stress & 1°, 6-hourly & ERDDAP & Mannocci, Monestiez, Spitz,
+and Ridoux (2015) \\
+Mixed layer depth (m) & 0.08°, 3-hourly & HYCOM + NCODA, GLBy0.08/expt
+93.0, calculated with variable representative isotherm method (Fiedler
+2010), as described in McCullough et al 2021. & McCullough et al.
+(2021), Forney et al. (2012) Moore (2021) \\
+Thermocline temperature (°C) & 0.08°, 3-hourly & HYCOM + NCODA,
+GLBy0.08/expt 93.0, calculated with variable representative isotherm
+method (Fiedler 2010), as described in McCullough et al 2021. &
+McCullough et al. (2021) \\
+Thermocline depth (m) & 0.08°, 3-hourly & HYCOM + NCODA, GLBy0.08/expt
+93.0, calculated with variable representative isotherm method (Fiedler
+2010), as described in McCullough et al 2021. & \\
+Mixed layer depth Temperature (°C) & 0.08°, 3-hourly & Calculated from
+HYCOM & McCullough et al. (2021) \\
+Salinity at 400m & 0.08°, 3-hourly & HYCOM + NCODA, GLBy0.08/expt 93.0
+& \\
+Temperature at 400m (°C) & 0.08°, 3-hourly & HYCOM + NCODA,
+GLBy0.08/expt 93.0 & \\
+SST mean & 0.01° , daily & ERDAPP & Becker 2007, Forney et al. (2012)
+Virgili et al. (2022) \\
+CHL & 4 km, monthly & ERDAPP & Forney et al. (2012) Virgili et al.
+(2019) \\
+Sea Surface Height Anomalies (m) & daily & ERDAPP & Virgili et al.
+(2019) \\
+\end{longtable}
+
+Can show table of variables and justification by papers (Virgili et
+al.~2022 and Virgili et al 2019)
+
+Forney et al. (2012) shows how BW model had a lot of uncertainty
+regarding distribution predictors. So few detections that some spp had
+to be lumped together (also Barlow et al. (2009)).
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-affatati2022}{}}%
+Affatati, A., Scaini, C., \& Salon, S. (2022). Ocean Sound Propagation
+in a Changing Climate: Global Sound Speed Changes and Identification of
+Acoustic Hotspots. \emph{Earth's Future}, \emph{10}(3), e2021EF002099.
+\url{https://doi.org/10.1029/2021EF002099}
+
+\leavevmode\vadjust pre{\hypertarget{ref-aguilardesoto2017}{}}%
+Aguilar de Soto, N. A. de, Martín, V., Silva, M., Edler, R., Reyes, C.,
+Carrillo, M., \ldots{} Carroll, E. (2017). True{'}s beaked whale
+(Mesoplodon mirus) in Macaronesia. \emph{PeerJ}, \emph{5}, e3059.
+\url{https://doi.org/10.7717/peerj.3059}
+
+\leavevmode\vadjust pre{\hypertarget{ref-aguilarsoto2006}{}}%
+Aguilar Soto, N., Johnson, M., Madsen, P. T., Tyack, P. L., Bocconcelli,
+A., \& Fabrizio Borsani, J. (2006). Does Intense Ship Noise Disrupt
+Foraging in Deep-Diving Cuvier's Beaked Whales (ziphius Cavirostris)?
+\emph{Marine Mammal Science}, \emph{22}(3), 690--699.
+\url{https://doi.org/10.1111/j.1748-7692.2006.00044.x}
+
+\leavevmode\vadjust pre{\hypertarget{ref-amano2003}{}}%
+Amano, M., \& Yoshioka, M. (2003). Sperm whale diving behavior monitored
+using a suction-cup-attached TDR tag. \emph{Marine Ecology Progress
+Series}, \emph{258}, 291--295. Retrieved from
+\url{https://www.jstor.org/stable/24867054}
+
+\leavevmode\vadjust pre{\hypertarget{ref-andruxe92011}{}}%
+André, M., Schaar, M. van der, Zaugg, S., Houégnigan, L., Sánchez, A.
+M., \& Castell, J. V. (2011). Listening to the Deep: Live monitoring of
+ocean noise and cetacean acoustic signals. \emph{Marine Pollution
+Bulletin}, \emph{63}(1), 18--26.
+\url{https://doi.org/10.1016/j.marpolbul.2011.04.038}
+
+\leavevmode\vadjust pre{\hypertarget{ref-arranz2023}{}}%
+Arranz, P., Miranda, D., Gkikopoulou, K. C., Cardona, A., Alcazar, J.,
+Aguilar de Soto, N., \ldots{} Marques, T. A. (2023). Comparison of
+visual and passive acoustic estimates of beaked whale density off el
+hierro, canary islands. \emph{The Journal of the Acoustical Society of
+America}, \emph{153}(4), 2469. \url{https://doi.org/10.1121/10.0017921}
+
+\leavevmode\vadjust pre{\hypertarget{ref-awbery2022}{}}%
+Awbery, T. (2022). \emph{Spatial distribution and encounter rates of
+delphinids and deep diving cetaceans in the eastern mediterranean sea of
+turkey and the extent of overlap with areas of dense marine traffic}.
+Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fmars.2022.860242/full}
+
+\leavevmode\vadjust pre{\hypertarget{ref-baird2008}{}}%
+Baird, R. W. (2008). Diel variation in beaked whale diving behavior.
+\emph{Marine Mammal Science}.
+\url{https://doi.org/10.1111/j.1748-7692.2008.00211.x}
+
+\leavevmode\vadjust pre{\hypertarget{ref-baird2006}{}}%
+Baird, R. W., Webster, D. L., McSweeney, D. J., Ligon, A. D., Schorr, G.
+S., \& Barlow, J. (2006). Diving behaviour of cuvier{'}s (ziphius
+cavirostris) and blainville{'}s (mesoplodon densirostris) beaked whales
+in hawai{`}i. \emph{Canadian Journal of Zoology}, \emph{84}(8),
+1120--1128. \url{https://doi.org/10.1139/Z06-095}
+
+\leavevmode\vadjust pre{\hypertarget{ref-barlow2021}{}}%
+Barlow, J., Cárdenas-Hinojosa, G., Henderson, E. E., Breese, D.,
+Lopez-Arzate, D., Hidalgo-Pla, E., \& Taylor, B. N. (2021). Unique
+morphological and acoustic characteristics of beaked whales (mesoplodon
+sp.) off the west coast of baja california, mexico. \emph{Marine Mammal
+Science}. \url{https://doi.org/10.1111/mms.12853}
+
+\leavevmode\vadjust pre{\hypertarget{ref-barlow2009}{}}%
+Barlow, J., Ferguson, M. C., Becker, E. A., Redfern, J. V., Forney, K.
+A., Vilchis, I. L., \ldots{} Ballance, L. T. (2009). \emph{Predictive
+modeling of cetacean densities in the eastern pacific ocean}. Retrieved
+from
+\url{https://repository.library.noaa.gov/view/noaa/3666/noaa_3666_DS1.pdf}
+
+\leavevmode\vadjust pre{\hypertarget{ref-barlow2007}{}}%
+Barlow, J., \& Forney, K. A. (2007). Abundance and population density of
+cetaceans in the california current ecosystem. \emph{Fishery Bulletin},
+\emph{105}(4), 509--527. Retrieved from
+\url{https://go.gale.com/ps/i.do?p=AONE\&sw=w\&issn=00900656\&v=2.1\&it=r\&id=GALE\%7CA203535836\&sid=googleScholar\&linkaccess=abs}
+
+\leavevmode\vadjust pre{\hypertarget{ref-barlow2005}{}}%
+Barlow, J., \& Gisiner, R. (2005). Mitigating, monitoring and assessing
+the effects of anthropogenic sound on beaked whales. \emph{J. Cetacean
+Res. Manage.}, \emph{7}(3), 239--249.
+\url{https://doi.org/10.47536/jcrm.v7i3.734}
+
+\leavevmode\vadjust pre{\hypertarget{ref-baumann-pickering2013}{}}%
+Baumann-Pickering, S., McDonald, M. A., Simonis, A. E., Solsona Berga,
+A., Merkens, K. P. B., Oleson, E. M., \ldots{} Hildebrand, J. A. (2013).
+Species-specific beaked whale echolocation signals. \emph{The Journal of
+the Acoustical Society of America}, \emph{134}(3), 2293--2301.
+\url{https://doi.org/10.1121/1.4817832}
+
+\leavevmode\vadjust pre{\hypertarget{ref-baumann-pickering2014}{}}%
+Baumann-Pickering, S., Roch, M. A., Jr, R. L. B., Simonis, A. E.,
+McDonald, M. A., Solsona-Berga, A., \ldots{} Hildebrand, J. A. (2014).
+Spatio-Temporal Patterns of Beaked Whale Echolocation Signals in the
+North Pacific. \emph{PLOS ONE}, \emph{9}(1), e86072.
+\url{https://doi.org/10.1371/journal.pone.0086072}
+
+\leavevmode\vadjust pre{\hypertarget{ref-becker2010}{}}%
+Becker, E. A., Forney, K. A., Ferguson, M. C., Foley, D. G., Smith, R.
+C., Barlow, J., \& Redfern, J. V. (2010). Comparing california current
+cetacean{\textendash}habitat models developed using in situ and remotely
+sensed sea surface temperature data. \emph{Marine Ecology Progress
+Series}, \emph{413}, 163--183. Retrieved from
+\url{https://www.jstor.org/stable/24875187}
+
+\leavevmode\vadjust pre{\hypertarget{ref-bernaldodequiros2019}{}}%
+Bernaldo de Quiros, Y., Fernández, A., Baird, R. W., Brownell, R. L.,
+Aguilar de Soto, N., Allen, D., \ldots{} Schorr, G. (2019). Advances in
+research on the impacts of anti-submarine sonar on beaked whales.
+\emph{Proceedings of the Royal Society B: Biological Sciences},
+\emph{286}(1895), 1--9. Retrieved from
+\url{https://royalsocietypublishing.org/doi/full/10.1098/rspb.2018.2533}
+
+\leavevmode\vadjust pre{\hypertarget{ref-borsanij.f.2023}{}}%
+Borsani, J.F., Juretzek C., Klauson A., Leaper R., Le Courtois F.,
+Liebschner A., Maglio A., Mueller A. , Norro A., Novellino A., Outinen
+O., Popit A., Prospathopoulos A., Sigray P., Thomsen F., Tougaard J.,
+Vukadin P., and Weilgart L., Borsani, J.F., Andersson M., André M.,
+Azzellino A., Bou M., Castellote M., Ceyrac L., Dellong D., Folegot T.,
+Hedgeland D., \& Juretzek C., Klauson A., Leaper R., Le Courtois F.,
+Liebschner A., Maglio A., Mueller A. , Norro A., Novellino A., Outinen
+O.,. (2023). \emph{Setting EU threshold values for continuous underwater
+sound, technical group on underwater noise (TG NOISE)}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-breeze2022}{}}%
+Breeze, H., Nolet, V., Thomson, D., Wright, A. J., Marotte, E., \&
+Sanders, M. (2022). Efforts to advance underwater noise management in
+Canada: Introduction to the Marine Pollution Bulletin Special Issue.
+\emph{Marine Pollution Bulletin}, \emph{178}, 113596.
+\url{https://doi.org/10.1016/j.marpolbul.2022.113596}
+
+\leavevmode\vadjust pre{\hypertarget{ref-buxton2017}{}}%
+Buxton, R. T., McKenna, M. F., Mennitt, D., Fristrup, K., Crooks, K.,
+Angeloni, L., \& Wittemyer, G. (2017). Noise pollution is pervasive in
+u.s. Protected areas. \emph{Science}, \emph{356}(6337), 531--533.
+\url{https://doi.org/10.1126/science.aah4783}
+
+\leavevmode\vadjust pre{\hypertarget{ref-chahouri2022}{}}%
+Chahouri, A., Elouahmani, N., \& Ouchene, H. (2022). Recent progress in
+marine noise pollution: A thorough review. \emph{Chemosphere},
+\emph{291}, 132983.
+\url{https://doi.org/10.1016/j.chemosphere.2021.132983}
+
+\leavevmode\vadjust pre{\hypertarget{ref-cholewiak2017}{}}%
+Cholewiak, D., DeAngelis, A. I., Palka, D., Corkeron, P. J., \& Van
+Parijs, S. M. (2017). Beaked whales demonstrate a marked acoustic
+response to the use of shipboard echosounders. \emph{Royal Society Open
+Science}, \emph{4}(12), 170940.
+\url{https://doi.org/10.1098/rsos.170940}
+
+\leavevmode\vadjust pre{\hypertarget{ref-chou2021}{}}%
+Chou, E., Southall, B. L., Robards, M., \& Rosenbaum, H. C. (2021).
+International policy, recommendations, actions and mitigation efforts of
+anthropogenic underwater noise. \emph{Ocean \& Coastal Management},
+\emph{202}, 105427.
+\url{https://doi.org/10.1016/j.ocecoaman.2020.105427}
+
+\leavevmode\vadjust pre{\hypertarget{ref-coleman2008}{}}%
+Coleman, K. (2008). Research review of collaborative ecosystem-based
+management in the california current large marine ecosystem.
+\emph{Coastal Management}, \emph{36}(5), 484--494.
+\url{https://doi.org/10.1080/08920750802395541}
+
+\leavevmode\vadjust pre{\hypertarget{ref-cooperman2022}{}}%
+Cooperman, A., Duffy, P., Hall, M., Lozon, E., Shields, M., \& Musail,
+W. (2022). \emph{Assessment of offshore wind energy leasing areas for
+humboldt and morro bay wind energy areas, california}. Retrieved from
+\url{https://www.nrel.gov/docs/fy22osti/82341.pdf}
+
+\leavevmode\vadjust pre{\hypertarget{ref-cox2006}{}}%
+Cox, T. M., Ragen, T. J., Read, A. J., Vos, E., Baird, R. W., Balcomb,
+K., \& Benner, L. (2006). Understanding the impacts of anthropogenic
+sound on beaked whales. \emph{J. Cetacean Res. Manage}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-croll2001}{}}%
+Croll, D. A., Clark, C. W., Calambokidis, J., Ellison, W. T., \& Tershy,
+B. R. (2001). Effect of anthropogenic low-frequency noise on the
+foraging ecology of Balaenoptera whales. \emph{Animal Conservation},
+\emph{4}(1), 13--27. \url{https://doi.org/10.1017/S1367943001001020}
+
+\leavevmode\vadjust pre{\hypertarget{ref-curuxe92013}{}}%
+Curé, C., Antunes, R., Alves, A. C., Visser, F., Kvadsheim, P. H., \&
+Miller, P. J. O. (2013). Responses of male sperm whales (Physeter
+macrocephalus) to killer whale sounds: implications for anti-predator
+strategies. \emph{Scientific Reports}, \emph{3}(1), 1579.
+\url{https://doi.org/10.1038/srep01579}
+
+\leavevmode\vadjust pre{\hypertarget{ref-deruiter2013}{}}%
+DeRuiter, S. L., Southall, B. L., Calambokidis, J., Zimmer, W. M. X.,
+Sadykova, D., Falcone, E. A., \ldots{} Tyack, P. L. (2013). First direct
+measurements of behavioural responses by cuvier's beaked whales to
+mid-frequency active sonar. \emph{Biology Letters}, \emph{9}(4),
+20130223. \url{https://doi.org/10.1098/rsbl.2013.0223}
+
+\leavevmode\vadjust pre{\hypertarget{ref-directiv2008}{}}%
+\emph{Directive 2008/56/EC of the European Parliament and of the Council
+of 17 June 2008 establishing a framework for community action in the
+field of marine environmental policy (Marine Strategy Framework
+Directive) (Text with EEA relevance)}. (2008). Retrieved from
+\url{http://data.europa.eu/eli/dir/2008/56/oj/eng}
+
+\leavevmode\vadjust pre{\hypertarget{ref-duarte2021}{}}%
+Duarte, C. M., Chapuis, L., Collin, S. P., Costa, D. P., Devassy, R. P.,
+Eguiluz, V. M., \ldots{} Juanes, F. (2021). The soundscape of the
+anthropocene ocean. \emph{Science}, \emph{371}(6529), eaba4658.
+\url{https://doi.org/10.1126/science.aba4658}
+
+\leavevmode\vadjust pre{\hypertarget{ref-erbe2014}{}}%
+Erbe, C., Williams, R., Sandilands, D., \& Ashe, E. (2014). Identifying
+Modeled Ship Noise Hotspots for Marine Mammals of Canada's Pacific
+Region. \emph{PLOS ONE}, \emph{9}(3), e89820.
+\url{https://doi.org/10.1371/journal.pone.0089820}
+
+\leavevmode\vadjust pre{\hypertarget{ref-fahlman2014}{}}%
+Fahlman, A., Tyack, P., Miller, P., \& Kvadsheim, P. (2014). How
+man-made interference might cause gas bubble emboli in deep diving
+whales. \emph{Frontiers in Physiology}, \emph{5}. Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fphys.2014.00013}
+
+\leavevmode\vadjust pre{\hypertarget{ref-fais2015}{}}%
+Fais, A., Aguilar Soto, N., Johnson, M., Pérez-González, C., Miller, P.
+J. O., \& Madsen, P. T. (2015). Sperm whale echolocation behaviour
+reveals a directed, prior-based search strategy informed by prey
+distribution. \emph{Behavioral Ecology and Sociobiology}, \emph{69}(4),
+663--674. \url{https://doi.org/10.1007/s00265-015-1877-1}
+
+\leavevmode\vadjust pre{\hypertarget{ref-fais2016}{}}%
+Fais, A., Johnson, M., Wilson, M., Aguilar Soto, N., \& Madsen, P. T.
+(2016). Sperm whale predator-prey interactions involve chasing and
+buzzing, but no acoustic stunning. \emph{Scientific Reports},
+\emph{6}(1), 28562. \url{https://doi.org/10.1038/srep28562}
+
+\leavevmode\vadjust pre{\hypertarget{ref-falcone2017}{}}%
+Falcone, E. A., Schorr, G. S., Watwood, S. L., DeRuiter, S. L., Zerbini,
+A. N., Andrews, R. D., \ldots{} Moretti, D. J. (2017). Diving behaviour
+of cuvier's beaked whales exposed to two types of military sonar.
+\emph{Royal Society Open Science}, \emph{4}(8), 170629.
+\url{https://doi.org/10.1098/rsos.170629}
+
+\leavevmode\vadjust pre{\hypertarget{ref-federalregister2003}{}}%
+Federal Register. (2003). \emph{Automatic identification system; vessel
+carriage requirement}. Retrieved from
+\url{https://www.federalregister.gov/documents/2003/07/01/03-16191/automatic-identification-system-vessel-carriage-requirement}
+
+\leavevmode\vadjust pre{\hypertarget{ref-fernuxe1ndez2005}{}}%
+Fernández, A., Edwards, J. F., Rodríguez, F., Monteros, A. E. de los,
+Herráez, P., Castro, P., \ldots{} Arbelo, M. (2005). {``}Gas and Fat
+Embolic Syndrome{''} Involving a Mass Stranding of Beaked Whales (Family
+Ziphiidae) Exposed to Anthropogenic Sonar Signals. \emph{Veterinary
+Pathology}, \emph{42}(4), 446--457.
+\url{https://doi.org/10.1354/vp.42-4-446}
+
+\leavevmode\vadjust pre{\hypertarget{ref-fiedler2023}{}}%
+Fiedler, P. C., Becker, E. A., Forney, K. A., Barlow, J., \& Moore, J.
+E. (2023). Species distribution modeling of deep-diving cetaceans.
+\emph{Marine Mammal Science}, \emph{39}(4), 1178--1203.
+\url{https://doi.org/10.1111/mms.13057}
+
+\leavevmode\vadjust pre{\hypertarget{ref-field2006}{}}%
+Field, J. C., \& Francis, R. C. (2006). Considering ecosystem-based
+fisheries management in the california current. \emph{Marine Policy},
+\emph{30}(5), 552--569.
+\url{https://doi.org/10.1016/j.marpol.2005.07.004}
+
+\leavevmode\vadjust pre{\hypertarget{ref-fleishman2023}{}}%
+Fleishman, E., Cholewiak, D., Gillespie, D., Heble, T., Klinck, H.,
+Nosal, E.-M., \& Roch, M. A. (2023). Ecological inferences about marine
+mammals from passive acoustic data. \emph{Biological Reviews}.
+https://doi.org/\url{https://doi.org/10.1111/brv.12969}
+
+\leavevmode\vadjust pre{\hypertarget{ref-forney2012}{}}%
+Forney, K. A., Ferguson, M. C., Becker, E. A., Fiedler, P. C., Redfern,
+J. V., Barlow, J., \ldots{} Ballance, L. T. (2012). Habitat-based
+spatial models of cetacean density in the eastern Pacific Ocean.
+\emph{Endangered Species Research}, \emph{16}(2), 113--133.
+\url{https://doi.org/10.3354/esr00393}
+
+\leavevmode\vadjust pre{\hypertarget{ref-francis2012}{}}%
+Francis, C. D., Kleist, N. J., Ortega, C. P., \& Cruz, A. (2012). Noise
+pollution alters ecological services: Enhanced pollination and disrupted
+seed dispersal. \emph{Proceedings of the Royal Society B: Biological
+Sciences}, \emph{279}(1739), 2727--2735.
+\url{https://doi.org/10.1098/rspb.2012.0230}
+
+\leavevmode\vadjust pre{\hypertarget{ref-frisk2012}{}}%
+Frisk, G. V. (2012). Noiseonomics: The relationship between ambient
+noise levels in the sea and global economic trends. \emph{Scientific
+Reports}, \emph{2}(1), 437. \url{https://doi.org/10.1038/srep00437}
+
+\leavevmode\vadjust pre{\hypertarget{ref-garrett2016}{}}%
+Garrett, J. K., Blondel, Ph., Godley, B. J., Pikesley, S. K., Witt, M.
+J., \& Johanning, L. (2016). Long-term underwater sound measurements in
+the shipping noise indicator bands 63Hz and 125Hz from the port of
+Falmouth Bay, UK. \emph{Marine Pollution Bulletin}, \emph{110}(1),
+438--448. \url{https://doi.org/10.1016/j.marpolbul.2016.06.021}
+
+\leavevmode\vadjust pre{\hypertarget{ref-greig2020}{}}%
+Greig, N. C., Hines, E. M., Cope, S., \& Liu, X. (2020). Using satellite
+AIS to analyze vessel speeds off the coast of washington state, u.s., as
+a risk analysis for cetacean-vessel collisions. \emph{Frontiers in
+Marine Science}, \emph{7}. Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fmars.2020.00109}
+
+\leavevmode\vadjust pre{\hypertarget{ref-harvey}{}}%
+Harvey, C. J., Garfield, N., Williams, G. D. (Gregory. D., Tolimieri,
+N., Schroeder, I., Andrews, K. S., \ldots{} Juhasz, C. (n.d.).
+\emph{Ecosystem status report of the california current for 2019: A
+summary of ecosystem indicators compiled by the california current
+integrated ecosystem assessment team (CCEIA)}.
+\url{https://doi.org/10.25923/P0ED-KE21}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hatch2008}{}}%
+Hatch, L., Clark, C., Merrick, R., Van Parijs, S., Ponirakis, D.,
+Schwehr, K., \ldots{} Wiley, D. (2008). Characterizing the Relative
+Contributions of Large Vessels to Total Ocean Noise Fields: A Case Study
+Using the Gerry E. Studds Stellwagen Bank National Marine Sanctuary.
+\emph{Environmental Management}, \emph{42}(5), 735--752.
+\url{https://doi.org/10.1007/s00267-008-9169-4}
+
+\leavevmode\vadjust pre{\hypertarget{ref-haver2021}{}}%
+Haver, S. M., Adams, J. D., Hatch, L. T., Van Parijs, S. M., Dziak, R.
+P., Haxel, J., \ldots{} Gedamke, J. (2021). Large vessel activity and
+low-frequency underwater sound benchmarks in united states waters.
+\emph{Frontiers in Marine Science}, \emph{8}. Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fmars.2021.669528}
+
+\leavevmode\vadjust pre{\hypertarget{ref-haver2019}{}}%
+Haver, S. M., Fournet, M. E. H., Dziak, R. P., Gabriele, C., Gedamke,
+J., Hatch, L. T., \ldots{} Van Parijs, S. M. (2019). Comparing the
+underwater soundscapes of four u.s. National parks and marine
+sanctuaries. \emph{Frontiers in Marine Science}, \emph{6}. Retrieved
+from \url{https://www.frontiersin.org/articles/10.3389/fmars.2019.00500}
+
+\leavevmode\vadjust pre{\hypertarget{ref-haver2020}{}}%
+Haver, S. M., Rand, Z., Hatch, L. T., Lipski, D., Dziak, R. P., Gedamke,
+J., \ldots{} Van Parijs, S. M. (2020). Seasonal trends and primary
+contributors to the low-frequency soundscape of the cordell bank
+national marine sanctuarya). \emph{The Journal of the Acoustical Society
+of America}, \emph{148}(2), 845--858.
+\url{https://doi.org/10.1121/10.0001726}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hawkins2017}{}}%
+Hawkins, A. D., \& Popper, A. N. (2017). A sound approach to assessing
+the impact of underwater noise on marine fishes and invertebrates.
+\emph{ICES Journal of Marine Science}, \emph{74}(3), 635--651.
+\url{https://doi.org/10.1093/icesjms/fsw205}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hermannsen2019}{}}%
+Hermannsen, L., Mikkelsen, L., Tougaard, J., Beedholm, K., Johnson, M.,
+\& Madsen, P. T. (2019). Recreational vessels without automatic
+identification system (AIS) dominate anthropogenic noise contributions
+to a shallow water soundscape. \emph{Scientific Reports}, \emph{9},
+15477. \url{https://doi.org/10.1038/s41598-019-51222-9}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hildebrand2009}{}}%
+Hildebrand, J. A. (2009). Anthropogenic and natural sources of ambient
+noise in the ocean. \emph{Marine Ecology Progress Series}, \emph{395},
+5--20. \url{https://doi.org/10.3354/meps08353}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hildebrand2015}{}}%
+Hildebrand, J. A., Baumann-Pickering, S., Frasier, K. E., Trickey, J.
+S., Merkens, K. P., Wiggins, S. M., \ldots{} Thomas, L. (2015). Passive
+acoustic monitoring of beaked whale densities in the Gulf of Mexico.
+\emph{Scientific Reports}, \emph{5}(1), 16343.
+\url{https://doi.org/10.1038/srep16343}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hooker2019}{}}%
+Hooker, S. K., De Soto, N. A., Baird, R. W., Carroll, E. L., Claridge,
+D., Feyrer, L., \ldots{} Whitehead, H. (2019). Future directions in
+research on beaked whales. \emph{Frontiers in Marine Science}, \emph{5}.
+Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fmars.2018.00514}
+
+\leavevmode\vadjust pre{\hypertarget{ref-internationalmaritimeorganization2014}{}}%
+International Maritime Organization. (2014). \emph{GUIDELINES FOR THE
+REDUCTION OF UNDERWATER NOISE FROM COMMERCIAL SHIPPING TO ADDRESS
+ADVERSE IMPACTS ON MARINE LIFE}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-isojunno2016}{}}%
+Isojunno, S., Curé, C., Kvadsheim, P. H., Lam, F.-P. A., Tyack, P. L.,
+Wensveen, P. J., \& Miller, P. J. O. (2016). Sperm whales reduce
+foraging effort during exposure to 1{\textendash}2 kHz sonar and killer
+whale sounds. \emph{Ecological Applications}, \emph{26}(1), 77--93.
+\url{https://doi.org/10.1890/15-0040}
+
+\leavevmode\vadjust pre{\hypertarget{ref-isojunno2022}{}}%
+Isojunno, S., von Benda-Beckmann, A. M., Wensveen, P. J., Kvadsheim, P.
+H., Lam, F.-P. A., Gkikopoulou, K. C., \ldots{} Miller, P. J. O. (2022).
+Sperm whales exhibit variation in echolocation tactics with depth and
+sea state but not naval sonar exposures. \emph{Marine Mammal Science},
+\emph{38}(2), 682--704. \url{https://doi.org/10.1111/mms.12890}
+
+\leavevmode\vadjust pre{\hypertarget{ref-jarvis2022}{}}%
+Jarvis, S. M., DiMarzio, N., Watwood, S., Dolan, K., \& Morrissey, R.
+(2022). Automated detection and classification of beaked whale buzzes on
+bottom-mounted hydrophones. \emph{Frontiers in Remote Sensing},
+\emph{3}. Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/frsen.2022.941838}
+
+\leavevmode\vadjust pre{\hypertarget{ref-johnson2009}{}}%
+Johnson, M., Soto, N. A. de, \& Madsen, P. T. (2009). Studying the
+behaviour and sensory ecology of marine mammals using acoustic recording
+tags: A review. \emph{Marine Ecology Progress Series}, \emph{395},
+55--73. Retrieved from \url{https://www.jstor.org/stable/24874241}
+
+\leavevmode\vadjust pre{\hypertarget{ref-joyce2020}{}}%
+Joyce, T. W., Durban, J. W., Claridge, D. E., Dunn, C. A., Hickmott, L.
+S., Fearnbach, H., \ldots{} Moretti, D. (2020). Behavioral responses of
+satellite tracked Blainville's beaked whales (Mesoplodon densirostris)
+to mid-frequency active sonar. \emph{Marine Mammal Science},
+\emph{36}(1), 29--46. \url{https://doi.org/10.1111/mms.12624}
+
+\leavevmode\vadjust pre{\hypertarget{ref-kunc2016}{}}%
+Kunc, H. P., McLaughlin, K. E., \& Schmidt, R. (2016). Aquatic noise
+pollution: Implications for individuals, populations, and ecosystems.
+\emph{Proceedings of the Royal Society B: Biological Sciences},
+\emph{283}(1836), 20160839. \url{https://doi.org/10.1098/rspb.2016.0839}
+
+\leavevmode\vadjust pre{\hypertarget{ref-kvadsheim2012}{}}%
+Kvadsheim, P., Miller, P., Tyack, P., Sivle, L., Lam, F.-P., \& Fahlman,
+A. (2012). Estimated tissue and blood N2 levels and risk of in vivo
+bubble formation in deep-, intermediate- and shallow diving toothed
+whales during exposure to naval sonar. \emph{Frontiers in Physiology},
+\emph{3}. Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fphys.2012.00125}
+
+\leavevmode\vadjust pre{\hypertarget{ref-lillis2018}{}}%
+Lillis, A., Caruso, F., Mooney, T. A., Llopiz, J., Bohnenstiehl, D., \&
+Eggleston, D. B. (2018). Drifting hydrophones as an ecologically
+meaningful approach to underwater soundscape measurement in coastal
+benthic habitats. \emph{JEA}, \emph{2}(1), 1--1.
+\url{https://doi.org/10.22261/JEA.STBDH1}
+
+\leavevmode\vadjust pre{\hypertarget{ref-madsen2002}{}}%
+Madsen, P. T., Mohl, B., Nielsen, B. K., \& Wahlberg, M. (2002). Male
+sperm whale behaviour during exposures to distant seismic survey pulses.
+\emph{Aquatic Mammals}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-madsen2006}{}}%
+Madsen, P. T., Wahlberg, M., Tougaard, J., Lucke, K., \& Tyack, P.
+(2006). Wind turbine underwater noise and marine mammals: Implications
+of current knowledge and data needs. \emph{Marine Ecology Progress
+Series}, \emph{309}, 279--295. Retrieved from
+\url{https://www.jstor.org/stable/24869996}
+
+\leavevmode\vadjust pre{\hypertarget{ref-mannocci2015}{}}%
+Mannocci, L., Monestiez, P., Spitz, J., \& Ridoux, V. (2015).
+Extrapolating cetacean densities beyond surveyed regions: habitat-based
+predictions in the circumtropical belt. \emph{Journal of Biogeography},
+\emph{42}(7), 1267--1280. \url{https://doi.org/10.1111/jbi.12530}
+
+\leavevmode\vadjust pre{\hypertarget{ref-manzano-roth2023}{}}%
+Manzano-Roth, R., Henderson, E. E., Alongi, G. C., Martin, C. R.,
+Martin, S. W., \& Matsuyama, B. (2023). Dive characteristics of Cross
+Seamount beaked whales from long-term passive acoustic monitoring at the
+Pacific Missile Range Facility, Kauaʻi. \emph{Marine Mammal Science},
+\emph{39}(1), 22--41. \url{https://doi.org/10.1111/mms.12959}
+
+\leavevmode\vadjust pre{\hypertarget{ref-marcoux2006}{}}%
+Marcoux, M., Whitehead, H., \& Rendell, L. (2006). Coda vocalizations
+recorded in breeding areas are almost entirely produced by mature female
+sperm whales (physeter macrocephalus). \emph{Canadian Journal of
+Zoology}, \emph{84}(4), 609--614. \url{https://doi.org/10.1139/z06-035}
+
+\leavevmode\vadjust pre{\hypertarget{ref-markus2018}{}}%
+Markus, T., \& Sánchez, P. P. S. (2018). \emph{Managing and Regulating
+Underwater Noise Pollution} (M. Salomon and T. Markus, Eds.).
+\url{https://doi.org/10.1007/978-3-319-60156-4_52}
+
+\leavevmode\vadjust pre{\hypertarget{ref-marques2012}{}}%
+Marques, T. A., Thomas, L., Martin, S. W., Mellinger, D. K., Jarvis, S.,
+Morrissey, R. P., \ldots{} DiMarzio, N. (2012). Spatially explicit
+capture{\textendash}recapture methods to estimate minke whale density
+from data collected at bottom-mounted hydrophones. \emph{Journal of
+Ornithology}, \emph{152}(2), 445--455.
+\url{https://doi.org/10.1007/s10336-010-0535-7}
+
+\leavevmode\vadjust pre{\hypertarget{ref-mccullough2021}{}}%
+McCullough, J. L. K., Wren, J. L. K., Oleson, E. M., Allen, A. N.,
+Siders, Z. A., \& Norris, E. S. (2021). An acoustic survey of beaked
+whales and kogia spp. In the mariana archipelago using drifting
+recorders. \emph{Frontiers in Marine Science}, \emph{8}. Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fmars.2021.664292}
+
+\leavevmode\vadjust pre{\hypertarget{ref-mellinger2007}{}}%
+Mellinger, D. K., Stafford, K. M., Moore, S. E., Dziak, R. P., \&
+Matsumoto, H. (2007). An overview of fixed passive acoustic observation
+methods for cetaceans. \emph{Oceanography}, \emph{20}(4), 3645.
+https://doi.org/\url{https://doi.org/10.5670/oceanog.2007.03}
+
+\leavevmode\vadjust pre{\hypertarget{ref-miksis-olds2018}{}}%
+Miksis-Olds, J. L., Martin, B., \& Tyack, P. L. (2018). Exploring the
+ocean through soundscapes. \emph{Acoustics Today}, \emph{14}(1), 26--34.
+
+\leavevmode\vadjust pre{\hypertarget{ref-miller2022}{}}%
+Miller, Patrick J. O., Isojunno, S., Siegal, E., Lam, F.-P. A.,
+Kvadsheim, P. H., \& Curé, C. (2022). Behavioral responses to predatory
+sounds predict sensitivity of cetaceans to anthropogenic noise within a
+soundscape of fear. \emph{Proceedings of the National Academy of
+Sciences}, \emph{119}(13), e2114932119.
+\url{https://doi.org/10.1073/pnas.2114932119}
+
+\leavevmode\vadjust pre{\hypertarget{ref-miller2009}{}}%
+Miller, P. J. O., Johnson, M. P., Madsen, P. T., Biassoni, N., Quero,
+M., \& Tyack, P. L. (2009). Using at-sea experiments to study the
+effects of airguns on the foraging behavior of sperm whales in the Gulf
+of Mexico. \emph{Deep Sea Research Part I: Oceanographic Research
+Papers}, \emph{56}(7), 1168--1181.
+\url{https://doi.org/10.1016/j.dsr.2009.02.008}
+
+\leavevmode\vadjust pre{\hypertarget{ref-moore2021}{}}%
+Moore, J. E. (2021). \emph{Final report of the california current
+ecosystem survey (CCES) 2018: A PacMAPPS study} (p. 187). Camarillo
+(CA): US Department of the Interior, Bureau of Ocean Energy Management.
+
+\leavevmode\vadjust pre{\hypertarget{ref-mustonen2019}{}}%
+Mustonen, M., Klauson, A., Andersson, M., Clorennec, D., Folegot, T.,
+Koza, R., \ldots{} Sigray, P. (2019). Spatial and Temporal Variability
+of Ambient Underwater Sound in the Baltic Sea. \emph{Scientific
+Reports}, \emph{9}(1), 13237.
+\url{https://doi.org/10.1038/s41598-019-48891-x}
+
+\leavevmode\vadjust pre{\hypertarget{ref-new2013}{}}%
+New, L. F., Moretti, D. J., Hooker, S. K., Costa, D. P., \& Simmons, S.
+E. (2013). Using Energetic Models to Investigate the Survival and
+Reproduction of Beaked Whales (family Ziphiidae). \emph{PLOS ONE},
+\emph{8}(7), e68725. \url{https://doi.org/10.1371/journal.pone.0068725}
+
+\leavevmode\vadjust pre{\hypertarget{ref-noaa2018}{}}%
+NOAA. (2018). \emph{2018 revisions to: Technical guidance for assessing
+the effects of anthropogenic sound on marine mammal hearing (version
+2.0): Underwater thresholds for onset of permanent and temporary
+threshold shifts}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-noaafisheries}{}}%
+NOAA Fisheries, N. (n.d.). \emph{Species directory \textbar{} NOAA
+fisheries}. Retrieved from
+\url{https://www.fisheries.noaa.gov/species-directory?oq=\&field_species_categories_vocab=54\&field_region_vocab=1000001126\&items_per_page=350}
+
+\leavevmode\vadjust pre{\hypertarget{ref-norris1972}{}}%
+Norris, K. S., \& Harvey, G. W. (1972, January 1). \emph{A theory for
+the function of the spermaceti organ of the sperm whale (physeter
+catodon l.)}. Retrieved from
+\url{https://ntrs.nasa.gov/citations/19720017437}
+
+\leavevmode\vadjust pre{\hypertarget{ref-nosal2007}{}}%
+Nosal, E.-M., \& Frazer, L. N. (2007). Sperm whale three-dimensional
+track, swim orientation, beam pattern, and click levels observed on
+bottom-mounted hydrophonesa). \emph{The Journal of the Acoustical
+Society of America}, \emph{122}(4), 1969--1978.
+\url{https://doi.org/10.1121/1.2775423}
+
+\leavevmode\vadjust pre{\hypertarget{ref-officeofnationalmarinesanctuaries}{}}%
+Office of National Marine Sanctuaries. (n.d.). \emph{West coast region}.
+Retrieved from \url{https://sanctuaries.noaa.gov/about/westcoast.html}
+
+\leavevmode\vadjust pre{\hypertarget{ref-oldach2022}{}}%
+Oldach, E., Killeen, H., Shukla, P., Brauer, E., Carter, N., Fields, J.,
+\ldots{} Fangue, N. (2022). Managed and unmanaged whale mortality in the
+california current ecosystem. \emph{Marine Policy}, \emph{140}, 105039.
+\url{https://doi.org/10.1016/j.marpol.2022.105039}
+
+\leavevmode\vadjust pre{\hypertarget{ref-parsons2016}{}}%
+Parsons, E. C. M. (2016). Why IUCN should replace {``}data deficient{''}
+conservation status with a precautionary {``}assume threatened{''}
+status{\textemdash}a cetacean case study. \emph{Frontiers in Marine
+Science}, \emph{3}. Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fmars.2016.00193}
+
+\leavevmode\vadjust pre{\hypertarget{ref-peuxf1a2007}{}}%
+Peña, M. A., \& Bograd, S. J. (2007). Time series of the northeast
+pacific. \emph{Progress in Oceanography}, \emph{75}(2), 115--119.
+\url{https://doi.org/10.1016/j.pocean.2007.08.008}
+
+\leavevmode\vadjust pre{\hypertarget{ref-pijanowski2011}{}}%
+Pijanowski, B. C., Farina, A., Gage, S. H., Dumyahn, S. L., \& Krause,
+B. L. (2011). What is soundscape ecology? An introduction and overview
+of an emerging new science. \emph{Landscape Ecology}, \emph{26}(9),
+1213--1232. \url{https://doi.org/10.1007/s10980-011-9600-8}
+
+\leavevmode\vadjust pre{\hypertarget{ref-pirotta2012}{}}%
+Pirotta, E., Milor, R., Quick, N., Moretti, D., Marzio, N. D., Tyack,
+P., \ldots{} Hastie, G. (2012). Vessel Noise Affects Beaked Whale
+Behavior: Results of a Dedicated Acoustic Response Study. \emph{PLOS
+ONE}, \emph{7}(8), e42535.
+\url{https://doi.org/10.1371/journal.pone.0042535}
+
+\leavevmode\vadjust pre{\hypertarget{ref-pitman}{}}%
+Pitman, R. L., \& Brownell, R. L. (n.d.). Mesoplodon carlhubbsi.
+\emph{The IUCN Red List of Threatened Species 2020: E.T13243A50364109}.
+https://doi.org/\url{https://dx.doi.org/10.2305/IUCN.UK.2020-3.RLTS.T13243A50364109.en.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-pitman2020}{}}%
+Pitman, R. L., \& Brownell, R. L. (2020). Mesoplodon ginkgodens.
+\emph{The IUCN Red List of Threatened Species 2020:
+E.T127827012A127827154}.
+https://doi.org/\url{https://dx.doi.org/10.2305/IUCN.UK.2020-3.RLTS.T127827012A127827154.en.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-radford2010}{}}%
+Radford, C. A., Stanley, J. A., Tindle, C. T., Montgomery, J. C., \&
+Jeffs, A. G. (2010). Localised coastal habitats have distinct underwater
+sound signatures. \emph{Marine Ecology Progress Series}, \emph{401},
+21--29. \url{https://doi.org/10.3354/meps08451}
+
+\leavevmode\vadjust pre{\hypertarget{ref-rand2022}{}}%
+Rand, Z. R., Wood, J. D., \& Oswald, J. N. (2022). Effects of duty
+cycles on passive acoustic monitoring of southern resident killer whale
+(orcinus orca) occurrence and behavior. \emph{The Journal of the
+Acoustical Society of America}, \emph{151}(3), 1651--1660.
+\url{https://doi.org/10.1121/10.0009752}
+
+\leavevmode\vadjust pre{\hypertarget{ref-reimer2016}{}}%
+Reimer, J., Gravel, C., Brown, M. W., \& Taggart, C. T. (2016).
+Mitigating vessel strikes: The problem of the peripatetic whales and the
+peripatetic fleet. \emph{Marine Policy}, \emph{68}, 91--99.
+\url{https://doi.org/10.1016/j.marpol.2016.02.017}
+
+\leavevmode\vadjust pre{\hypertarget{ref-richardson2013}{}}%
+Richardson, W. J., Jr, C. R. G., Malme, C. I., \& Thomson, D. H. (2013).
+\emph{Marine Mammals and Noise}. Academic Press.
+
+\leavevmode\vadjust pre{\hypertarget{ref-robbins2022}{}}%
+Robbins, J. R., Bell, E., Potts, J., Babey, L., \& Marley, S. A. (2022).
+Likely year-round presence of beaked whales in the Bay of Biscay.
+\emph{Hydrobiologia}, \emph{849}(10), 2225--2239.
+\url{https://doi.org/10.1007/s10750-022-04822-y}
+
+\leavevmode\vadjust pre{\hypertarget{ref-ryther1969}{}}%
+Ryther, J. H. (1969). Photosynthesis and fish production in the sea.
+\emph{Science}, \emph{166}(3901), 72--76. Retrieved from
+\url{https://www.jstor.org/stable/1727735}
+
+\leavevmode\vadjust pre{\hypertarget{ref-sebastianutto2015}{}}%
+Sebastianutto, L., Fortuna, C. M., Mackelworth, P., Holcer, D., \& Rako
+Gospić, N. (2015, November 27). \emph{Popper, a. N. And hawkins, a. Eds.
+(2015). The effects of noise on aquatic life II. Springer
+science+business media, LLC, new york.} \emph{875}.
+\url{https://doi.org/10.1007/978-1-4939-2981-8_101}
+
+\leavevmode\vadjust pre{\hypertarget{ref-shannon2016}{}}%
+Shannon, G., McKenna, M. F., Angeloni, L. M., Crooks, K. R., Fristrup,
+K. M., Brown, E., \ldots{} Wittemyer, G. (2016). A synthesis of two
+decades of research documenting the effects of noise on wildlife.
+\emph{Biological Reviews}, \emph{91}(4), 982--1005.
+\url{https://doi.org/10.1111/brv.12207}
+
+\leavevmode\vadjust pre{\hypertarget{ref-simonis2020}{}}%
+Simonis, A. E., Brownell, R. L., Thayre, B. J., Trickey, J. S., Oleson,
+E. M., Huntington, R., \& Baumann-Pickering, S. (2020). Co-occurrence of
+beaked whale strandings and naval sonar in the mariana islands, western
+pacific. \emph{Proceedings of the Royal Society B: Biological Sciences},
+\emph{287}(1921), 20200070. \url{https://doi.org/10.1098/rspb.2020.0070}
+
+\leavevmode\vadjust pre{\hypertarget{ref-simonis2020a}{}}%
+Simonis, A. E., Trickey, J. S., Barlow, J. P., Rankin, S., Urban, J.,
+Rojas-Bracho, L., \& Moore, J. E. (2020). \emph{Passive acoustic survey
+of deep-diving odontocetes in the california current ecosystem 2018.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-sivle2012}{}}%
+Sivle, L., Kvadsheim, P., Fahlman, A., Lam, F.-P., Tyack, P., \& Miller,
+P. (2012). Changes in dive behavior during naval sonar exposure in
+killer whales, long-finned pilot whales, and sperm whales.
+\emph{Frontiers in Physiology}, \emph{3}. Retrieved from
+\url{https://www.frontiersin.org/articles/10.3389/fphys.2012.00400}
+
+\leavevmode\vadjust pre{\hypertarget{ref-southall2017}{}}%
+Southall, B. L., Scholik-Schlomer, A. R., Hatch, L., Bergmann, T.,
+Jasny, M., Metcalf, K., \ldots{} Wright, A. J. (2017). \emph{Underwater
+Noise from Large Commercial Ships{\textemdash}International
+Collaboration for Noise Reduction}.
+\url{https://doi.org/10.1002/9781118476406.emoe056}
+
+\leavevmode\vadjust pre{\hypertarget{ref-stanistreet2022}{}}%
+Stanistreet, J. E., Beslin, W. A. M., Kowarski, K., Martin, S. B.,
+Westell, A., \& Moors-Murphy, H. B. (2022). Changes in the acoustic
+activity of beaked whales and sperm whales recorded during a naval
+training exercise off eastern Canada. \emph{Scientific Reports},
+\emph{12}(1), 1973. \url{https://doi.org/10.1038/s41598-022-05930-4}
+
+\leavevmode\vadjust pre{\hypertarget{ref-symonds2011}{}}%
+Symonds, M. R. E., \& Moussalli, A. (2011). A brief guide to model
+selection, multimodel inference and model averaging in behavioural
+ecology using Akaike{'}s information criterion. \emph{Behavioral Ecology
+and Sociobiology}, \emph{65}(1), 13--21.
+\url{https://doi.org/10.1007/s00265-010-1037-6}
+
+\leavevmode\vadjust pre{\hypertarget{ref-taylor}{}}%
+Taylor, B. L., Baird, R. W., Barlow, J., Dawson, S. M., Ford, J., Mead,
+J. G., \ldots{} Pitman, R. L. (n.d.). Physeter macrocephalus (amended
+version of 2008 assessment). \emph{The IUCN Red List of Threatened
+Species 2019: E.T41755A160983555}.
+https://doi.org/\url{https://dx.doi.org/10.2305/IUCN.UK.2008.RLTS.T41755A160983555.en}
+
+\leavevmode\vadjust pre{\hypertarget{ref-tyack2008}{}}%
+Tyack, P. L. (2008). Implications for marine mammals of large-scale
+changes in the marine acoustic environment. \emph{Journal of Mammalogy},
+\emph{89}(3), 549--558. Retrieved from
+\url{https://www.proquest.com/docview/221473276/abstract/CBFFD0F9B5AA4C54PQ/1}
+
+\leavevmode\vadjust pre{\hypertarget{ref-tyack2006}{}}%
+Tyack, P. L., Aguilar Soto, N., Johnson, M., Sturlese, A., \& Madsen, P.
+T. (2006). Extreme diving of beaked whales \textbar{} journal of
+experimental biology \textbar{} the company of biologists. \emph{Journal
+of Experimental Biology}, \emph{209}, 4238--4253.
+\url{https://doi.org/10.1242/jeb.02505}
+
+\leavevmode\vadjust pre{\hypertarget{ref-unctad2022}{}}%
+UNCTAD. (2022). \emph{Review of maritime transport 2022}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-unitedstatesarmycorpsofengineersusace2018}{}}%
+United States Army Corps of Engineers {[}USACE{]}. (2018). \emph{The
+u.s. Coastal and inland navigation system 2021 transportation facts \&
+information}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-urick1983}{}}%
+Urick, R. J. (1983). \emph{Principles of underwater sound} (3rd ed.).
+New York : McGraw-Hill.
+
+\leavevmode\vadjust pre{\hypertarget{ref-vagle2021}{}}%
+Vagle, S., Burnham, R. E., O'Neill, C., \& Yurk, H. (2021). Variability
+in Anthropogenic Underwater Noise Due to Bathymetry and Sound Speed
+Characteristics. \emph{Journal of Marine Science and Engineering},
+\emph{9}(10), 1047. \url{https://doi.org/10.3390/jmse9101047}
+
+\leavevmode\vadjust pre{\hypertarget{ref-virgili2019}{}}%
+Virgili, A., Authier, M., Boisseau, O., Cañadas, A., Claridge, D., Cole,
+T., \ldots{} Ridoux, V. (2019). Combining multiple visual surveys to
+model the habitat of deep-diving cetaceans at the basin scale.
+\emph{Global Ecology and Biogeography}, \emph{28}(3), 300--314.
+\url{https://doi.org/10.1111/geb.12850}
+
+\leavevmode\vadjust pre{\hypertarget{ref-virgili2022}{}}%
+Virgili, A., Teillard, V., Dorémus, G., Dunn, T. E., Laran, S., Lewis,
+M., \ldots{} Ridoux, V. (2022). Deep ocean drivers better explain
+habitat preferences of sperm whales Physeter macrocephalus than beaked
+whales in the Bay of Biscay. \emph{Scientific Reports}, \emph{12}(1),
+9620. \url{https://doi.org/10.1038/s41598-022-13546-x}
+
+\leavevmode\vadjust pre{\hypertarget{ref-watkins1993}{}}%
+Watkins, W. A., Daher, M. A., Fristrup, K. M., Howald, T. J., \& Di
+Sciara, G. N. (1993). Sperm Whales Tagged with Transponders and Tracked
+Underwater by Sonar. \emph{Marine Mammal Science}, \emph{9}(1), 55--67.
+\url{https://doi.org/10.1111/j.1748-7692.1993.tb00426.x}
+
+\leavevmode\vadjust pre{\hypertarget{ref-weatherall2015}{}}%
+Weatherall, P., Marks, K. M., Jakobsson, M., Schmitt, T., Tani, S.,
+Arndt, J. E., \ldots{} Wigley, R. (2015). A new digital bathymetric
+model of the world's oceans. \emph{Earth and Space Science},
+\emph{2}(8), 331--345. \url{https://doi.org/10.1002/2015EA000107}
+
+\leavevmode\vadjust pre{\hypertarget{ref-weilgart2018}{}}%
+Weilgart, L. (2018). \emph{The impact of ocean noise pollution on fish
+and invertebrates} (p. 34).
+
+\leavevmode\vadjust pre{\hypertarget{ref-weilgart2007}{}}%
+Weilgart, L. S. (2007). The impacts of anthropogenic ocean noise on
+cetaceans and implications for management. \emph{Can. J. Zool.},
+\emph{85}, 10911116. Retrieved from
+\url{https://cdnsciencepub.com/doi/abs/10.1139/z07-101}
+
+\leavevmode\vadjust pre{\hypertarget{ref-weiss2021}{}}%
+Weiss, S. G., Cholewiak, D., Frasier, K. E., Trickey, J. S.,
+Baumann-Pickering, S., Hildebrand, J. A., \& Van Parijs, S. M. (2021).
+Monitoring the acoustic ecology of the shelf break of Georges Bank,
+Northwestern Atlantic Ocean: New approaches to visualizing complex
+acoustic data. \emph{Marine Policy}, \emph{130}, 104570.
+\url{https://doi.org/10.1016/j.marpol.2021.104570}
+
+\leavevmode\vadjust pre{\hypertarget{ref-west2017}{}}%
+West, K. L., Walker, W. A., Baird, R. W., Mead, J. G., \& Collins, P. W.
+(2017). Diet of cuvier{'}s beaked whales ziphius cavirostris from the
+north pacific and a comparison with their diet world-wide. \emph{Marine
+Ecology Progress Series}, \emph{574}, 227--242. Retrieved from
+\url{https://www.jstor.org/stable/26403641}
+
+\leavevmode\vadjust pre{\hypertarget{ref-winsor2017}{}}%
+Winsor, M. H., Irvine, L. M., \& Mate, B. R. (2017). Analysis of the
+spatial distribution of satellite-tagged sperm whales (physeter
+macrocephalus) in close proximity to seismic surveys in the gulf of
+mexico. \emph{Aquatic Mammals}, \emph{43}(4), 439--446.
+\url{https://doi.org/10.1578/AM.43.4.2017.439}
+
+\leavevmode\vadjust pre{\hypertarget{ref-yamada2019}{}}%
+Yamada, T. K., Kitamura, S., Abe, S., Tajima, Y., Matsuda, A., Mead, J.
+G., \& Matsuishi, T. F. (2019). Description of a new species of beaked
+whale (Berardius) found in the North Pacific. \emph{Scientific Reports},
+\emph{9}(1), 12723. \url{https://doi.org/10.1038/s41598-019-46703-w}
+
+\leavevmode\vadjust pre{\hypertarget{ref-ziegenhorn2023}{}}%
+Ziegenhorn, M. A., Hildebrand, J. A., Oleson, E. M., Baird, R. W.,
+Wiggins, S. M., \& Baumann-Pickering, S. (2023). Odontocete spatial
+patterns and temporal drivers of detection at sites in the Hawaiian
+islands. \emph{Ecology and Evolution}, \emph{13}(1), e9688.
+\url{https://doi.org/10.1002/ece3.9688}
+
+\end{CSLReferences}
+
+\end{document}
