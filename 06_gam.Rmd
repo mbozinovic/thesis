@@ -8,7 +8,6 @@ output: html_document
 Compare results of GAM to Virgili et al. 2019, Fiedler et al. 2023
 
 
-
 Required Packages
 ```{r setup}
 library(tidyverse)
@@ -17,11 +16,62 @@ library(mgcv)
 
 Load allDrifts object
 ```{r setup, include=FALSE}
-load(allDrifts, file = "data/allDrifts.rda")
+load(file = "data/allDrifts.rda")
 ```
 
 
 ### GAMs
+
+# GAM by ZC
+# Top 5 env variables from RF are:depth, sst_mean, curl_mean, mldTemp, bathyslope
+
+```{r}
+ZC_filt <- allDrifts %>% 
+  filter(species %in% c("ZC", NA))
+
+# Environ only
+ZC_GAM <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + mldTemp + bathy_slope,
+              data = ZC_filt, family = binomial, method = "REML")
+summary(ZC_GAM)
+gam.check(ZC_GAM)
+
+ZC_GAM_env_TOL <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + mldTemp + bathy_slope +
+                        TOL_125 + TOL_2000 + shipin10km + timeAfterShip,
+              data = ZC_filt, family = binomial, method = "REML")
+summary(ZC_GAM_env_TOL)
+gam.check(ZC_GAM_env_TOL)
+```
+
+# GAM by PM
+# Top 5 predictors from RF: TOL_2000, dist2slope, timeaftership, ttDepth, depth
+
+```{r}
+PM_filt <- allDrifts %>% 
+  filter(species %in% c("PM", NA))
+
+# Environ only
+PM_GAM <- gam(Wpresence>0 ~ dist2slope + ttDepth + mldDepth + ssh_mean + depth,
+              data = PM_filt, family = binomial, method = "REML")
+summary(PM_GAM)
+gam.check(PM_GAM)
+
+PM_GAM_env_TOL <- gam(Wpresence>0 ~ dist2slope + ttDepth + depth + mldDepth + ssh_mean +
+                        TOL_125 + TOL_2000 + timeAfterShip,
+              data = PM_filt, family = binomial, method = "REML")
+summary(PM_GAM_env_TOL)
+gam.check(PM_GAM_env_TOL)
+```
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
 model3 <- gam(Wpresence ~ depth + TOL_125 + dist2shore + mldTemp, 
@@ -201,32 +251,5 @@ plot(model5)
 ```
 Higher edfs describe more wiggly curves. Doesn't mean significant
 
-#GAM by ZC
-```{r}
-ZC_filt <- allDrifts %>% 
-  filter(species %in% c("ZC", NA))
-
-ZC_GAM <- gam(Wpresence>0 ~ depth + mldTemp + ttDepth + sal400,
-              data = ZC_filt, family = binomial, method = "REML")
-summary(ZC_GAM)
-gam.check(ZC_GAM)
-```
-
-# GAM by PM
-```{r}
-PM_filt <- allDrifts %>% 
-  filter(species %in% c("PM", NA))
-
-PM_GAM <- gam(Wpresence>0 ~ depth + sst_mean + mldTemp + ttDepth + sal400 +
-                TOL_125 + TOL_2000,
-              data = PM_filt, family = binomial, method = "REML")
-summary(PM_GAM)
-gam.check(PM_GAM)
-
-# Using variables from Fiedler et al. 2023 for sperm whales
-PM_GAM_fiedlerVar <- gam(Wpresence>0 ~ depth + mldDepth + curl_mean + ssh_mean + sal400,
-              data = PM_filt, family = binomial, method = "REML")
-summary(PM_GAM_fiedlerVar)
-```
 
 
