@@ -1,9 +1,14 @@
 ---
 title: "manuscript"
-format: docx
 editor: visual
 bibliography: references.bib
-fontsize: 12pt
+output:
+  word_document:
+    reference_docx: "Masters-Thesis-and-Creative-Work-Template.docx"
+csl: "marine-mammal-science.csl"
+header-includes:
+- \setlength{\parindent}{4em}
+- \usepackage{setspace}\doublespacing
 ---
 
 # Manuscript Draft
@@ -12,17 +17,17 @@ fontsize: 12pt
 
 ### Soundscapes
 
-Sound serves as the main sensory input for many species in the ocean. Since sound travels over four times faster in water than in air and can carry information over far distances [@urick1983], the use of sound has evolved as a critical component of communication, navigation, and foraging for many invertebrates, fishes, and cetaceans [@duarte2021]. Under the right conditions, sounds can travel across ocean basins [@miksis-olds2018].
+Sound serves as the main sensory input for many species in the ocean. Since sound travels over four times faster in water than in air and can carry information over far distances [@urick1983], the use of sound has evolved as a critical component of communication, navigation, and foraging for many invertebrates, fishes, and cetaceans [@duarte2021]. Under the right conditions, sounds can travel across ocean basins [@miksis-olds2018].\
 
-The total collection of sounds in an environment is called a soundscape, and these sources of sound are grouped into three broad categories: biophonies, sound produced by animals like cetaceans, fishes, and invertebrates; geophonies, natural sounds like rain, wind, and earthquakes; and anthropophonies, human-made sounds from shipping vessels, sonar, and oceanographic survey activities [@miksis-olds2018; @duarte2021]. Every region of the ocean experiences high spatio-temporal variation in sound levels and sources based on traits such as properties of water, organism diversity, human activities, and bathymetry [@andré2011]. Because of their unique sound signatures, ocean soundscapes can be characterized, measured, and monitored as indicators of ecosystem health or species diversity [@radford2010; @pijanowski2011; @haver2019; @weiss2021].
+The total collection of sounds in an environment is called a soundscape, and these sources of sound are grouped into three broad categories: biophonies, sound produced by animals like cetaceans, fishes, and invertebrates; geophonies, natural sounds like rain, wind, and earthquakes; and anthropophonies, human-made sounds from shipping vessels, sonar, and oceanographic survey activities [@miksis-olds2018; @duarte2021]. Every region of the ocean experiences high spatio-temporal variation in sound levels and sources based on traits such as properties of water, organism diversity, human activities, and bathymetry [@andré2011]. Because of their unique sound signatures, ocean soundscapes can be characterized, measured, and monitored as indicators of ecosystem health or species diversity [@radford2010; @pijanowski2011; @haver2019; @weiss2021].\
 
-When noise levels reach higher than normal levels, organisms can be negatively impacted. Invertebrates and fishes may experience stunted development, elevated stress responses, and physical injuries [@weilgart2018], while cetaceans' behavior, calling patterns, physiology and stress levels, and ability to locate prey or conspecifics are impacted [@weilgart2007]. Sensitivities and responses to noise can vary among species and even individuals [@kunc2016]. While terrestrial ecosystem-level effects have been well-documented [@francis2012; @shannon2016; @buxton2017], effects within aquatic ecosystems require further studies [@kunc2016].
+When noise levels reach higher than normal levels, organisms can be negatively impacted. Invertebrates and fishes may experience stunted development, elevated stress responses, and physical injuries [@weilgart2018], while cetaceans' behavior, calling patterns, physiology and stress levels, and ability to locate prey or conspecifics are impacted [@weilgart2007]. Sensitivities and responses to noise can vary among species and even individuals [@kunc2016]. While terrestrial ecosystem-level effects have been well-documented [@francis2012; @shannon2016; @buxton2017], effects within aquatic ecosystems require further studies [@kunc2016].\
 
-Ocean noise pollution is among the anthropogenic changes that have recently grown to concerning levels [@tyack2008; @hildebrand2009]. The global ambient noise in the ocean is estimated to have increased by 12 decibels in the last few decades and has a close correlation to global economic trends [@frisk2012]. Ships have been increasing in terms of gross tonnage and fleet size [@hildebrand2009] and now account for over 80% of the global trade, with an estimated 1.4% expected annual increase in shipping through 2027 [@unctad2022]. Commercial shipping now accounts for most of the low-frequency anthropogenic noise in the ocean [@hildebrand2009].
+Ocean noise pollution is among the anthropogenic changes that have recently grown to concerning levels [@tyack2008; @hildebrand2009]. The global ambient noise in the ocean is estimated to have increased by 12 decibels in the last few decades and has a close correlation to global economic trends [@frisk2012]. Ships have been increasing in terms of gross tonnage and fleet size [@hildebrand2009] and now account for over 80% of the global trade, with an estimated 1.4% expected annual increase in shipping through 2027 [@unctad2022]. Commercial shipping now accounts for most of the low-frequency anthropogenic noise in the ocean [@hildebrand2009].\
 
-These noise-generating activities are categorized as either incidental or deliberate [@chou2021; @chahouri2022]. Deliberate activities such as active sonar pingers, resource extraction from the seabed, seismic surveys, and echosounders intentionally produce sound to measure an area and can utilize both high and low frequencies [@duarte2021]. Incidental activities like dredging, offshore development, and shipping produce sound as a by-product [@hawkins2017; @southall2017]. Anthropogenic noise can further be characterized by the frequency and duration of the sound. For example, shipping occurs in all oceans and produces a continuous, low-frequency (\<200 Hz) sound that travels far distances [@hildebrand2009]. Sonar for military surveillance or research such as seafloor mapping produces mid-frequency sounds, but attenuates quicker, therefore impacting a smaller acoustic space [@hildebrand2009; @richardson2013]. Noise has been shown to propagate differently based on static features like bathymetry and depth [@richardson2013; @vagle2021], as well as dynamic variables like temperature, salinity, and pH from a changing climate [@kunc2016; @affatati2022].
+These noise-generating activities are categorized as either incidental or deliberate [@chou2021; @chahouri2022]. Deliberate activities such as active sonar pingers, resource extraction from the seabed, seismic surveys, and echosounders intentionally produce sound to measure an area and can utilize both high and low frequencies [@duarte2021]. Incidental activities like dredging, offshore development, and shipping produce sound as a by-product [@hawkins2017; @southall2017]. Anthropogenic noise can further be characterized by the frequency and duration of the sound. For example, shipping occurs in all oceans and produces a continuous, low-frequency (\<200 Hz) sound that travels far distances [@hildebrand2009]. Sonar for military surveillance or research such as seafloor mapping produces mid-frequency sounds, but attenuates quicker, therefore impacting a smaller acoustic space [@hildebrand2009; @richardson2013]. Noise has been shown to propagate differently based on static features like bathymetry and depth [@richardson2013; @vagle2021], as well as dynamic variables like temperature, salinity, and pH from a changing climate [@kunc2016; @affatati2022].\
 
-As soniferous animals, cetaceans have varying levels of sensitivity and vulnerability to certain types of noise. Generally, mysticetes are more affected by low-frequency noise produced by large shipping vessels [@southall2017]. Odontocetes produce and detect mid- to high-frequency sounds and are more likely to interfere with human activities at these frequencies. These generalizations appear to have exceptions, as odontocete species like beaked whales have shown avoidance behaviors in response to broadband and low frequency vessel noise [@aguilarsoto2006; @pirotta2012]. It remains uncertain how short-term effects of chronic or acute noise pollution for cetaceans translates into long-term or population level changes. @new2013 suggest enough exposure can cause beaked whales to cease foraging and eventually lower reproduction rates.
+As soniferous animals, cetaceans have varying levels of sensitivity and vulnerability to certain types of noise. Generally, mysticetes are more affected by low-frequency noise produced by large shipping vessels [@southall2017]. Odontocetes produce and detect mid- to high-frequency sounds and are more likely to interfere with human activities at these frequencies. These generalizations appear to have exceptions, as odontocete species like beaked whales have shown avoidance behaviors in response to broadband and low frequency vessel noise [@aguilarsoto2006; @pirotta2012]. It remains uncertain how short-term effects of chronic or acute noise pollution for cetaceans translates into long-term or population level changes. @new2013 suggest enough exposure can cause beaked whales to cease foraging and eventually lower reproduction rates.\
 
 ### Beaked Whales and Sperm Whales
 
@@ -80,13 +85,13 @@ Acoustic data were duty-cycled, with most buoys sampling at a rate of 18 minutes
 
 ~~Whale detection timestamps were rounded to nearest 20 minutes based on start time to align with the soundscape metrics. A separate column was created as a common join field that contained nearest timestamp in UTC to that of buoy tracks (see below).~~ Two types of beaked whale detections (species code *?BW* and *?BWC*) were removed from analysis as the species was unknown.
 
-**\[New addition as of 08/25/23\] \[\[**Two SPOT buoys sit on every buoy, so some GPS points were recorded twice. These duplicate tracks were eliminated.\]\] ~~Buoy tracks were similarly rounded to nearest 20 minutes.~~ Seven buoys (1,2,3,5,6,9,11) were lost at sea and two buoys had corrupted data (4,17) so these were removed from the analysis. Buoys 14 and 15 were the same and therefore consolidated to 14. These three preliminary datasets were joined together based on a common buoy number (column "station") and time field column "UTC"). Whale detections (column "Wpresence") were reduced to binary data for absence/presence and all other fields of that dataset were eliminated.
+New addition as of 08/25/23 -\*\* Two SPOT buoys sit on every buoy, so some GPS points were recorded twice. These duplicate tracks were eliminated.~~Buoy tracks were similarly rounded to nearest 20 minutes.~~ Seven buoys (1,2,3,5,6,9,11) were lost at sea and two buoys had corrupted data (4,17) so these were removed from the analysis. Buoys 14 and 15 were the same and therefore consolidated to 14. These three preliminary datasets were joined together based on a common buoy number (column "station") and time field column "UTC"). Whale detections (column "Wpresence") were reduced to binary data for absence/presence and all other fields of that dataset were eliminated.
 
 ### **Environmental Data**
 
-Possible environmental and oceanographic predictors of cetacean habitat were extracted from the NOAA Environmental Research Division Data Access Program (ERDDAP) server ((https://coastwatch.pfeg.noaa.gov/erddap/) and Hybrid Coordinate Ocean Model (HYCOM) using the *matchEnvData* function in R package *PAMmisc*. Six modeled variables at depth (mixed layer depth, mixed layer temperature, temperature at 400m, thermocline temperature, thermocline depth, salinity at 400m) were calculated using a formula from @mccullough2021. Such variables are especially important to incorporate as it better reflects the deep environment that beaked and sperm whales are known to inhabit. Distance to slope and bathymetric slope were calculated from a bathymetry TIF acquired from the General Bathymetric Chart of the Oceans (GEBCO).
+Possible environmental and oceanographic predictors of cetacean habitat were extracted from the NOAA Environmental Research Division Data Access Program (ERDDAP) server ((<https://coastwatch.pfeg.noaa.gov/erddap/>) and Hybrid Coordinate Ocean Model (HYCOM) using the *matchEnvData* function in R package *PAMmisc*. Six modeled variables at depth (mixed layer depth, mixed layer temperature, temperature at 400m, thermocline temperature, thermocline depth, salinity at 400m) were calculated using a formula from @mccullough2021. Such variables are especially important to incorporate as it better reflects the deep environment that beaked and sperm whales are known to inhabit. Distance to slope and bathymetric slope were calculated from a bathymetry TIF acquired from the General Bathymetric Chart of the Oceans (GEBCO).
 
-\[See Virgili et al 2019 for extracting slope from GEBCO Data and dynamic variables!!\]
+See Virgili et al 2019 for extracting slope from GEBCO Data and dynamic variables!!
 
 ### **Modeling**
 
@@ -98,19 +103,27 @@ We built generalized additive models in R using the package *mcgv* to relate bea
 
 [Describe simple statistical relationships, correlations, exploratory data findings (highest, lowest, etc., time of day ( @ziegenhorn2023 ) , drift with most detections/day), where/when were most detections heard, number of species]
 
--   Buoy 18 had the most whale detections
+*Overall Soundscape*
 
--   ZC was the most frequently detected whale
+Buoy 23 had the loudest median sound levels in the TOL 2 kHz range (80.0 dB), while buoy 7 experienced the single loudest sound level (108 dB) and the widest range of acoustic conditions in this frequency (range = 52.73 dB). The median quietest conditions and lowest single sound level were along buoy 16 (median = 72.5 dB, min = 51.6 dB).
 
--   The loudest sound levels were only occupied by PM
+*Acoustic Conditions with Whale Detections*
 
--   Density of ship encounters
+The most number of whale detections by all species were detected by buoy 18 (n = 209). Cuvier's beaked whale was the most frequently detected species (n = 494). BWC and BW37V had very low detections and were subsequently removed from analysis (n = 2 and n = 1, respectively). Sperm whales experienced the loudest sound conditions in the TOL at 2kHz frequency band (median = 81.9 dB , max = 98.3 dB).
 
--   Report on environmental conditions for ZC/PM?
+TOL at 2kHz conditions more closely aligned with sperm whale and Cuvier's beaked whale detections than with TOL at 125 Hz.
+
+*Interactions with Large Vessels*
+
+The most number of unique large (\>100 m) vessels transited within the space of buoy 14, (n = 30). When the passage of a large vessels was known, the earliest whale detection after passing was 0.15 hours by a sperm whale, while BB's earliest detection was 28 hours. Sperm whales also has the lowest median time elapsed after a vessel encounter (1.47 days).
+
+*Environmental Conditions*
+
+Sperm whales are generally detected in deeper subsurface depth conditions than Cuvier's (mixed layer depth and thermocline depth).
 
 -   Report on analysis of env variables WITH and WITHOUT soundscape metrics (see @fiedler2023, results 3.1)
 
-\[Weekly/daily plot of acoustic presence of whales and ships over time from each drift? See JS Trickey et al. 2022, Fig 3\] Which buoy had the most AIS overlap and when?
+Weekly/daily plot of acoustic presence of whales and ships over time from each drift? See JS Trickey et al. 2022, Fig 3 Which buoy had the most AIS overlap and when?
 
 Look at power spectral density? @haver2020
 
@@ -120,12 +133,12 @@ AIC explanation @symonds2011
 
 ## Discussion
 
-\[Laws and Regulations\]
+Laws and Regulations
 
 While there is consensus that anthropogenic noise in the ocean is increasing, policies that aim to mitigate chronic noise are generally lacking. This is due to knowledge gaps regarding the long-term and cumulative effects of noise on certain species (Markus and Sánchez 2018). International and regional efforts are underway (see Chou et al. (2021)) but are not fully complete. Within the European Union, the Marine Strategy Framework Directive establishes a directive about environmental regulation on marine noise, specifically requiring member states to adopt strategies in compliance with threshold values for impulsive and continuous noise ("Directive 2008/56/EC of the European Parliament and of the Council of 17 June 2008 Establishing a Framework for Community Action in the Field of Marine Environmental Policy (Marine Strategy Framework Directive) (Text with EEA Relevance)" 2008; Borsani, J.F. et al. 2023). Some studies have independently tested these threshold values (Sebastianutto et al. 2015; Garrett et al. 2016; Haver et al. 2021) or used them as guidelines in their study (Mustonen et al. 2019). The National Oceanic and Atmospheric Administration (NOAA) has developed an Ocean Noise Strategy Roadmap, an agency-wise approach to mitigating both chronic and acute effects of noise exposure to animals (NOAA 2018). Within it, the authors agree upon impairment thresholds for mid-frequency cetaceans (NOAA 2018). Because chronic effects are not fully understood, they remain to be regulated. The International Maritime Organization (IMO) has also been addressing noise pollution from commercial vessels through quieter ship design (International Maritime Organization 2014). Updates to their 2014 guidelines are set to be finalized by January 2024. Finally, Canada has launched a Quiet Vessel Initiative and is expected to publish a Ocean Noise Strategy for underwater noise management in 2023 (Breeze et al. 2022).
 
-**\[Known limitations to this study\]\
-**Duty cycle whale detection and soundscape method knowingly omits 18 of 20 minutes of data. A sperm whale's true location relative to buoy is unknown so preferred habitat may not reflect the environmental variables that are associated with buoy that detects it (Barkley et al. 2021) Rounding tracks and soundscape metrics date/times to nearest 20 minutes is not perfect. Often, times did not line up with :00, :20, :40 and were either omitted or duplicated.
+$$Known limitations to this study$$\
+Duty cycle whale detection and soundscape method knowingly omits 18 of 20 minutes of data. A sperm whale's true location relative to buoy is unknown so preferred habitat may not reflect the environmental variables that are associated with buoy that detects it (Barkley et al. 2021) Rounding tracks and soundscape metrics date/times to nearest 20 minutes is not perfect. Often, times did not line up with :00, :20, :40 and were either omitted or duplicated.
 
 This study only captures half of the year. If BW/SW have seasonal preferences outside of the study period, it was not captured here.
 
@@ -135,11 +148,11 @@ Non-AIS vessels or small vessels (fishing, recreational) may contribute to the s
 
 Does not account for the differences in relative noise contribution by vessel type (as @hatch2008 does)
 
-\[Add here.\]
+Add here.
 
 This work will contribute to establishing baseline conditions of noise exposure to inform wind farm development and shipping lane changes. In better understanding this, human activities can be altered to avoid overlap with sensitive species @hooker2019.
 
-Both of these outcomes are of high importance to managers and agencies especially NOAA and BOEM (see 2023-2024 report). Within their Ocean Noise Strategy Roadmap, NOAA is specifically seeking 1) a quantification of the spatial and temporal variability of ambient noise conditions, and 2) understanding of how anthropogenic sound sources contribute to the soundscape. Co-occurrence of buoys and vessels will provide fine-scale snapshots of sound levels surrounding vessels and concurrent whale foraging activity. With AIS, we can calculate distance from buoy to vessel and sound levels in those moments. And 3) NOAA is seeking more information on vocally active species' distributions. This is part of a bill introduced by Congress to "assess underwater sound in high-priority" environments (https://www.congress.gov/bill/117th-congress/house-bill/6987).
+Both of these outcomes are of high importance to managers and agencies especially NOAA and BOEM (see 2023-2024 report). Within their Ocean Noise Strategy Roadmap, NOAA is specifically seeking 1) a quantification of the spatial and temporal variability of ambient noise conditions, and 2) understanding of how anthropogenic sound sources contribute to the soundscape. Co-occurrence of buoys and vessels will provide fine-scale snapshots of sound levels surrounding vessels and concurrent whale foraging activity. With AIS, we can calculate distance from buoy to vessel and sound levels in those moments. And 3) NOAA is seeking more information on vocally active species' distributions. This is part of a bill introduced by Congress to "assess underwater sound in high-priority" environments (<https://www.congress.gov/bill/117th-congress/house-bill/6987>).
 
 Outside of cetacean research, similar designs of drifting buoys have been used in estuarine and coral reef soundscape studies @lillis2018.
 
@@ -149,29 +162,30 @@ The year 2018 was characterized in the CCE with slightly warmer than average sea
 
 Can use non-parametric Kruskal-Wallis one-way analysis of variance test to examine *if number of whale detections per hour differed depending on presence/absence of vessels* (see Trickey et al. 2022).
 
-**\[Recommendations?\]**
+Recommendations?
 
 ## Acknowledgements
 
 Taiki - help with code!\
 Megan McKenna - guidance on AIS questions.
 
-\[Add here.\]
+Add here.
 
 ### Tables
 
-1\) Species studied:\
-- ZC Cuvier's beaked whale *Ziphius cavirostris (IUCN status: least concern)\
--* BW43, Perrin's beaked whale *M*. *perrini (IUCN status: endangered)* confirmed in 2021 @baumann-pickering2013 @barlow2021\
-- BW37V, possibly Hubbs' beaked whale *M. carlhubbsi (IUCN status: data deficient)* \@simonis\
-- BB, -- Baird's beaked whale *B. bairidii* *(IUCN status: least concern)*\
-- BWC, possibly ginkgo-toothed beaked whale *M. ginkgodens (IUCN status: data deficient)* @simonis\
-- PM, sperm whale *(IUCN status: vulnerable)*
+1)  Species studied:
 
-2\) Environmental covariates (group by physiographic, oceanographic, etc)
+-   ZC Cuvier's beaked whale *Ziphius cavirostris (IUCN status: least concern)\
+    -* BW43, Perrin's beaked whale *M*. *perrini (IUCN status: endangered)* confirmed in 2021 @baumann-pickering2013 @barlow2021
+-   BW37V, possibly Hubbs' beaked whale *M. carlhubbsi (IUCN status: data deficient)* @simonis2020a
+-   BB, -- Baird's beaked whale *B. bairidii* *(IUCN status: least concern)*
+-   BWC, possibly ginkgo-toothed beaked whale *M. ginkgodens (IUCN status: data deficient)* @simonis2020a
+-   PM, sperm whale *(IUCN status: vulnerable)*
+
+2)  Environmental covariates (group by physiographic, oceanographic, etc)
 
 | Covariate                          | Resolution       | Source                                                                                                                                            | Justification                           |
-|------------------------------------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
+|------------------|------------------|--------------------|------------------|
 |                                    |                  |                                                                                                                                                   |                                         |
 | Distance to shore (m)              | 0.01-Degree Grid | ERDAPP                                                                                                                                            |                                         |
 | Distance to continental slope (m)  | 15 arc sec       | Derived from General Bathymetric Chart of the Oceans (GEBCO) @weatherall2015                                                                      | @barlow2009                             |
@@ -188,6 +202,6 @@ Megan McKenna - guidance on AIS questions.
 | CHL                                | 4 km, monthly    | ERDAPP                                                                                                                                            | @forney2012 @virgili2019                |
 | Sea Surface Height Anomalies (m)   | daily            | ERDAPP                                                                                                                                            | @virgili2019                            |
 
-\[Can show table of variables and justification by papers (Virgili et al. 2022 and Virgili et al 2019)\]
+Can show table of variables and justification by papers (Virgili et al. 2022 and Virgili et al 2019)
 
 @forney2012 shows how BW model had a lot of uncertainty regarding distribution predictors. So few detections that some spp had to be lumped together (also @barlow2009).
