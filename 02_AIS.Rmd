@@ -13,6 +13,7 @@ Required Packages
 ```{r setup}
 library(PAMscapes)
 library(tidyverse)
+library(sf)
 ```
 
 Read in GPS/whale detections
@@ -458,5 +459,1209 @@ saveRDS(GPSwhaleAIS23, 'D:/Buoy_dfs/GPSwhaleAIS23.rda')
 saveRDS(GPSwhaleAIS07, 'D:/Buoy_dfs/GPSwhaleAIS07.rda')
 saveRDS(GPSwhaleAIS08, 'D:/Buoy_dfs/GPSwhaleAIS08.rda')
 saveRDS(GPSwhaleAIS20.alt, 'D:/Buoy_dfs/GPSwhaleAIS20_alt.rda')
+```
+
+
+
+# For density plots in R
+```{r}
+#Load allDrifts object
+load("data/allDrifts.rda")
+
+# Make allDrifts an sf object
+allDrifts_sf <- allDrifts %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
+bnd <- st_bbox(allDrifts_sf)
+
+# Make a fishnet grid over AIS points
+grid <- st_make_grid(bnd, n = 30) %>%
+  st_set_crs(4326)
+
+# find which grid points intersect AIS points 
+# and create an index to subset from
+index <- which(lengths(st_intersects(grid, keep)) > 0)
+
+# Subset the grid to make a fishnet
+fishnet <- grid[index]
+```
+
+TAKES WAY TOO LONG
+```{r}
+# One way to read in files and bind
+AISfiles <- list.files("D:/AIS/AIS_West", pattern = "*.csv", full.names = TRUE)
+AIS_dfs <- lapply(AISfiles, read.csv) # creates list
+
+# Row bind
+AIS_allpts <- bind_rows(AIS_dfs)
+
+# Filter broken up into many parts for easy completion! Not easy...
+AIS_allpts_vLength <- AIS_allpts %>%
+  filter(vesselLength >= 100)   #remove vessels under 100m in length
+
+AIS_allpts_SOG <- AIS_allpts_vLength %>%
+  filter(SOG > 0) # Filter out ships that are stopped
+
+## Alternative way to crop (using min/max latitude of bounding box)
+AIS_allpts_lat <- AIS_allpts_SOG %>%
+  filter(Latitude >= min(allDrifts$Latitude))
+
+#filter(Latitude <= max(allDrifts$Latitude)
+
+AIS_allpts_sf <- AIS_allpts_SOG %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
+
+AIS_allpts_crop <- AIS_allpts_sf %>%
+  st_crop(bnd)
+
+# Write csv
+write_csv(AIS_allpts_crop, file = "D:/AIS/AIS_allpts.csv")
+```
+
+# ALSO TAKES WAY TOO LONG
+```{r}
+# Read in AIS from one day, convert to sf, crop to allDrifts area
+AISlist <- dir("D:/AIS/AIS_West", recursive=TRUE, full.names=TRUE)
+
+# Loop through with filters
+for (day in AISlist) {
+  dt <- read_csv(day, show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%  #remove vessels under 100m in length
+  filter(SOG > 0) %>% # Filter out ships that are stopped
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%
+  st_crop(bnd)
+  
+  assign(paste0("AIS_", substr(day, 31, 35)), dt)
+}
+```
+
+# one at a time works - ugh.
+Filter by vessels over 100m, SOG over 2.5 knots, and increase bounding box by 0.5 on all sides
+8/6 - 8/20
+```{r}
+# Read in one csv at a time.
+AIS_08_06 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_06.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_06, file = "D:/AIS/AIS_West/AIS_08_06.rda")
+#
+AIS_08_07 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_07.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+saveRDS(AIS_08_07, file = "D:/AIS/AIS_West/AIS_08_07.rda")
+#
+AIS_08_08 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_08.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+saveRDS(AIS_08_08, file = "D:/AIS/AIS_West/AIS_08_08.rda")
+#  
+AIS_08_09 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_09.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+saveRDS(AIS_08_09, file = "D:/AIS/AIS_West/AIS_08_09.rda")
+  
+AIS_08_10 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_10.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+saveRDS(AIS_08_10, file = "D:/AIS/AIS_West/AIS_08_10.rda")
+
+AIS_08_11 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_11.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_11, file = "D:/AIS/AIS_West/AIS_08_11.rda")
+
+AIS_08_12 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_12.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_12, file = "D:/AIS/AIS_West/AIS_08_12.rda")
+
+AIS_08_13 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_13.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+saveRDS(AIS_08_13, file = "D:/AIS/AIS_West/AIS_08_13.rda")
+
+AIS_08_14 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_14.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_14, file = "D:/AIS/AIS_West/AIS_08_14.rda")
+
+AIS_08_15 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_15.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_15, file = "D:/AIS/AIS_West/AIS_08_15.rda")
+
+AIS_08_16 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_16.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_16, file = "D:/AIS/AIS_West/AIS_08_16.rda")
+
+AIS_08_17 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_17.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_17, file = "D:/AIS/AIS_West/AIS_08_17.rda")
+
+AIS_08_18 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_18.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_18, file = "D:/AIS/AIS_West/AIS_08_18.rda")
+
+AIS_08_19 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_19.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_19, file = "D:/AIS/AIS_West/AIS_08_19.rda")
+
+AIS_08_20 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_20.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_20, file = "D:/AIS/AIS_West/AIS_08_20.rda")
+
+```
+
+8/21 - 8/31
+```{r}
+AIS_08_21 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_21.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_21, file = "D:/AIS/AIS_West/AIS_08_21.rda")
+
+AIS_08_22 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_22.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_22, file = "D:/AIS/AIS_West/AIS_08_22.rda")
+
+AIS_08_23 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_23.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_23, file = "D:/AIS/AIS_West/AIS_08_23.rda")
+
+AIS_08_24 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_24.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_24, file = "D:/AIS/AIS_West/AIS_08_24.rda")
+
+AIS_08_25 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_25.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_25, file = "D:/AIS/AIS_West/AIS_08_25.rda")
+
+AIS_08_26 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_26.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_26, file = "D:/AIS/AIS_West/AIS_08_26.rda")
+
+AIS_08_27 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_27.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_27, file = "D:/AIS/AIS_West/AIS_08_27.rda")
+
+AIS_08_28 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_28.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_28, file = "D:/AIS/AIS_West/AIS_08_28.rda")
+
+AIS_08_29 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_29.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_29, file = "D:/AIS/AIS_West/AIS_08_29.rda")
+
+AIS_08_30 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_30.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_30, file = "D:/AIS/AIS_West/AIS_08_30.rda")
+
+AIS_08_31 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_08_31.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_08_31, file = "D:/AIS/AIS_West/AIS_08_31.rda")
+```
+
+9/1 - 9/15
+```{r}
+AIS_09_01 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_01.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_01, file = "D:/AIS/AIS_West/AIS_09_01.rda")
+
+AIS_09_02 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_02.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_02, file = "D:/AIS/AIS_West/AIS_09_02.rda")
+
+AIS_09_03 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_03.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_03, file = "D:/AIS/AIS_West/AIS_09_03.rda")
+
+AIS_09_04 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_04.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_04, file = "D:/AIS/AIS_West/AIS_09_04.rda")
+
+AIS_09_05 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_05.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_05, file = "D:/AIS/AIS_West/AIS_09_05.rda")
+
+AIS_09_06 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_06.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_06, file = "D:/AIS/AIS_West/AIS_09_06.rda")
+
+AIS_09_07 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_07.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_07, file = "D:/AIS/AIS_West/AIS_09_07.rda")
+
+AIS_09_08 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_08.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_08, file = "D:/AIS/AIS_West/AIS_09_08.rda")
+
+AIS_09_09 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_09.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_09, file = "D:/AIS/AIS_West/AIS_09_09.rda")
+
+AIS_09_10 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_10.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_10, file = "D:/AIS/AIS_West/AIS_09_10.rda")
+
+AIS_09_11 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_11.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_11, file = "D:/AIS/AIS_West/AIS_09_11.rda")
+
+AIS_09_12 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_12.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_12, file = "D:/AIS/AIS_West/AIS_09_12.rda")
+
+AIS_09_13 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_13.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_13, file = "D:/AIS/AIS_West/AIS_09_13.rda")
+
+AIS_09_14 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_14.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_14, file = "D:/AIS/AIS_West/AIS_09_14.rda")
+
+AIS_09_15 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_15.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_15, file = "D:/AIS/AIS_West/AIS_09_15.rda")
+
+
+```
+
+9/16 - 9/30
+```{r}
+AIS_09_16 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_16.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_16, file = "D:/AIS/AIS_West/AIS_09_16.rda")
+
+AIS_09_17 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_17.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_17, file = "D:/AIS/AIS_West/AIS_09_17.rda")
+
+AIS_09_18 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_18.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_18, file = "D:/AIS/AIS_West/AIS_09_18.rda")
+
+AIS_09_19 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_19.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_19, file = "D:/AIS/AIS_West/AIS_09_19.rda")
+
+AIS_09_20 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_20.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_20, file = "D:/AIS/AIS_West/AIS_09_20.rda")
+
+AIS_09_21 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_21.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_21, file = "D:/AIS/AIS_West/AIS_09_21.rda")
+
+AIS_09_22 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_22.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_22, file = "D:/AIS/AIS_West/AIS_09_22.rda")
+
+AIS_09_23 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_23.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_23, file = "D:/AIS/AIS_West/AIS_09_23.rda")
+
+AIS_09_24 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_24.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_24, file = "D:/AIS/AIS_West/AIS_09_24.rda")
+
+AIS_09_25 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_25.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_25, file = "D:/AIS/AIS_West/AIS_09_25.rda")
+
+AIS_09_26 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_26.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_26, file = "D:/AIS/AIS_West/AIS_09_26.rda")
+
+AIS_09_27 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_27.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_27, file = "D:/AIS/AIS_West/AIS_09_27.rda")
+
+AIS_09_28 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_28.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_28, file = "D:/AIS/AIS_West/AIS_09_28.rda")
+
+AIS_09_29 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_29.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_29, file = "D:/AIS/AIS_West/AIS_09_29.rda")
+
+AIS_09_30 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_09_30.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_09_30, file = "D:/AIS/AIS_West/AIS_09_30.rda")
+```
+
+10/1 - 10/15
+```{r}
+AIS_10_01 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_01.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_01, file = "D:/AIS/AIS_West/AIS_10_01.rda")
+
+AIS_10_02 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_02.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_02, file = "D:/AIS/AIS_West/AIS_10_02.rda")
+
+AIS_10_03 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_03.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_03, file = "D:/AIS/AIS_West/AIS_10_03.rda")
+
+AIS_10_04 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_04.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_04, file = "D:/AIS/AIS_West/AIS_10_04.rda")
+
+AIS_10_05 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_05.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_05, file = "D:/AIS/AIS_West/AIS_10_05.rda")
+
+AIS_10_06 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_06.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_06, file = "D:/AIS/AIS_West/AIS_10_06.rda")
+
+AIS_10_07 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_07.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_07, file = "D:/AIS/AIS_West/AIS_10_07.rda")
+
+AIS_10_08 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_08.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_08, file = "D:/AIS/AIS_West/AIS_10_08.rda")
+
+AIS_10_09 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_09.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_09, file = "D:/AIS/AIS_West/AIS_10_09.rda")
+
+AIS_10_10 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_10.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_10, file = "D:/AIS/AIS_West/AIS_10_10.rda")
+
+AIS_10_11 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_11.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_11, file = "D:/AIS/AIS_West/AIS_10_11.rda")
+
+AIS_10_12 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_12.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_12, file = "D:/AIS/AIS_West/AIS_10_12.rda")
+
+AIS_10_13 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_13.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_13, file = "D:/AIS/AIS_West/AIS_10_13.rda")
+
+AIS_10_14 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_14.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_14, file = "D:/AIS/AIS_West/AIS_10_14.rda")
+
+AIS_10_15 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_15.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_15, file = "D:/AIS/AIS_West/AIS_10_15.rda")
+```
+
+10/16 - 10/31
+```{r}
+AIS_10_16 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_16.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_16, file = "D:/AIS/AIS_West/AIS_10_16.rda")
+
+AIS_10_17 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_17.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_17, file = "D:/AIS/AIS_West/AIS_10_17.rda")
+
+AIS_10_18 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_18.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_18, file = "D:/AIS/AIS_West/AIS_10_18.rda")
+
+AIS_10_19 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_19.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_19, file = "D:/AIS/AIS_West/AIS_10_19.rda")
+
+AIS_10_20 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_20.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_20, file = "D:/AIS/AIS_West/AIS_10_20.rda")
+
+AIS_10_21 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_21.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_21, file = "D:/AIS/AIS_West/AIS_10_21.rda")
+
+AIS_10_22 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_22.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_22, file = "D:/AIS/AIS_West/AIS_10_22.rda")
+
+AIS_10_23 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_23.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_23, file = "D:/AIS/AIS_West/AIS_10_23.rda")
+
+AIS_10_24 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_24.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_24, file = "D:/AIS/AIS_West/AIS_10_24.rda")
+
+AIS_10_25 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_25.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_25, file = "D:/AIS/AIS_West/AIS_10_25.rda")
+
+AIS_10_26 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_26.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_26, file = "D:/AIS/AIS_West/AIS_10_26.rda")
+
+AIS_10_27 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_27.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_27, file = "D:/AIS/AIS_West/AIS_10_27.rda")
+
+AIS_10_28 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_28.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_28, file = "D:/AIS/AIS_West/AIS_10_28.rda")
+
+AIS_10_29 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_29.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_29, file = "D:/AIS/AIS_West/AIS_10_29.rda")
+
+AIS_10_30 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_30.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_30, file = "D:/AIS/AIS_West/AIS_10_30.rda")
+
+AIS_10_31 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_10_31.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_10_31, file = "D:/AIS/AIS_West/AIS_10_31.rda")
+```
+
+11/1 - 11/15
+```{r}
+AIS_11_01 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_01.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_01, file = "D:/AIS/AIS_West/AIS_11_01.rda")
+
+AIS_11_02 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_02.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_02, file = "D:/AIS/AIS_West/AIS_11_02.rda")
+
+AIS_11_03 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_03.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_03, file = "D:/AIS/AIS_West/AIS_11_03.rda")
+
+AIS_11_04 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_04.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_04, file = "D:/AIS/AIS_West/AIS_11_04.rda")
+
+AIS_11_05 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_05.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_05, file = "D:/AIS/AIS_West/AIS_11_05.rda")
+
+AIS_11_06 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_06.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_06, file = "D:/AIS/AIS_West/AIS_11_06.rda")
+
+AIS_11_07 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_07.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_07, file = "D:/AIS/AIS_West/AIS_11_07.rda")
+
+AIS_11_08 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_08.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+saveRDS(AIS_11_08, file = "D:/AIS/AIS_West/AIS_11_08.rda")
+
+AIS_11_09 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_09.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_09, file = "D:/AIS/AIS_West/AIS_11_09.rda")
+
+AIS_11_10 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_10.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_10, file = "D:/AIS/AIS_West/AIS_11_10.rda")
+
+AIS_11_11 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_11.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_11, file = "D:/AIS/AIS_West/AIS_11_11.rda")
+
+AIS_11_12 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_12.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_12, file = "D:/AIS/AIS_West/AIS_11_12.rda")
+
+AIS_11_13 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_13.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_13, file = "D:/AIS/AIS_West/AIS_11_13.rda")
+
+AIS_11_14 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_14.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_14, file = "D:/AIS/AIS_West/AIS_11_14.rda")
+
+AIS_11_15 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_15.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_15, file = "D:/AIS/AIS_West/AIS_11_15.rda")
+```
+
+11/16 - 12/02
+```{r}
+AIS_11_16 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_16.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_16, file = "D:/AIS/AIS_West/AIS_11_16.rda")
+
+AIS_11_17 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_17.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_17, file = "D:/AIS/AIS_West/AIS_11_17.rda")
+
+AIS_11_18 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_18.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_18, file = "D:/AIS/AIS_West/AIS_11_18.rda")
+
+AIS_11_19 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_19.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_19, file = "D:/AIS/AIS_West/AIS_11_19.rda")
+
+AIS_11_20 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_20.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_20, file = "D:/AIS/AIS_West/AIS_11_20.rda")
+
+AIS_11_21 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_21.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_21, file = "D:/AIS/AIS_West/AIS_11_21.rda")
+
+AIS_11_22 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_22.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_22, file = "D:/AIS/AIS_West/AIS_11_22.rda")
+
+AIS_11_23 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_23.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_23, file = "D:/AIS/AIS_West/AIS_11_23.rda")
+
+AIS_11_24 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_24.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_24, file = "D:/AIS/AIS_West/AIS_11_24.rda")
+
+AIS_11_25 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_25.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_25, file = "D:/AIS/AIS_West/AIS_11_25.rda")
+
+AIS_11_26 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_26.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_26, file = "D:/AIS/AIS_West/AIS_11_26.rda")
+
+AIS_11_27 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_27.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_27, file = "D:/AIS/AIS_West/AIS_11_27.rda")
+
+AIS_11_28 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_28.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_28, file = "D:/AIS/AIS_West/AIS_11_28.rda")
+
+AIS_11_29 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_29.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_29, file = "D:/AIS/AIS_West/AIS_11_29.rda")
+
+AIS_11_30 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_11_30.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_11_30, file = "D:/AIS/AIS_West/AIS_11_30.rda")
+
+AIS_12_01 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_12_01.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_12_01, file = "D:/AIS/AIS_West/AIS_12_01.rda")
+
+AIS_12_02 <- read_csv("D:/AIS/AIS_West/West_AIS_2018_12_02.csv", 
+                      show_col_types = FALSE) %>%
+  filter(vesselLength >= 100) %>%
+  filter(SOG > 2.5) %>%
+  filter(Latitude >= min(allDrifts$Latitude - 0.5) & Latitude <= max(allDrifts$Latitude + 0.5)) %>%
+  filter(Longitude >= min(allDrifts$Longitude - 0.5) & Longitude <= max(allDrifts$Longitude + 0.5))
+
+saveRDS(AIS_12_02, file = "D:/AIS/AIS_West/AIS_12_02.rda")
+```
+
+
+Load in all AIS days
+```{r}
+AISlist <- dir("D:/AIS/AIS_West", recursive=TRUE, full.names=TRUE, pattern=".rda")
+
+for (a in AISlist) {
+  df <- readRDS(a)
+  assign(paste0("AIS_", substr(a, 21, 25)), df)
+}
+```
+
+
+Bind Al AIS days
+```{r}
+AIS_allpts <- bind_rows(AIS_08_06,AIS_08_07, AIS_08_08, AIS_08_09, AIS_08_10, AIS_08_11, AIS_08_12,
+          AIS_08_13, AIS_08_14, AIS_08_15, AIS_08_16, AIS_08_17, AIS_08_18, AIS_08_19,
+          AIS_08_20, AIS_08_21, AIS_08_22, AIS_08_23, AIS_08_24, AIS_08_25, AIS_08_26,
+          AIS_08_27, AIS_08_28, AIS_08_29, AIS_08_30, AIS_08_31, AIS_09_01, AIS_09_02,
+          AIS_09_03, AIS_09_04, AIS_09_05, AIS_09_06, AIS_09_07, AIS_09_08, AIS_09_09,
+          AIS_09_10, AIS_09_11, AIS_09_12, AIS_09_13, AIS_09_14, AIS_09_15, AIS_09_16,
+          AIS_09_17, AIS_09_18, AIS_09_19, AIS_09_20, AIS_09_21, AIS_09_22, AIS_09_23,
+          AIS_09_24, AIS_09_25, AIS_09_26, AIS_09_27, AIS_09_28, AIS_09_29, AIS_09_30,
+          AIS_10_01, AIS_10_02, AIS_10_03, AIS_10_04, AIS_10_05, AIS_10_06, AIS_10_07,
+          AIS_10_08, AIS_10_09, AIS_10_10, AIS_10_11, AIS_10_12, AIS_10_13, AIS_10_14,
+          AIS_10_15, AIS_10_16, AIS_10_17, AIS_10_18, AIS_10_19, AIS_10_20, AIS_10_21,
+          AIS_10_22, AIS_10_23, AIS_10_24, AIS_10_25, AIS_10_26, AIS_10_27, AIS_10_28,
+          AIS_10_29, AIS_10_30, AIS_10_31, AIS_11_01, AIS_11_02, AIS_11_03, AIS_11_04,
+          AIS_11_05, AIS_11_06, AIS_11_07, AIS_11_08, AIS_11_09, AIS_11_10, AIS_11_11,
+          AIS_11_12, AIS_11_13, AIS_11_14, AIS_11_15, AIS_11_16, AIS_11_17, AIS_11_18,
+          AIS_11_19, AIS_11_20, AIS_11_21, AIS_11_22, AIS_11_23, AIS_11_24, AIS_11_25,
+          AIS_11_26, AIS_11_27, AIS_11_28, AIS_11_29, AIS_11_30, AIS_12_01, AIS_12_02)
+
+# Save as csv
+write_csv(AIS_allpts, file = "D:/AIS/AIS_West/AIS_allpts.csv")
 ```
 
