@@ -38,6 +38,10 @@ allDrifts <- rbind(GPSwhaleAISenvSS07, GPSwhaleAISenvSS08, GPSwhaleAISenvSS10, G
                    GPSwhaleAISenvSS19, GPSwhaleAISenvSS20, GPSwhaleAISenvSS21, GPSwhaleAISenvSS22,
                    GPSwhaleAISenvSS23)
 
+# Remove points where buoy is on the shelf - 300 meters
+allDrifts <- allDrifts %>%
+  filter(depth > 300)
+
 
 save(allDrifts, file = "data/allDrifts.rda")
 load(file = "data/allDrifts.rda")
@@ -47,7 +51,10 @@ load(file = "data/allDrifts.rda")
 # Which buoy was the loudest?
 ```{r loudest-buoy}
 allDrifts %>%
-  ggplot(mapping = aes(x = Deployment, y = TOL_2000)) + geom_boxplot() + theme_bw()
+  ggplot(mapping = aes(x = Deployment, y = TOL_2000)) + 
+  geom_violin() + 
+  geom_boxplot(width = 0.1) +
+  theme_bw()
 
 allDrifts %>%
   group_by(Deployment) %>%
@@ -155,16 +162,18 @@ ZC_filt <- GPSwhaleAISenvSS21 %>%
 ZC_pivot <- pivot_longer(ZC_filt, cols = rollAvg_Whl:rollAvg_125, names_to = "avg", values_to = "value")
 
 #Plot facet grid
-ggplot(ZC_pivot, aes(x = UTC, y = value, color = avg)) + geom_smooth() +
+ggplot(ZC_pivot, aes(x = UTC, y = value, color = avg)) + geom_line() +
   facet_grid(vars(avg), scales = "free") +
-  scale_x_datetime(date_breaks = "3 days") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  labs(title = "Rolling Hourly Averages of ZC Detections and Soundscape Metrics -  
-       Buoy 21")
+  scale_x_datetime(date_breaks = "1 days") +
+  theme(axis.text.x = element_text(angle = 90,
+                                   vjust = 0.5, hjust=1),
+        legend.position = "none") +
+  labs(title = "Rolling Hourly Averages of ZC Detections and   
+  Soundscape Metrics - Buoy 21")
 ```
 # rollapply for vessels
 ```{r}
-ZC_filt_ship <- GPSwhaleAISenvSS08 %>% 
+ZC_filt_ship <- GPSwhaleAISSS20.alt%>% 
   filter(species %in% c("ZC", NA)) %>%
   # Hourly rolling averages
   mutate(rollAvg_Whl = zoo::rollapply(Wpresence, 5, mean, fill = NA)) %>%
@@ -180,14 +189,36 @@ ZC_pivot_ship <- pivot_longer(ZC_filt_ship, cols = rollAvg_Whl:rollAvg_ship, nam
 ggplot(ZC_pivot_ship, aes(x = UTC, y = value, color = avg)) + geom_smooth() +
   facet_grid(vars(avg), scales = "free") +
   scale_x_datetime(date_breaks = "3 days") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme(axis.text.x = element_text(#angle = 90, 
+                                   vjust = 0.5, hjust=1)) +
   labs(title = "Rolling Hourly Averages of ZC Detections + SS Metrics + Ships -  
-       Buoy 08")
+       Buoy 20")
+```
+
+Original data points plotted
+```{r}
+ZC_pivot_reg <- pivot_longer(ZC_filt, cols = c(TOL_125,TOL_2000, Wpresence), names_to = "datacol", values_to = "value")
+
+# Regular plotted detections
+ggplot(ZC_pivot_reg, aes(x = UTC, y = value, color = datacol)) + geom_point(size = 0.1) +
+  facet_grid(vars(datacol), scales = "free") +
+  scale_x_datetime(date_breaks = "3 days") +
+  theme(axis.text.x = element_text(angle = 90,
+                                   vjust = 0.5, hjust=1)) +
+  labs(title = "ZC Detections + SS Metrics - Buoy 21")
+
+ggplot(ZC_pivot_reg, aes(x = UTC, y = value, color = datacol)) + geom_line() +
+  facet_grid(vars(datacol), scales = "free") +
+  scale_x_datetime(date_breaks = "3 days") +
+  theme(axis.text.x = element_text(angle = 90,
+                                   vjust = 0.5, hjust=1)) +
+  labs(title = "ZC Detections + SS Metrics + Ships - Buoy 13")
+
 ```
 
 Vessel presence vs ZC presence
 ```{r}
-ZC_filt_ship <- GPSwhaleAISenvSS23 %>% 
+ZC_filt_ship <- GPSwhaleAISSS20.alt %>% 
   filter(species %in% c("ZC", NA)) %>%
   # Hourly rolling averages
   mutate(rollAvg_Whl = zoo::rollapply(Wpresence, 5, mean, fill = NA)) %>%
@@ -204,7 +235,7 @@ ggplot(ZC_filt_ship, aes(x = UTC)) +
   scale_x_datetime(date_breaks = "3 days") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(title = "Rolling Hourly Averages of ZC Detections and Ships -  
-       Buoy 23")
+       Buoy 20")
   
 
 ```
@@ -213,12 +244,24 @@ ggplot(ZC_filt_ship, aes(x = UTC)) +
 
 # rollApply on same plot for ZC
 ```{r}
-# Plot lines on same plot
+# Read in buoy 20 without environmental variables
+GPSwhaleAISSS20.alt <- readRDS("D:/Buoy_dfs/GPSwhaleAISSS20_alt.rda")
 
-min_first <- min(ZC_filt$rollAvg_Whl)
-max_first <- max(ZC_filt$rollAvg_Whl)
-min_second <- min(ZC_filt$rollAvg_2000)
-max_second <- max(ZC_filt$rollAvg_2000)
+ZC_filt_a <- GPSwhaleAISSS20.alt%>% 
+  filter(species %in% c("ZC", NA)) %>%
+  # Hourly rolling averages
+  mutate(rollAvg_Whl = zoo::rollapply(Wpresence, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_2000 = zoo::rollapply(TOL_2000, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_125 = zoo::rollapply(TOL_125, 5, mean, fill = NA)) %>%
+  # Drop first and last NAs that are created as part of averages
+  drop_na(., rollAvg_Whl)
+
+
+# Plot lines on same plot
+min_first <- min(ZC_filt_a$rollAvg_Whl)
+max_first <- max(ZC_filt_a$rollAvg_Whl)
+min_second <- min(ZC_filt_a$rollAvg_2000)
+max_second <- max(ZC_filt_a$rollAvg_2000)
 
 # scale and shift variables calculated based on desired mins and maxes
 scale = (max_second - min_second)/(max_first - min_first)
@@ -234,17 +277,22 @@ inv_scale_function <- function(x, scale, shift){
   return ((x + shift)/scale)
 }
 
+
+
 # Plot two lines on same plot
-ggplot(ZC_filt, aes(x = UTC)) +
-  geom_smooth(aes(y = rollAvg_Whl, color = "ZC presence")) +
-  geom_smooth(aes(y = inv_scale_function(rollAvg_2000, scale, shift), color = "TOL 2000")) +
+ggplot(ZC_filt_a, aes(x = UTC)) +
+  geom_line(aes(y = rollAvg_Whl, color = "ZC presence")) +
+  geom_line(aes(y = inv_scale_function(rollAvg_2000, scale, shift), color = "TOL 2000")) +
   scale_x_datetime(date_breaks = "3 days") +
   scale_y_continuous(limits = c(min_first, max_first), 
                      sec.axis = sec_axis(~scale_function(., scale, shift), 
                                          name = "TOL 2000 - hourly rolling average")) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  labs(title = "Rolling Averages of ZC Detections alongside Soundscape Metrics - Buoy 13")
+  labs(title = "Rolling Averages of ZC Detections alongside   
+       Soundscape Metrics - Buoy 20")
+```
 
+```{r}
 ########################################
 ## Manual scale
 scale = 2000
@@ -592,12 +640,14 @@ ggplot(detsOnly3) +
 #Sound levels for all species
 ```{r}
 # Sound levels for all species
-ggplot(detsOnly3) + geom_boxplot(aes(x = species, y = TOL_125)) +
+ggplot(detsOnly3) + geom_violin(aes(x = species, y = TOL_125)) +
   labs(title = "TOL 125 Sound levels by Species - All Buoys") +
   theme_classic()
-ggplot(detsOnly3) + geom_boxplot(aes(x = species, y = TOL_2000)) +
-    labs(title = "TOL 2000 Sound levels by Species - All Buoys") +
-  theme_classic()
+
+ggplot(detsOnly3, aes(x = species, y = TOL_2000)) + geom_violin() +
+  labs(title = "TOL 2000 Sound levels by Species - All Buoys") +
+  theme_classic() +
+  geom_boxplot(width = 0.1)
 
 # TOL_2000
 detsOnly3 %>%
