@@ -7,46 +7,319 @@ output: html_document
 
 ### Plot maps for Powerpoint images
 
-Set Parameters
+Set Parameters and requried packages
 ```{r}
+library(tidyverse)
+library(sf)
+library(maptiles)
+library(tmap)
+library(tmaptools)
+library(crs)
+library(terra)
+
 theme_set(theme_bw())
 tmap_mode("plot")
+load("data/allDrifts.rda")
 ```
 
-Create sf objects and basemaps for maps (not needed for environmental variables)
+Establish bounding box
+Create map with inset box
 ```{r}
-whales_8_10sf <- Wsf %>%                            
-dplyr::filter(station == "8" | station == "10")
+# Make allDrifts an sf object
+allDrifts_sf <- allDrifts %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
 
-trackssf <- st_as_sf(tracks, coords = c("Longitude", "Latitude"), crs=4326)
-trk_TOL_08 <- st_as_sf(tracks_SS_08, coords = c("Longitude", "Latitude"), crs=4326)
-trk_TOL_10 <- st_as_sf(tracks_SS_10, coords = c("Longitude", "Latitude"), crs=4326)
-trackBase <- get_tiles(whales_8_10sf, provider = "Esri.WorldShadedRelief")
-allTrackbase <- get_tiles(trackssf, provider = "Stamen.TonerLite", zoom = 5)
-```
+# Make detections only object
+detsOnly_sf <- allDrifts %>% filter(Wpresence == 1) %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%
+  st_make_valid()
 
-Map of whole study area
-```{r}
-# Establish bounding box
-bbox <- st_bbox(c(xmin = -110, 
-            xmax = -128, 
-            ymax = 44, 
-            ymin = 30), crs = st_crs(4326))
+# Establish bounding box of study area
+xmin <- st_bbox(allDrifts_sf)[1]
+xmax <- st_bbox(allDrifts_sf)[3]
+ymin <- st_bbox(allDrifts_sf)[2]
+ymax <- st_bbox(allDrifts_sf)[4]
 
-#Establish basemap
-allTrackbase <- get_tiles(bbox, provider = "Esri.WorldGrayCanvas", zoom = 5)
+# Add 0.5 border to the extent of drifts
+bnd <- st_bbox(c(xmin - 0.5, xmax + 0.5, 
+           ymin - 0.5, ymax + 0.5))
 
-# Establish inset map
+#Establish basemap with GreyCanvas basemap
 us_region <- st_bbox(c(xmin = -90,
             xmax = -120, 
             ymax = 48, 
             ymin = 25), crs = st_crs(4326))
 usa <- get_tiles(us_region, provider = "Esri.WorldGrayCanvas", zoom = 4)
 
-sg <- bb_poly(bb(tracks_sf))
-inset <- tm_shape(usa) + tm_rgb() + tm_shape(sg) + tm_borders(col = "red")
+# Inset box
+sg <- bb_poly(st_bbox(allDrifts_sf))
+```
+
+Plot inset map
+```{r}
+# try tm_tiles
+
+inset <- tm_shape(usa) + tm_tiles() + tm_shape(sg) + tm_borders("red")
+inset
+
+# need to fix
+tm_basemap(leaflet::providers$Esri.WorldGrayCanvas) + tm_shape(sg) + tm_borders("red")
+
+```
+
+All Drifts Map
+```{r}
+# Establish basemap with OceanBaseMap
+allDrifts_base <- get_tiles(allDrifts_sf, provider = "Esri.OceanBasemap", zoom = 6)
+
+# Read in US state and MX boundaries
+# States boundary
+bx <- st_bbox(allDrifts_sf)
+
+states <- st_read("data/us_states_shp") %>%
+  st_transform(crs = 4326) %>%
+  st_crop(bnd) # crop to allDrifts extent + 0.5
+
+mex <- st_read("data/mexico_shp") %>%
+  st_transform(crs = 4326) %>%
+  st_crop(bnd) # crop to allDrifts extent + 0.5
+
+# US + Mex borders combined
+west <- st_union(states,mex)
+
+# Plot map - ERROR??
+p <- tm_shape(allDrifts_base) + tm_rgb() + 
+  tm_shape(states) + tm_borders() +
+  tm_shape(mex) + tm_borders() +
+  tm_shape(allDrifts_sf) + tm_dots()
+p
+```
+
+All Drifts with Ship detections
+```{r}
+# With Ship detections
+shipOnly <- allDrifts_sf %>% filter(shipin10km == 1)
+
+# Plot both
+p + tm_shape(shipOnly) + tm_dots(col = "yellow")
+```
+
+Read in AIS objects
+```{r}
+# Read in AIS_allpts
+AIS_allpts <- read_csv(file = "D:/AIS/AIS_West/AIS_allpts.csv",
+                       show_col_types = FALSE)
+
+# Make sf object
+AIS_allpts_sf <- AIS_allpts %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
+```
 
 
+AIS Map with nearshore AIS points removed
+```{r}
+# Create buffer and simplify lines
+us_buff <- st_simplify(st_buffer(states, dist = 20000), dTolerance = 2000)
+mx_buff <- st_simplify(st_buffer(mex, dist = 20000), dTolerance = 2000)
+west_buff <- st_make_valid(st_union(us_buff, mx_buff))
+
+# View west coast with buffer
+tm_shape(west_buff) + tm_borders()
+
+
+# Only offshore AIS points
+water <- lengths(st_intersects(AIS3, west_buff)) == 0
+keep <- st_make_valid(AIS3[water,]) %>%
+  st_set_crs(4326)
+
+
+# View with nearshore AIS points removed
+tm_shape(keep) + tm_dots(col = "green") + 
+  tm_shape(west_buff) + tm_borders(col = "red")+
+  tm_shape(mex) + tm_borders() +
+  tm_shape(states) + tm_borders() +
+  tm_shape(allDrifts_sf) + tm_dots(size = 0.01) +
+  tmap_options(check.and.fix = TRUE) 
+
+
+```
+
+OLD code with single day of AIS pts
+```{r}
+# Make a fishnet grid over AIS points
+grid <- st_make_grid(bnd, n = 30) %>%
+  st_set_crs(4326)
+plot(grid)
+
+# find which grid points intersect AIS points 
+# and create an index to subset from
+index <- which(lengths(st_intersects(grid, keep)) > 0)
+
+# Subset the grid to make a fishnet
+fishnet <- grid[index]
+#plot(fishnet)
+
+map <- fishnet |>  
+  st_as_sf() |> # cast to sf
+  mutate(grid_id = row_number()) |> # create unique ID
+  st_join(AIS3) |> # join the AIS dataset
+  group_by(grid_id) |> # group by the grid id 
+  summarize(n = n_distinct(MMSI)) # summarize by unique ship ID
+
+# Right now, n is total number of unique ships in each grid cell.
+# With more points, may want to change to avg daily unique ships.
+
+#ggplot
+ggplot() + 
+  geom_sf(data = map, aes(fill = n), lwd = 0.05, color = "white") +
+  geom_sf(data = states) +
+  geom_sf(data = mex) +
+  geom_sf(data = detsOnly_sf, col = 'green', size = 0.01) +
+  geom_sf(data = west_buff, col = "red", alpha = 0.05) +
+  theme_minimal()
+
+# tmap
+tm_shape(map) + tm_fill(col = 'n') +
+  #tm_shape(west_buff) + tm_borders(col = "red") +
+  tm_shape(mex) + tm_borders() +
+  tm_shape(states) + tm_borders() #+
+  #tm_shape(allDrifts_sf) + tm_dots(size = 0.01)
+  
+
+  
+```
+
+
+Points to line loop
+```{r}
+# Make a fishnet grid over AIS area
+# What size cells are these?
+grid <- st_make_grid(bnd, cellsize = 0.4, square = FALSE) %>%
+  st_set_crs(4326)
+
+shipList <- dir("D:/AIS/AIS_West", recursive=TRUE, full.names=TRUE, pattern=".rda")
+
+for (i in shipList) {
+  p <- readRDS(i) %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%
+  group_by(MMSI) %>%
+  summarize() %>%
+  filter(st_geometry_type(.) == "MULTIPOINT") %>%
+  st_cast("LINESTRING")
+  
+  z <- grid %>%
+  st_as_sf() |>
+  mutate(grid_id = row_number()) |>
+  st_intersection(p) |> # join AIS line df
+  group_by(MMSI) |> # group by AIS id 
+  count()
+
+# Grid
+  m <- grid %>%
+  st_as_sf() %>%
+  mutate(grid_id = row_number()) %>%
+  st_join(z) %>%
+  group_by(grid_id) %>% # group by AIS id
+  summarize(n = n_distinct(MMSI))
+  
+  assign(paste0("AIS_", substr(i,21,25), "_grid"), m)
+  
+  print(paste0("Completed", substr(i,21,25)))
+}
+```
+
+Sum up all ships on all days per grid
+```{r}
+f <- bind_rows(AIS_08_06_grid,AIS_08_07_grid, AIS_08_08_grid, AIS_08_09_grid, 
+               AIS_08_10_grid, AIS_08_11_grid, AIS_08_12_grid, AIS_08_13_grid, 
+               AIS_08_14_grid, AIS_08_15_grid, AIS_08_16_grid, AIS_08_17_grid, 
+               AIS_08_18_grid, AIS_08_19_grid, AIS_08_20_grid, AIS_08_21_grid, 
+               AIS_08_22_grid, AIS_08_23_grid, AIS_08_24_grid, AIS_08_25_grid, 
+               AIS_08_26_grid, AIS_08_27_grid, AIS_08_28_grid, AIS_08_29_grid, 
+               AIS_08_30_grid, AIS_08_31_grid, AIS_09_01_grid, AIS_09_02_grid,
+               AIS_09_03_grid, AIS_09_04_grid, AIS_09_05_grid, AIS_09_06_grid, 
+               AIS_09_07_grid, AIS_09_08_grid, AIS_09_09_grid, AIS_09_10_grid, 
+               AIS_09_11_grid, AIS_09_12_grid, AIS_09_13_grid, AIS_09_14_grid, 
+               AIS_09_15_grid, AIS_09_16_grid, AIS_09_17_grid, AIS_09_18_grid, 
+               AIS_09_19_grid, AIS_09_20_grid, AIS_09_21_grid, AIS_09_22_grid, 
+               AIS_09_23_grid, AIS_09_24_grid, AIS_09_25_grid, AIS_09_26_grid, 
+               AIS_09_27_grid, AIS_09_28_grid, AIS_09_29_grid, AIS_09_30_grid, 
+               AIS_10_01_grid, AIS_10_02_grid, AIS_10_03_grid, AIS_10_04_grid, 
+               AIS_10_05_grid, AIS_10_06_grid, AIS_10_07_grid, AIS_10_08_grid, 
+               AIS_10_09_grid, AIS_10_10_grid, AIS_10_11_grid, AIS_10_12_grid, 
+               AIS_10_13_grid, AIS_10_14_grid, AIS_10_15_grid, AIS_10_16_grid, 
+               AIS_10_17_grid, AIS_10_18_grid, AIS_10_19_grid, AIS_10_20_grid, 
+               AIS_10_21_grid, AIS_10_22_grid, AIS_10_23_grid, AIS_10_24_grid, 
+               AIS_10_25_grid, AIS_10_26_grid, AIS_10_27_grid, AIS_10_28_grid,
+               AIS_10_29_grid, AIS_10_30_grid, AIS_10_31_grid, AIS_11_01_grid, 
+               AIS_11_02_grid, AIS_11_03_grid, AIS_11_04_grid, AIS_11_05_grid, 
+               AIS_11_06_grid, AIS_11_07_grid, AIS_11_08_grid, AIS_11_09_grid, 
+               AIS_11_10_grid, AIS_11_11_grid, AIS_11_12_grid, AIS_11_13_grid, 
+               AIS_11_14_grid, AIS_11_15_grid, AIS_11_16_grid, AIS_11_17_grid, 
+               AIS_11_18_grid, AIS_11_19_grid, AIS_11_20_grid, AIS_11_21_grid, 
+               AIS_11_22_grid, AIS_11_23_grid, AIS_11_24_grid, AIS_11_25_grid,
+               AIS_11_26_grid, AIS_11_27_grid, AIS_11_28_grid, AIS_11_29_grid, 
+               AIS_11_30_grid, AIS_12_01_grid, AIS_12_02_grid) %>%
+  group_by(grid_id) %>%
+  summarize(total = sum(n))
+
+saveRDS(f, file = "D:/AIS/AIS_West/AIS_grid.rda")
+```
+
+Cut out AIS on land and coastline
+```{r}
+# Read in AIS points
+f <- readRDS(file = "D:/AIS/AIS_West/AIS_grid.rda")
+
+# Only offshore AIS points
+f_pts_intersect <- lengths(st_intersects(f, west)) == 0
+AISgrd <- st_make_valid(f[f_pts_intersect,]) %>%
+  st_set_crs(4326)
+
+#What is area of these grid cells?
+st_area(grid)
+st_area(AISgrd)
+```
+Final AIS maps
+```{r fig.width=10}
+# ggplot
+ggplot(AISgrd) + 
+  geom_sf(aes(fill = total)) +
+  scale_fill_viridis_c() +
+  geom_sf(data = west) +
+  geom_sf(data = allDrifts_sf)
+
+# tmap
+#tm_basemap(leaflet::providers$Esri.WorldTopoMap) +
+  tm_shape(AISgrd) + tm_fill(fill = 'total', 
+                             col = 'lightgrey', 
+                             fill.legend = tm_legend("Ship Counts"),
+                             fill.scale = tm_scale_continuous()) + 
+  tm_shape(west) + tm_borders(col = "black", 
+                              fill = "papayawhip")+
+  tm_shape(detsOnly_sf) + tm_dots(size = 0.2, 
+                                  legend.show = TRUE) +
+  tm_layout(legend.outside = TRUE) +
+  tm_grid(alpha = 0.2, 
+          col = "grey") +
+  tm_scalebar() +
+  tm_compass(type = "arrow", 
+             position = c(0.05, 0.05), 
+             color.light = "blue") +
+  tm_add_legend('symbol',
+                fill = "black",
+                labels = "Whale Detections",
+                size = 0.5,
+                lwd = 2) +
+  tm_place_legends_right(width = 0.2) +
+  tm_title("Daily Counts of Unique AIS Vessels")
+
+```
+
+
+
+
+```{r}
 #Map all tracks
 main <- tm_shape(allTrackbase) + tm_rgb() +
   tm_shape(trackssf) +
@@ -100,22 +373,6 @@ ggplot(data = basemap3) +
 
 Map of soundscapes
 ```{r}
-# CCES_08 + CCES_10 Broadband
-tm_shape(trackBase) + tm_rgb() + 
-  tm_shape(trk_TOL_08) + 
-  tm_symbols(col = "BB_20-24000", 
-             border.lwd = NA, 
-             size = 0.4, 
-             sizes.legend = 0.7, 
-             n = 10) +
-  tm_shape(trk_TOL_10) + 
-  tm_symbols(col = "BB_20-24000",
-             border.lwd = NA, 
-             size = 0.4,
-             n = 10) +
-  tm_layout(legend.width = 0.5, 
-            legend.position = c("right","top"),
-            legend.bg.color = "lightblue")
 
 #CCES_08 Third Octave Level
 tm_shape(trackBase) + tm_rgb() + 
