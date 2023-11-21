@@ -5,6 +5,11 @@ date: "2023-09-29"
 output: html_document
 ---
 
+This document shows the process for determining whether interpolation for drift 20 was appropriate
+during the 4 days the GPS went dark. I compare environmental variables of interpolated points to
+those at the start and end of the gap. Since the interpolated environmental variables are significantly
+different, it's advised to eliminate them from environmental analysis.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
