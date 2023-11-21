@@ -10,6 +10,13 @@ library(rfPermute)
 # Load in main dataframe
 load(file = "data/allDrifts.rda")
 
+# Create new row with random samples, make sure to add to covariates list
+allDrifts$randSamp <- sample(10000, size = nrow(allDrifts), replace = TRUE)
+
+# Load in main dataframe with seafloor gradient(?)
+#load(file = "data/allDrifts_grad.rda")
+
+
 #Define response variable (presence/absence as 0/1)
 #Create a variable for presence of each species, and then create a
 #random forest model for each species 
@@ -31,7 +38,8 @@ allDrifts$ZcPresence<-factor(ifelse(allDrifts$species=='ZC',1,0))
 covariate.list<-list(c('ZcPresence','curl_mean', 'bathy_slope',
                        'sst_mean','dist2slope','depth','dist2slope','chlorophyll_mean',
                        'chlorophyll_mean','mldDepth','ssh_mean',
-                       'mldDepth', 'mldTemp', 'ttDepth','ttTemp', 'temp400', 'sal400'))
+                       'mldDepth', 'mldTemp', 'ttDepth','ttTemp', 'temp400', 'sal400',
+                       'randSamp'))
 
 include.covars <- which(names(allDrifts) %in% covariate.list[[1]])
 
@@ -49,9 +57,9 @@ sampsizeZC <- balancedSampsize(DF.modelZC$ZcPresence)
 # set seed for reproducibility
 set.seed(123)
 
-# Use random forest, not rfPermute
+# Use random forest
 RanFor.model.ZC <- randomForest(ZcPresence ~ ., data=DF.modelZC[,include.covars],
-                         replace=FALSE, ntree=4000, sampsize=sampsizeZC, 
+                         replace=FALSE, ntree=4400, sampsize=sampsizeZC, 
                          proximity=FALSE, importance = TRUE)
 RanFor.model.ZC
 
@@ -91,7 +99,8 @@ allDrifts$PmPresence<-factor(ifelse(allDrifts$species=='PM',1,0))
 covariate.list<-list(c('PmPresence','curl_mean', 'bathy_slope',
                        'sst_mean','dist2slope','depth','dist2slope','chlorophyll_mean',
                        'chlorophyll_mean','mldDepth','ssh_mean',
-                       'mldDepth', 'mldTemp', 'ttDepth','ttTemp', 'temp400', 'sal400'))
+                       'mldDepth', 'mldTemp', 'ttDepth','ttTemp', 'temp400', 'sal400',
+                       'randSamp'))
 
 include.covars <- which(names(allDrifts) %in% covariate.list[[1]])
 
@@ -129,3 +138,58 @@ save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 
 # Top 5 environmental variables only:
 # dist2slope, ttDepth, mldDepth, ssh_mean, depth
+
+
+
+###############################################################
+##### Using rfPermute rather than Random Forest ##############
+##############################################################
+
+## Cuvier's BW
+
+# Estimate Permutation p-values for Random Forest Importance Metrics
+# takes over 1 hr to run.
+RF.model.ZC <- rfPermute(ZcPresence ~ ., data=DF.modelZC[,include.covars],
+                                replace=FALSE, ntree=7000, sampsize=sampsizeZC, 
+                                proximity=FALSE, importance = TRUE)
+RF.model.ZC
+
+pdf(paste(Dep,"_",string.covars.used,".pdf"), width=14, height=10)
+round(importance(RF.model.ZC),3) #ranking of importance for each variable
+plotImportance(RF.model.ZC) #visualize importance
+plotTrace(RF.model.ZC)   #model stability w/number of trees (this should be flat!)
+plotImpPreds(RF.model.ZC, DF.modelZC, "ZcPresence")  #distribution of predictors 
+plotPredictedProbs(RF.model.ZC)
+dev.off()
+save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
+
+# Top 5 variables are:
+# 
+
+# Top 5 variables with only environmental variables
+# depth, sst_mean, curl+mean, mldTemp, ssh_mean
+
+###################################################################
+
+## Sperm whale
+
+# Use rfPermute
+RF.model.PM <- rfPermute(PmPresence ~ ., data=DF.modelPM[,include.covars],
+                                replace=FALSE, ntree=1000, sampsize=sampsizePM, 
+                                proximity=FALSE, importance = TRUE)
+RF.model.PM
+
+pdf(paste(Dep,"_",string.covars.used,".pdf"), width=14, height=10)
+round(importance(RF.model.PM),3) #ranking of importance for each variable
+plotImportance(RF.model.PM) #visualize importance
+plotTrace(RF.model.PM)   #model stability w/number of trees (this should be flat!)
+plotImpPreds(RF.model.PM, DF.modelPM, "PmPresence")  #distribution of predictors 
+plotPredictedProbs(RF.model.PM)
+dev.off()
+save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
+
+# Top 5 variables are:
+# 
+
+# Top 5 environmental variables only:
+# 
