@@ -12,6 +12,7 @@ Required Packages
 ```{r setup}
 library(tidyverse)
 library(mgcv)
+library(car)
 ```
 
 Load allDrifts object
@@ -35,11 +36,18 @@ ZC_GAM <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + mldTemp + bathy_slope
 summary(ZC_GAM)
 gam.check(ZC_GAM)
 
+# Environ + noise
+ZC_GAM_env_TOL <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + mldTemp + bathy_slope +
+                        TOL_125 + TOL_2000,
+                      data = ZC_filt, family = binomial, method = "REML")
+summary(ZC_GAM_env_TOL)
+gam.check(ZC_GAM_env_TOL)
+
+
+#Environ + noise + ship (** CANT MODEL SHIP)
 ZC_GAM_env_TOL <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + mldTemp + bathy_slope +
                         TOL_125 + TOL_2000 + shipin10km + timeAfterShip,
               data = ZC_filt, family = binomial, method = "REML")
-summary(ZC_GAM_env_TOL)
-gam.check(ZC_GAM_env_TOL)
 ```
 
 # GAM by PM
@@ -55,11 +63,17 @@ PM_GAM <- gam(Wpresence>0 ~ dist2slope + ttDepth + mldDepth + ssh_mean + depth,
 summary(PM_GAM)
 gam.check(PM_GAM)
 
+# Environ + noise
 PM_GAM_env_TOL <- gam(Wpresence>0 ~ dist2slope + ttDepth + depth + mldDepth + ssh_mean +
-                        TOL_125 + TOL_2000 + timeAfterShip,
+                        TOL_125 + TOL_2000,
               data = PM_filt, family = binomial, method = "REML")
 summary(PM_GAM_env_TOL)
 gam.check(PM_GAM_env_TOL)
+
+# With ships - DO NOT MODEL SHIPS
+#PM_GAM_env_TOL <- gam(Wpresence>0 ~ dist2slope + ttDepth + depth + mldDepth + ssh_mean +
+#                        TOL_125 + TOL_2000 + timeAfterShip,
+#              data = PM_filt, family = binomial, method = "REML")
 ```
 
 
@@ -252,4 +266,130 @@ plot(model5)
 Higher edfs describe more wiggly curves. Doesn't mean significant
 
 
+
+Detecting Multicolinearity with Variance Inflation Factors (VIF) - Cuvier's Only
+```{r}
+ZC_filt <- allDrifts %>% 
+  filter(species %in% c("ZC", NA))
+
+# Environ only
+model1LM <- glm(Wpresence ~ depth + mldDepth
+               + sst_mean + curl_mean + dist2slope
+               + bathy_slope + dist2shore 
+               + chlorophyll_mean + ssh_mean 
+               + ttDepth + temp400 + sal400,
+               data = ZC_filt)
+
+vif(model1LM)
+
+vif_values <- tibble(vif(model1LM)) %>%
+  cbind(var = c("depth", "mldDepth", "sst_mean", "curl_mean", "dist2slope", "bathy_slope",
+          "dist2shore", "chlorophyll_mean", "ssh_mean", "ttDepth", "temp400", "sal400")) %>%
+  rename(val = "vif(model1LM)")
+# Need to remove mldTemp or ttTemp for it to work.
+
+ggplot(vif_values, aes(y = var, x = val)) + 
+  geom_col() + 
+  geom_vline(xintercept = 5, col = "red") +
+  labs(title = "VIF Values by Env. Variable - Cuvier's BW only")
+```
+
+Detecting Multicolinearity with Variance Inflation Factors (VIF) - Sperm whale only
+**IDENTICAL RESULTS TO ZC ONE***
+```{r}
+PM_filt <- allDrifts %>% 
+  filter(species %in% c("PM", NA))
+
+# Environ only
+model1LM <- glm(Wpresence ~ depth + mldDepth
+               + sst_mean + curl_mean + dist2slope
+               + bathy_slope + dist2shore 
+               + chlorophyll_mean + ssh_mean 
+               + ttDepth + temp400 + sal400,
+               data = PM_filt)
+
+vif(model1LM)
+
+vif_values <- tibble(vif(model1LM)) %>%
+  cbind(var = c("depth", "mldDepth", "sst_mean", "curl_mean", "dist2slope", "bathy_slope",
+          "dist2shore", "chlorophyll_mean", "ssh_mean", "ttDepth", "temp400", "sal400")) %>%
+  rename(val = "vif(model1LM)")
+# Need to remove mldTemp or ttTemp for it to work -- perfectly correlated!
+
+ggplot(vif_values, aes(y = var, x = val)) + 
+  geom_col() + 
+  geom_vline(xintercept = 5, col = "red") +
+  labs(title = "VIF Values by Env. Variable - Sperm whales only")
+```
+Trying GAM with correlated variables removed
+```{r}
+# Cuvier's BW
+zc.GAM.VIF <- gam(Wpresence>0 ~ ttDepth + ssh_mean + mldDepth + depth + curl_mean +
+            chlorophyll_mean + bathy_slope, data = ZC_filt)
+summary(zc.GAM.VIF)
+gam.check(zc.GAM.VIF)
+
+# Sperm whale
+pm.GAM.VIF <- gam(Wpresence>0 ~ ttDepth + ssh_mean + mldDepth + depth + curl_mean +
+            chlorophyll_mean + bathy_slope + TOL_125 + TOL_2000, data = PM_filt)
+summary(pm.GAM.VIF)
+gam.check(pm.GAM.VIF)
+
+```
+
+Load seafloor depth gradient dataset and rerun GAM
+```{r}
+load(file = "data/allDrifts_grad.rda")
+
+ZC_filt2 <- allDrifts_grad %>% 
+  filter(species %in% c("ZC", NA))
+
+# Environ only
+model2LM <- glm(Wpresence ~ depth + mldDepth
+               + sst_mean + curl_mean + dist2slope
+               + bathy_slope + dist2shore 
+               + chlorophyll_mean + ssh_mean 
+               + ttDepth + temp400 + sal400 +
+               magnitude_gradient_mean,
+               data = ZC_filt2)
+
+vif(model2LM)
+
+vif_values <- tibble(vif(model2LM)) %>%
+  cbind(var = c("depth", "mldDepth", "sst_mean", "curl_mean", "dist2slope", "bathy_slope",
+          "dist2shore", "chlorophyll_mean", "ssh_mean", "ttDepth", "temp400", "sal400",
+          "magnitude_gradient_mean")) %>%
+  rename(val = "vif(model2LM)")
+# Need to remove mldTemp or ttTemp for it to work.
+
+ggplot(vif_values, aes(y = var, x = val)) + 
+  geom_col() + 
+  geom_vline(xintercept = 5, col = "red") +
+  labs(title = "VIF Values by Env. Variable - Cuvier's BW only")
+```
+
+```{r}
+# GAM with seafloor gradient
+
+# Cuvier's
+model3GAM <- gam(Wpresence ~ depth + mldDepth
+               + curl_mean + bathy_slope
+               + chlorophyll_mean + ssh_mean +
+               magnitude_gradient_mean,
+               data = ZC_filt2)
+summary(model3GAM)
+# Deviance explained = 0.854%
+
+# Sperm whale
+PM_filt2 <- allDrifts_grad %>% 
+  filter(species %in% c("PM", NA))
+
+model4GAM <- gam(Wpresence ~ depth + mldDepth
+               + curl_mean + bathy_slope
+               + chlorophyll_mean + ssh_mean +
+               magnitude_gradient_mean,
+               data = PM_filt2)
+summary(model4GAM)
+# Deviance explained = 0.816%
+```
 
