@@ -9,333 +9,207 @@ Compare results of GAM to Virgili et al. 2019, Fiedler et al. 2023
 
 
 Required Packages
-```{r setup}
+```{r}
 library(tidyverse)
 library(mgcv)
 library(car)
 ```
 
-Load allDrifts object
-```{r setup, include=FALSE}
+Load allDrifts object, split out Cuvier's and Sperm whales
+```{r}
 load(file = "data/allDrifts.rda")
+
+ZC_filt <- allDrifts %>% 
+  filter(species %in% c("ZC", NA))
+
+PM_filt <- allDrifts %>% 
+  filter(species %in% c("PM", NA))
+
 ```
 
 
 ### GAMs
 
-# GAM by ZC
-# Top 5 env variables from RF are:depth, sst_mean, curl_mean, mldTemp, bathyslope
+# GAM for Cuver's Beaked whale (ZC)
 
 ```{r}
-ZC_filt <- allDrifts %>% 
-  filter(species %in% c("ZC", NA))
-
-# Environ only
-ZC_GAM <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + mldTemp + bathy_slope,
+# Environ only - binomial
+ZC_GAM1 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean),
               data = ZC_filt, family = binomial, method = "REML")
-summary(ZC_GAM)
-gam.check(ZC_GAM)
+summary(ZC_GAM1)
+gam.check(ZC_GAM1)
 
-# Environ + noise
-ZC_GAM_env_TOL <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + mldTemp + bathy_slope +
-                        TOL_125 + TOL_2000,
+# Environ + noise - binomial
+ZC_GAM2<- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
                       data = ZC_filt, family = binomial, method = "REML")
-summary(ZC_GAM_env_TOL)
-gam.check(ZC_GAM_env_TOL)
+summary(ZC_GAM2)
+gam.check(ZC_GAM2)
+
+# Environ only - poisson
+ZC_GAM3 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean),
+              data = ZC_filt, family = poisson, method = "REML")
+summary(ZC_GAM3)
+gam.check(ZC_GAM3)
+
+# Environ + noise - poisson
+ZC_GAM4<- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
+                      data = ZC_filt, family = poisson, method = "REML")
+summary(ZC_GAM4)
+gam.check(ZC_GAM4)
+plot(ZC_GAM4, all.terms = TRUE, scale = 0)
+
+# Environ only - gaussian
+ZC_GAM5 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean),
+                  data = ZC_filt, method = "REML")
+summary(ZC_GAM5)
+gam.check(ZC_GAM5)
+
+# Environ + noise - gaussian
+ZC_GAM6 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
+                  data = ZC_filt, method = "REML")
+summary(ZC_GAM6)
+gam.check(ZC_GAM6)
+
+# Environ only - Tweedie
+ZC_GAM7 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean),
+                  data = ZC_filt, family = tw(link = "log"), method = "REML")
+summary(ZC_GAM7)
+gam.check(ZC_GAM7)
+
+# Environ + noise - Tweedie
+ZC_GAM8 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
+                  data = ZC_filt, family = tw(link = "log"), method = "REML")
+summary(ZC_GAM8)
+gam.check(ZC_GAM8)
 
 
-#Environ + noise + ship (** CANT MODEL SHIP)
-ZC_GAM_env_TOL <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + mldTemp + bathy_slope +
-                        TOL_125 + TOL_2000 + shipin10km + timeAfterShip,
-              data = ZC_filt, family = binomial, method = "REML")
+plot(ZC_GAM1, all.terms = TRUE, scale = 0, pages = 1)
+plot(ZC_GAM2, all.terms = TRUE, scale = 0, pages = 2)
+plot(ZC_GAM3, all.terms = TRUE, scale = 0, pages = 1)
+plot(ZC_GAM4, all.terms = TRUE, scale = 0, pages = 2)
+plot(ZC_GAM5, all.terms = TRUE, scale = 0, pages = 1)
+plot(ZC_GAM6, all.terms = TRUE, scale = 0, pages = 2)
+plot(ZC_GAM7, all.terms = TRUE, scale = 0, pages = 1)
+plot(ZC_GAM8, all.terms = TRUE, scale = 0, pages = 2)
+AIC(ZC_GAM4, ZC_GAM8)
 ```
 
 # GAM by PM
-# Top 5 predictors from RF: TOL_2000, dist2slope, timeaftership, ttDepth, depth
 
 ```{r}
-PM_filt <- allDrifts %>% 
-  filter(species %in% c("PM", NA))
-
-# Environ only
-PM_GAM <- gam(Wpresence>0 ~ dist2slope + ttDepth + mldDepth + ssh_mean + depth,
+# Environ only - binomial
+PM_GAM1 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + 
+                    s(sst_mean),
               data = PM_filt, family = binomial, method = "REML")
-summary(PM_GAM)
-gam.check(PM_GAM)
+summary(PM_GAM1)
+gam.check(PM_GAM1)
 
-# Environ + noise
-PM_GAM_env_TOL <- gam(Wpresence>0 ~ dist2slope + ttDepth + depth + mldDepth + ssh_mean +
-                        TOL_125 + TOL_2000,
+# Environ + noise - binomial
+PM_GAM2 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + 
+                 s(sst_mean) + s(TOL_125) + s(TOL_2000),
               data = PM_filt, family = binomial, method = "REML")
-summary(PM_GAM_env_TOL)
-gam.check(PM_GAM_env_TOL)
+summary(PM_GAM2)
+gam.check(PM_GAM2)
 
-# With ships - DO NOT MODEL SHIPS
-#PM_GAM_env_TOL <- gam(Wpresence>0 ~ dist2slope + ttDepth + depth + mldDepth + ssh_mean +
-#                        TOL_125 + TOL_2000 + timeAfterShip,
-#              data = PM_filt, family = binomial, method = "REML")
-```
+# Environ only - poisson
+PM_GAM3 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean),
+              data = PM_filt, family = poisson, method = "REML")
+summary(PM_GAM3)
+gam.check(PM_GAM3)
 
+# Environ + noise - poisson
+PM_GAM4 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) 
+               + s(sst_mean) + s(TOL_125) + s(TOL_2000),
+              data = PM_filt, family = poisson, method = "REML")
+summary(PM_GAM4)
+gam.check(PM_GAM4)
 
+# Environ only - gaussian
+PM_GAM5 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean),
+              data = PM_filt, method = "REML")
+summary(PM_GAM5)
+gam.check(PM_GAM5)
 
+# Environ + noise - gaussian
+PM_GAM6 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean)
+               + s(TOL_125) + s(TOL_2000),
+              data = PM_filt, method = "REML")
+summary(PM_GAM6)
+gam.check(PM_GAM6)
 
+# Environ only - Tweedie
+PM_GAM7 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean),
+              data = PM_filt, family = tw(link = "log"), method = "REML")
+summary(PM_GAM7)
+gam.check(PM_GAM7)
 
-
-
-
-
-
-
-
-```{r}
-model3 <- gam(Wpresence ~ depth + TOL_125 + dist2shore + mldTemp, 
-              data = allDrifts, family = binomial)
-#plot(model3)
-
-#try fitting linear model
-
-lm_depth <- lm(Wpresence ~ depth, data = GPSwhaleAISenvSS10)
-ggplot(allDrifts, aes(sst_mean, chlorophyll_mean)) +
-  geom_point() +
-  geom_smooth()
-```
-Categorical term
-```{r}
-# ALL variables, GAM
-model1 <- gam(Wpresence>0 ~ s(TOL_125) + s(TOL_2000) + s(depth) + s(mldDepth) + s(Latitude)
-              + s(Longitude) + s(sst_mean) + s(curl_mean) + s(dist2slope) 
-              + s(bathy_slope) + s(dist2shore) + s(chlorophyll_mean) + s(ssh_mean) 
-              + s(mldTemp) + s(ttDepth) + s(ttTemp) + s(temp400) + s(sal400),
-              data = allDrifts, family = binomial, method = "REML")
-
-# ALL variables, GLM
-model1GLM <- glm(Wpresence ~ TOL_125 + TOL_2000 + depth + mldDepth + Latitude
-              + Longitude + sst_mean + curl_mean + dist2slope
-              + bathy_slope + dist2shore + chlorophyll_mean + ssh_mean 
-              + mldTemp + ttDepth + ttTemp + temp400 + sal400,
-              data = allDrifts, family = binomial)
-
-# By species? doesnt work, may need to create dummy variables
-model2 <- gam(Wpresence ~ s(sst_mean, by = as.factor(species)), 
-              data = allDrifts, family = binomial, method = "REML")
-
-# Soundscape metrics only, GAM
-model4 <- gam(Wpresence ~ s(TOL_125, k = 10) + 
-                s(TOL_2000, k = 10),
-              data = allDrifts, family = binomial, method = "REML")
-
-# Soundscape metrics only, GLM
-model4GLM <- glm(Wpresence ~ TOL_125 + TOL_2000,
-              data = allDrifts, family = binomial)
-
-model125 <- gam(Wpresence ~ s(TOL_125, k = 10),
-              data = allDrifts, family = binomial, method = "REML")
-plot(model125, trans = plogis)
-summary(model125)
-gam.check(model125)
-
-# Environmental var only
-model5 <- gam(Wpresence ~ s(depth) + s(mldDepth) + s(Latitude)
-              + s(Longitude) + s(sst_mean) + s(curl_mean) + s(dist2slope) 
-              + s(bathy_slope) + s(dist2shore) + s(chlorophyll_mean) + s(ssh_mean) 
-              + s(mldTemp) + s(ttDepth) + s(ttTemp) + s(temp400) + s(sal400),
-              data = allDrifts, family = binomial, method = "REML")
-
-plogis(coef(model1[1]))
-summary(model1)
-summary(model4)
-summary(model5)
-summary(model4GLM)
-plot(model4GLM)
-gam.check(model1)
-gam.check(model4)
-
-#Log odds scale (when used with family = binomial)
-plot(model1, pages = 6)
-plot(model4, pages = 4, trans = plogis)
-
-#Probability scale + centered on the intercept + adding intercept-related uncertainty with seWithMean arg
-plot(model1, pages = 14, trans = plogis,
-     shift = coef(model1)[1])#,
-     #seWithMean = TRUE)
-
-plot(model2, pages = 1, trans = plogis,
-     shift = coef(model2)[1])
-
-plot(model4, pages = 6, trans = plogis,
-     shift = coef(model4)[1])
-```
-
-Top 5 environmental variables (by RF) with one drift
-```{r}
-# Environ only
-model1 <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + ttDepth + sal400,
-              data = GPSwhaleAISenvSS23, family = binomial, method = "REML")
-
-plot(model1, trans = plogis, all.terms = TRUE)
-k.check(model1)
-summary(model1)
-gam.check(model1)
+# Environ + noise - Tweedie
+PM_GAM8 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean)
+               + s(TOL_125) + s(TOL_2000),
+              data = PM_filt, family = tw(link = "log"), method = "REML")
+summary(PM_GAM8)
+gam.check(PM_GAM8)
 
 
-# Add soundscape metrics to model 1
-model2 <- gam(Wpresence>0 ~ depth + sst_mean + curl_mean + ttDepth + sal400
-              + TOL_125 + TOL_2000,
-              data = GPSwhaleAISenvSS10, family = binomial, method = "REML")
-
-
-#plot(model2, trans = plogis) ## doesn't work
-summary(model2)
-gam.check(model2)
-# 18.3% deviance explained (buoy 7)
-# 1.25% deviance explained (buoy 8)
-# 8.56% deviance explained (buoy 10)
-# 1.39% deviance explained (buoy 12)
-# 11.1% deviance explained (buoy 13)
-# 28% deviance explained (buoy 14)
-# 15% deviance explained (buoy 16)
-# 9.92% deviance explained (buoy 18)
-# 8.57% deviance explained (buoy 19)
-# 7.3% deviance explained (buoy 20)
-# 38.3% deviance explained (buoy 21)
-# 15.2 % deviance explained (buoy 22)
-# 20.4% deviance explained (buoy 23)
-
-# Depth parameter only
-model_depth_only <- gam(Wpresence>0 ~ depth,
-                        data = GPSwhaleAISenvSS10, family = binomial, method = "REML")
-summary(model_depth_only)
-gam.check(model_depth_only)
-```
-GAM with FULL DATASET (not great)
-```{r}
-alldriftGAM <- gam(Wpresence>0 ~ depth + sst_mean + mldTemp + ttDepth + sal400
-              + TOL_125 + TOL_2000,
-              data = allDrifts, family = binomial, method = "REML")
-summary(alldriftGAM)
-gam.check(alldriftGAM)
-```
-
-
-GAMs with s()
-```{r}
-# Environ only, with s()
-model3 <- gam(Wpresence>0 ~ s(depth) + s(sst_mean) + s(curl_mean) + 
-                s(ttDepth) + s(sal400),
-              data = GPSwhaleAISenvSS07, family = binomial, method = "REML")
-
-plot(model3, trans = plogis)
-summary(model3)
-gam.check(model3)
-# 61.9 % deviance explained (buoy 7)
-# 1.42% deviance explained (buoy 8)
-# 12.5% deviance explained (buoy 10)
-# 1.66% deviance explained (buoy 12)
-# 12.8% deviance explained (buoy 13)
-# 41.4% deviance explained (buoy 14)
-# 39% deviance explained (buoy 16)
-# 16.6% deviance explained (buoy 18)
-# 15.5% deviance explained (buoy 19)
-# 5.8% deviance explained (buoy 20)
-## Iteration limit reached without full convergence -- 71.7% deviance explained (buoy 21) ???
-# 18.6% deviance explained (buoy 22)
-# 49.6% deviance explained (buoy 23)
-
-#Add soundscape metrics to model 3
-model4 <- gam(Wpresence>0 ~ s(depth) + s(sst_mean) + s(curl_mean) + 
-                s(ttDepth) + s(sal400) + s(TOL_125) + s(TOL_2000),
-              data = GPSwhaleAISenvSS07, family = binomial, method = "REML")
-
-plot(model4, trans = plogis)
-summary(model4)
-gam.check(model4)
-# 14.5% deviance explained
-
-# mix and match?
-model5 <- gam(BWpresence>0 ~ depth + sst_mean + s(mldTemp) + 
-                s(ttDepth) + sal400,
-              data = fulltrack21, family = binomial, method = "REML")
-
-summary(model5)
-gam.check(model5)
-# 57.4 % deviance explained
-plot(model5)
-
+plot(PM_GAM1, all.terms = TRUE, scale = 0)
+plot(PM_GAM2, all.terms = TRUE, scale = 0)
+plot(PM_GAM3, all.terms = TRUE, scale = 0)
+plot(PM_GAM4, all.terms = TRUE, scale = 0)
+plot(PM_GAM5, all.terms = TRUE, scale = 0)
+plot(PM_GAM6, all.terms = TRUE, scale = 0)
+plot(PM_GAM7, all.terms = TRUE, scale = 0)
+plot(PM_GAM8, all.terms = TRUE, scale = 0)
+AIC(PM_GAM4, PM_GAM8)
 
 ```
-Higher edfs describe more wiggly curves. Doesn't mean significant
 
 
-
-Detecting Multicolinearity with Variance Inflation Factors (VIF) - Cuvier's Only
+Detecting Multicollinearity with Variance Inflation Factors (VIF) - Cuvier's Only
+This appears to only work with GLMs?
 ```{r}
-ZC_filt <- allDrifts %>% 
-  filter(species %in% c("ZC", NA))
+zc.GLM.VIF1 <- glm(Wpresence>0 ~ depth + temp400 + sst_mean + TOL_125 + TOL_2000,
+                      data = ZC_filt)
 
-# Environ only
-model1LM <- glm(Wpresence ~ depth + mldDepth
-               + sst_mean + curl_mean + dist2slope
-               + bathy_slope + dist2shore 
-               + chlorophyll_mean + ssh_mean 
-               + ttDepth + temp400 + sal400,
-               data = ZC_filt)
+vif(zc.GLM.VIF1)
 
-vif(model1LM)
+vif_values1 <- tibble(vif(zc.GLM.VIF1)) %>%
+  cbind(var = c("depth", "temp400", "sst_mean",
+                "TOL_125", "TOL_2000")) %>%
+  rename(val = "vif(zc.GLM.VIF1)")
 
-vif_values <- tibble(vif(model1LM)) %>%
-  cbind(var = c("depth", "mldDepth", "sst_mean", "curl_mean", "dist2slope", "bathy_slope",
-          "dist2shore", "chlorophyll_mean", "ssh_mean", "ttDepth", "temp400", "sal400")) %>%
-  rename(val = "vif(model1LM)")
-# Need to remove mldTemp or ttTemp for it to work.
-
-ggplot(vif_values, aes(y = var, x = val)) + 
+ggplot(vif_values1, aes(y = var, x = val)) + 
   geom_col() + 
   geom_vline(xintercept = 5, col = "red") +
   labs(title = "VIF Values by Env. Variable - Cuvier's BW only")
 ```
 
+
 Detecting Multicolinearity with Variance Inflation Factors (VIF) - Sperm whale only
-**IDENTICAL RESULTS TO ZC ONE***
 ```{r}
 PM_filt <- allDrifts %>% 
   filter(species %in% c("PM", NA))
 
-# Environ only
-model1LM <- glm(Wpresence ~ depth + mldDepth
-               + sst_mean + curl_mean + dist2slope
-               + bathy_slope + dist2shore 
-               + chlorophyll_mean + ssh_mean 
-               + ttDepth + temp400 + sal400,
-               data = PM_filt)
+pm.GLM.VIF1 <- glm(Wpresence>0 ~ dist2slope + mldDepth +
+                     sst_mean + TOL_125 + TOL_2000, data = PM_filt)
 
-vif(model1LM)
+vif(pm.GLM.VIF1)
 
-vif_values <- tibble(vif(model1LM)) %>%
-  cbind(var = c("depth", "mldDepth", "sst_mean", "curl_mean", "dist2slope", "bathy_slope",
-          "dist2shore", "chlorophyll_mean", "ssh_mean", "ttDepth", "temp400", "sal400")) %>%
-  rename(val = "vif(model1LM)")
-# Need to remove mldTemp or ttTemp for it to work -- perfectly correlated!
+vif_values2 <- tibble(vif(pm.GLM.VIF1)) %>%
+  cbind(var = c("mldDepth", "dist2slope",
+                 "TOL_125", "TOL_2000", "sst_mean")) %>%
+  rename(val = "vif(pm.GLM.VIF1)")
 
-ggplot(vif_values, aes(y = var, x = val)) + 
+ggplot(vif_values2, aes(y = var, x = val)) + 
   geom_col() + 
   geom_vline(xintercept = 5, col = "red") +
   labs(title = "VIF Values by Env. Variable - Sperm whales only")
 ```
-Trying GAM with correlated variables removed
-```{r}
-# Cuvier's BW
-zc.GAM.VIF <- gam(Wpresence>0 ~ ttDepth + ssh_mean + mldDepth + depth + curl_mean +
-            chlorophyll_mean + bathy_slope, data = ZC_filt)
-summary(zc.GAM.VIF)
-gam.check(zc.GAM.VIF)
 
-# Sperm whale
-pm.GAM.VIF <- gam(Wpresence>0 ~ ttDepth + ssh_mean + mldDepth + depth + curl_mean +
-            chlorophyll_mean + bathy_slope + TOL_125 + TOL_2000, data = PM_filt)
-summary(pm.GAM.VIF)
-gam.check(pm.GAM.VIF)
 
-```
+
+
+
+
 
 Load seafloor depth gradient dataset and rerun GAM
 ```{r}
@@ -368,16 +242,16 @@ ggplot(vif_values, aes(y = var, x = val)) +
   labs(title = "VIF Values by Env. Variable - Cuvier's BW only")
 ```
 
+Should I include seafloor gradient in GAM?
 ```{r}
 # GAM with seafloor gradient
 
 # Cuvier's
-model3GAM <- gam(Wpresence ~ depth + mldDepth
-               + curl_mean + bathy_slope
-               + chlorophyll_mean + ssh_mean +
-               magnitude_gradient_mean,
+model3GAM <- gam(Wpresence ~ s(depth) + s(temp400) + s(sst_mean) + 
+                   s(magnitude_gradient_mean),
                data = ZC_filt2)
 summary(model3GAM)
+plot(model3GAM, all.terms = TRUE, scale = 0)
 # Deviance explained = 0.854%
 
 # Sperm whale
@@ -391,5 +265,50 @@ model4GAM <- gam(Wpresence ~ depth + mldDepth
                data = PM_filt2)
 summary(model4GAM)
 # Deviance explained = 0.816%
+```
+Does distance to escarpment improve the GAM?
+```{r}
+load(file = "D:Buoy_dfs/drift_escarpment.rda")
+
+ZC_filt2 <- drift_escarp %>% 
+  filter(species %in% c("ZC", NA))
+
+PM_filt2 <- drift_escarp %>% 
+  filter(species %in% c("PM", NA))
+#####
+
+# Poisson
+ZC_GAM_escarp <- gam(Wpresence>0 ~ s(dist2escarp) + s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
+              data = ZC_filt2, family = poisson, method = "REML")
+summary(ZC_GAM_escarp)
+plot(ZC_GAM_escarp, all.terms = TRUE)
+
+# Tweedie (family = tw(link = "log"))
+ZC_GAM_escarp <- gam(Wpresence>0 ~ s(dist2escarp) + s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
+              data = ZC_filt2, family = tw(link = "log"), method = "REML")
+summary(ZC_GAM_escarp)
+plot(ZC_GAM_escarp, all.terms = TRUE)
+
+# Poisson
+PM_GAM_escarp <- gam(Wpresence>0 ~ s(dist2escarp) + s(dist2slope) + s(mldDepth) + s(sst_mean)
+               + s(TOL_125) + s(TOL_2000),
+              data = PM_filt2, family = poisson, method = "REML")
+summary(PM_GAM_escarp)
+plot(PM_GAM_escarp, all.terms = TRUE)
+plot.gam(PM_GAM_escarp)
+
+# Tweedie
+PM_GAM_escarp <- gam(Wpresence>0 ~ s(dist2escarp) + s(dist2slope) + s(mldDepth) + s(sst_mean)
+               + s(TOL_125) + s(TOL_2000),
+              data = PM_filt2, family = tw(link = "log"), method = "REML")
+summary(PM_GAM_escarp)
+```
+
+With TOL2000 included
+```{r}
+escarp_gam <- gam(TOL_2000 ~ s(as.numeric(dist2escarp)), 
+                  data = drift_escarp)
+summary(escarp_gam)
+plot(escarp_gam, all.terms = TRUE, scale = 0)
 ```
 
