@@ -3,6 +3,9 @@
 # Required packages
 library(tidyverse)
 library(terra)
+library(sf)
+library(mgcv)
+library(car)
 
 # Read in buoy dataframes
 ftlist <- dir("D:/Buoy_dfs/", recursive=TRUE, full.names=TRUE, pattern="GPSwhaleAISenvSS")
@@ -97,12 +100,14 @@ allDrifts_grad <- bind_rows(grad07,grad08, grad10, grad12, grad13, grad14,
                            grad16, grad18, grad19, grad20, grad21, grad22, grad23)
 
 save(allDrifts_grad, file = "data/allDrifts_grad.rda")
-
+load(file = "data/allDrifts_grad.rda")
 
 ## Correlate TOL 2000 levels with seafloor gradient
 grad_lm <- lm(magnitude_gradient_mean ~ TOL_2000, allDrifts_grad)
 grad_glm <- glm(magnitude_gradient_mean ~ TOL_2000, data = allDrifts_grad)
-
+grad_gam <- gam(magnitude_gradient_mean ~ s(TOL_2000), data = allDrifts_grad)
+plot(grad_gam, all.terms = TRUE)
+summary(grad_gam)
 summary(grad_glm)
 
 
@@ -119,39 +124,101 @@ ggplot(allDrifts_grad, aes(x = Longitude, y = Latitude)) +
 
 seafloor <- rast("D:/Environ_variables/SeafloorGradient.tif")
 
-## from 03 ##
+load("data/allDrifts.rda")
+allDrifts_sf <- allDrifts %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
 
-agg <- terra::aggregate(bathy, 5)  # Increase cell size by factor of 5 to be visible
 
-cont <- st_as_sf(as.contour(bathy, )) # Create contour lines from bathymetry 
-cont_slope <- cont %>% filter(level == -2000) # Establish continental shelf. Is 2000m the correct depth for continental shelf?
+# Establish bounding box of study area
+xmin <- st_bbox(allDrifts_sf)[1]
+xmax <- st_bbox(allDrifts_sf)[3]
+ymin <- st_bbox(allDrifts_sf)[2]
+ymax <- st_bbox(allDrifts_sf)[4]
 
-#Make sure to clear Global Environment of other objects with "env"
-tracklist <- grep(pattern = "env", names(.GlobalEnv), value = T)
+ext(seafloor) <- c(xmin, xmax, ymin, ymax)
+plot(seafloor)
 
-for (t in tracklist) {
-  sf <- st_as_sf(get(t), coords = c("Longitude", "Latitude"), crs=4326, remove=F)
-  trk <- terra::rasterize(vect(sf), agg)
-  slop <- terra::distance(trk, vect(cont_slope))
-  ext <- terra::extract(slop, vect(sf))
-  
-  dbind <- cbind(sf, ext) %>%
-    dplyr::select(-ID) %>%
-    rename("dist2slope" = last) %>%
-    st_set_geometry(NULL) # remove geometry to prevent buoy dataframe from becoming sf object for future 
-  
-  assign(paste0("env", substr(t, 4, 5)), dbind)
-}
-```
-```{r} 
-sf <- st_as_sf(get(t), coords = c("Longitude", "Latitude"), crs=4326, remove=F)
-trk <- terra::rasterize(vect(sf), agg)
-slop <- terra::distance(trk, vect(cont_slope))
-ext <- terra::extract(slop, vect(sf))
+# where are there high magnitudes of gradients?
+high_floor <- seafloor > 15
+plot(high_floor)
+high_floor_vect <- as.contour(high_floor)
 
-dbind <- cbind(sf, ext) %>%
+trk <- terra::rasterize(vect(allDrifts_sf), seafloor) # rasterize drift track based on seafloor tif
+
+dist <- terra::distance(seafloor, high_floor_vect) #distance from drifts
+
+ext <- terra::extract(dist, vect(allDrifts_sf)) # extract the distance at each allDrifts points
+
+ 
+# Bind to allDrifts to create new dataframe 
+seafloor_grad_drift <- cbind(allDrifts_sf, ext) %>%
   dplyr::select(-ID) %>%
-  rename("dist2slope" = last) %>%
   st_set_geometry(NULL) # remove geometry to prevent buoy dataframe from becoming sf object for future 
-```
 
+save(seafloor_grad_drift, file = "D:/Environ_variables/seafloor_allDrift.rda")
+  
+# View track lines over seafloor gradient distance raster.
+plot(dist)
+lines(as.polygons(trk))
+###############################################################################
+
+# Correlate distance to seafloor feature to TOL2000 
+load(file = "D:/Environ_variables/seafloor_allDrift.rda")
+
+
+
+# linear model
+grad_lm <- lm(SeafloorGradient ~ TOL_2000, seafloor_grad_drift)
+summary(grad_lm)
+
+ggplot(seafloor_grad_drift, aes(x = SeafloorGradient, y = TOL_2000)) +
+  geom_point() + geom_smooth() +
+  labs(title = "Distance to Seafloor Feature ~ TOL 2000 for all drifts")
+
+# GLM
+grad_glm <- glm(SeafloorGradient ~ TOL_2000, data = seafloor_grad_drift)
+summary(grad_glm)
+
+
+grad_gam <- gam(TOL_2000 ~ s(SeafloorGradient), data = seafloor_grad_drift)
+summary(grad_gam)
+plot(grad_gam, all.terms = TRUE, scale = 0)
+
+
+##############################################################################
+# Using Escarpment shapefile from Global Seafloor Geomorphic Features Map
+#P.T. Harris, M. Macmillan-Lawler, J. Rupp, E.K. Baker, Geomorphology of the oceans,
+#Marine Geology, Volume 352, 2014, Pages 4-24, ISSN 0025-3227,
+#https://doi.org/10.1016/j.margeo.2014.01.011.
+#(https://www.sciencedirect.com/science/article/pii/S0025322714000310)
+
+# Load and Make allDrifts an sf object
+load("data/allDrifts.rda")
+allDrifts_sf <- allDrifts %>%
+  st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326) %>%
+  st_make_valid()
+
+xmin <- st_bbox(allDrifts_sf)[1]
+xmax <- st_bbox(allDrifts_sf)[3]
+ymin <- st_bbox(allDrifts_sf)[2]
+ymax <- st_bbox(allDrifts_sf)[4]
+
+# Add 0.5 border to the extent of drifts
+bnd <- st_bbox(c(xmin - 1.0, xmax + 1.0, 
+                 ymin - 1.0, ymax + 1.0))
+
+escarpments <- st_read("D:/Environ_variables/Escarpments.shp") %>%
+  st_make_valid() %>%
+  st_crop(bnd) %>%
+  st_set_crs(4326)
+
+dist2escarp <- st_distance(allDrifts_sf, escarpments)
+#g <- geosphere::dist2Line(vect(allDrifts), vect(escarpments))
+n <- st_nearest_feature(allDrifts_sf, escarpments)
+
+drift_escarp <- cbind(allDrifts_sf, g) %>%
+  mutate(dist2escarp = as.numeric(g))
+
+#Save
+load(file = "D:Buoy_dfs/drift_escarpment.rda")
+saveRDS(drift_escarp, file = "data/drift_escarp.rda")
