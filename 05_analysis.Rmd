@@ -196,8 +196,18 @@ ggplot(ZC_pivot_ship, aes(x = UTC, y = value, color = avg)) + geom_smooth() +
 ```
 
 Original data points plotted
-```{r}
-ZC_pivot_reg <- pivot_longer(ZC_filt, cols = c(TOL_125,TOL_2000, Wpresence), names_to = "datacol", values_to = "value")
+```{r fig.width = 12}
+ZC_filt <- GPSwhaleAISenvSS10 %>% 
+  filter(species %in% c("ZC", NA)) %>%
+  # Hourly rolling averages
+  mutate(rollAvg_Whl = zoo::rollapply(Wpresence, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_2000 = zoo::rollapply(TOL_2000, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_125 = zoo::rollapply(TOL_125, 5, mean, fill = NA)) %>%
+  mutate(rollAvg_ship = zoo::rollapply(shipin10km, 5, mean, fill = NA)) %>%
+  # Drop first and last NAs that are created as part of averages
+  drop_na(., rollAvg_Whl)
+
+ZC_pivot_reg <- pivot_longer(ZC_filt, cols = c(TOL_125,TOL_2000, Wpresence, shipin10km), names_to = "datacol", values_to = "value")
 
 # Regular plotted detections
 ggplot(ZC_pivot_reg, aes(x = UTC, y = value, color = datacol)) + geom_point(size = 0.1) +
@@ -205,14 +215,14 @@ ggplot(ZC_pivot_reg, aes(x = UTC, y = value, color = datacol)) + geom_point(size
   scale_x_datetime(date_breaks = "3 days") +
   theme(axis.text.x = element_text(angle = 90,
                                    vjust = 0.5, hjust=1)) +
-  labs(title = "ZC Detections + SS Metrics - Buoy 21")
+  labs(title = "ZC Detections + SS Metrics + Ships - Buoy 10")
 
 ggplot(ZC_pivot_reg, aes(x = UTC, y = value, color = datacol)) + geom_line() +
   facet_grid(vars(datacol), scales = "free") +
   scale_x_datetime(date_breaks = "3 days") +
   theme(axis.text.x = element_text(angle = 90,
                                    vjust = 0.5, hjust=1)) +
-  labs(title = "ZC Detections + SS Metrics + Ships - Buoy 13")
+  labs(title = "ZC Detections + SS Metrics + Ships - Buoy 10")
 
 ```
 
