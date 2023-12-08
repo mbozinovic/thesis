@@ -95,7 +95,7 @@ allDrifts$species<-as.factor(allDrifts$species) %>%
 
 allDrifts$PmPresence<-factor(ifelse(allDrifts$species=='PM',1,0))
 
-#List all variables for evaluation
+# List all variables for evaluation
 covariate.list<-list(c('PmPresence','curl_mean', 'bathy_slope',
                        'sst_mean','dist2slope','depth','dist2slope','chlorophyll_mean',
                        'chlorophyll_mean','mldDepth','ssh_mean',
@@ -133,8 +133,6 @@ plotPredictedProbs(RanFor.model.PM)
 dev.off()
 save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 
-# Top 5 variables are:
-# TOL_2000, dist2slope, timeaftership, ttDepth, depth
 
 # Top 5 environmental variables only:
 # dist2slope, ttDepth, mldDepth, ssh_mean, depth
@@ -148,15 +146,31 @@ save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 ## Cuvier's BW
 
 # Estimate Permutation p-values for Random Forest Importance Metrics
-# takes over 1 hr to run.
+# DOES NOT COMPLETE
 RF.model.ZC <- rfPermute(ZcPresence ~ ., data=DF.modelZC[,include.covars],
-                                replace=FALSE, ntree=7000, sampsize=sampsizeZC, 
+                                replace=FALSE, ntree=11000, sampsize=sampsizeZC, 
                                 proximity=FALSE, importance = TRUE)
-RF.model.ZC
+
+
+
+#List all variables for evaluation
+covariate.list<-list(c('ZcPresence','curl_mean',
+                       'sst_mean','depth','mldTemp','ttTemp','randSamp'))
+
+include.covars <- which(names(allDrifts) %in% covariate.list[[1]])
+
+#make a text string of all covariates considered for a file name 
+string.covars.used <- paste0(names(allDrifts)[include.covars], sep="+", collapse="")
+
+# Use models that Anne ran with reduced covariates
+RF.model.ZC_reducedCovariates_10kTrees <- readRDS("data/RF.model.ZC_reducedCovariates_10kTrees.rds")
+RF.model.ZC_reducedCovariates_15kTrees <- readRDS("data/RF.model.ZC_reducedCovariates_15kTrees.rds")
+
 
 pdf(paste(Dep,"_",string.covars.used,".pdf"), width=14, height=10)
 round(importance(RF.model.ZC),3) #ranking of importance for each variable
 plotImportance(RF.model.ZC) #visualize importance
+plotImportance(RF.model.ZC, plot.type = "heatmap") #visualize importance
 plotTrace(RF.model.ZC)   #model stability w/number of trees (this should be flat!)
 plotImpPreds(RF.model.ZC, DF.modelZC, "ZcPresence")  #distribution of predictors 
 plotPredictedProbs(RF.model.ZC)
@@ -164,10 +178,12 @@ dev.off()
 save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 
 # Top 5 variables are:
-# 
+# depth, sst_mean, ttTemp, mldTemp, curl_mean
 
-# Top 5 variables with only environmental variables
-# depth, sst_mean, curl+mean, mldTemp, ssh_mean
+
+
+
+
 
 ###################################################################
 
