@@ -99,6 +99,10 @@ We used a Random Forest (RF) model in R (R Core Team, 2023) using the package ()
 
 We built generalized additive models in R using the package *mcgv* to relate beaked and sperm whale detections to an environmental or acoustic variable.
 
+"The Tweedie is a family of exponential type distributions, which are tolerant to large numbers of zero observations (Candy 2004)." -- Lacey and Hammond 2023
+
+(Candy, S.G. 2004. Modeling catch and effort data using Generalised Linear Models, the Tweedie Distriution, Random Vessel Effects and Random Stratum-by-Year effects. CCAMLR Sci. 11: 59--80.)
+
 ## Results
 
 [Describe simple statistical relationships, correlations, exploratory data findings (highest, lowest, etc., time of day ( @ziegenhorn2023 ) , drift with most detections/day), where/when were most detections heard, number of species]
@@ -185,7 +189,7 @@ Add here.
 2)  Environmental covariates (group by physiographic, oceanographic, etc)
 
 | Covariate                          | Resolution       | Source                                                                                                                                            | Justification                           |
-|------------------|------------------|--------------------|------------------|
+|------------------------------------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
 |                                    |                  |                                                                                                                                                   |                                         |
 | Distance to shore (m)              | 0.01-Degree Grid | ERDAPP                                                                                                                                            |                                         |
 | Distance to continental slope (m)  | 15 arc sec       | Derived from General Bathymetric Chart of the Oceans (GEBCO) @weatherall2015                                                                      | @barlow2009                             |
