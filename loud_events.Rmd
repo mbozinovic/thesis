@@ -1,0 +1,735 @@
+---
+title: "loud_events"
+author: "Marina Bozinovic"
+date: "2024-01-22"
+output: html_document
+---
+
+## Label and compare before/during/after 2kHz levels above 90th percentile
+
+Required Packages
+```{r}
+library(tidyverse)
+```
+
+
+Load data
+```{r}
+# Individual Drifts
+ftlist <- dir("D:/Buoy_dfs/", recursive=TRUE, full.names=TRUE, pattern="GPSwhaleAISenvSS")
+
+for (ft in ftlist) {
+  df <- readRDS(ft)
+  assign(paste0("GPSwhaleAISenvSS", substr(ft, 29, 30)), df)
+}
+
+# Drift 20 has interpolated whale calls
+GPSwhaleAISSS20.alt <- readRDS("D:Buoy_dfs/GPSwhaleAISSS20_alt.rda")
+
+# Whale detections
+load("D:/Whale_detections/CCES2018_BW_and_PM_Detections.rda")
+
+# Combined drifts
+load(file = "data/allDrifts.rda")
+```
+
+Create e_ for each drift (modified from original)
+```{r}
+# Manipulate raw whale call dataframe
+EventInfo_mut <- EventInfo %>%
+  mutate(lengCalls_in_min = as.numeric((EndTime-StartTime)/60)) %>% # convert duration of calls to minutes
+  rename(UTC = StartTime) %>%
+  subset(species %in% c(NA, "ZC", "PM")) %>%
+  select(UTC,lengCalls_in_min, Deployment)
+
+## Change Station 15 to Station 14 here. Drift 15 and 14 are the same (mix-up during fieldwork)
+EventInfo_mut$Deployment[EventInfo_mut$Deployment == 15] <- 14
+
+
+# Manipulate individual drift data and remove environmental variables for simplicity
+e7 <- GPSwhaleAISenvSS07 %>%
+  mutate(Deployment = as.numeric("07")) %>% #add Deployment to the GPSwhaleAIS objects
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e8 <- GPSwhaleAISenvSS08 %>%
+  mutate(Deployment = as.numeric("08")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e10 <- GPSwhaleAISenvSS10 %>%
+  mutate(Deployment = as.numeric("10")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e12 <- GPSwhaleAISenvSS12 %>%
+  mutate(Deployment = as.numeric("12")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e13 <- GPSwhaleAISenvSS13 %>%
+  mutate(Deployment = as.numeric("13")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e14 <- GPSwhaleAISenvSS14 %>%
+  mutate(Deployment = as.numeric("14")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e16 <- GPSwhaleAISenvSS16 %>%
+  mutate(Deployment = as.numeric("16")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e18 <- GPSwhaleAISenvSS18 %>%
+  mutate(Deployment = as.numeric("18")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e19 <- GPSwhaleAISenvSS19 %>%
+  mutate(Deployment = as.numeric("19")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+
+# No need to remove columns from this one - it has no env variables associated with it
+e20 <- GPSwhaleAISSS20.alt %>%
+  mutate(Deployment = as.numeric("20")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-shipin10km, -timeAfterShip)
+
+e21 <- GPSwhaleAISenvSS21 %>%
+  mutate(Deployment = as.numeric("21")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e22 <- GPSwhaleAISenvSS22 %>%
+  mutate(Deployment = as.numeric("22")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+e23 <- GPSwhaleAISenvSS23 %>%
+  mutate(Deployment = as.numeric("23")) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment")) %>%
+  select(-sst_mean, -curl_mean, -dist2slope, -depth, -bathy_slope,
+         -dist2shore, -chlorophyll_mean, -ssh_mean, -mldDepth, -ttDepth,
+         -mldTemp, -ttTemp, -temp400, -sal400, -shipin10km, -timeAfterShip)
+
+
+e_all <- rbind(e7,e8,e10,e12,e13,e14,e16,e18,e19,e20,e21,e22,e23) %>%
+  left_join(EventInfo_mut, by = c("UTC", "Deployment"))
+
+#Save edited dfs
+save(e7, file = "data/e7.rda")
+save(e8, file = "data/e8.rda")
+save(e10, file = "data/e10.rda")
+save(e12, file = "data/e12.rda")
+save(e13, file = "data/e13.rda")
+save(e14, file = "data/e14.rda")
+save(e16, file = "data/e16.rda")
+save(e18, file = "data/e18.rda")
+save(e19, file = "data/e19.rda")
+save(e20, file = "data/e20.rda")
+save(e21, file = "data/e21.rda")
+save(e22, file = "data/e22.rda")
+save(e23, file = "data/e23.rda")
+```
+
+
+
+Find 90th percentiles
+```{r}
+# Find 90th percentile of buoy 7
+q7 <- quantile(GPSwhaleAISenvSS07$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 8
+q8 <- quantile(GPSwhaleAISenvSS08$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 10
+q10 <- quantile(GPSwhaleAISenvSS10$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 12
+q12 <- quantile(GPSwhaleAISenvSS12$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 13
+q13 <- quantile(GPSwhaleAISenvSS13$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 14
+q14 <- quantile(GPSwhaleAISenvSS14$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 16
+q16 <- quantile(GPSwhaleAISenvSS16$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 18
+q18 <- quantile(GPSwhaleAISenvSS18$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 19
+q19 <- quantile(GPSwhaleAISenvSS19$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 20
+q20 <- quantile(GPSwhaleAISSS20.alt$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 21
+q21 <- quantile(GPSwhaleAISenvSS21$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 22
+q22 <- quantile(GPSwhaleAISenvSS22$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of buoy 23
+q23 <- quantile(GPSwhaleAISenvSS23$TOL_2000, probs = 0.90)
+
+# Find 90th percentile of ALL BUOYS
+q_all <- quantile(e_all$TOL_2000, probs = 0.90)
+
+save(q7, file = "data/q7.rda")
+save(q8, file = "data/q8.rda")
+save(q10, file = "data/q10.rda")
+save(q12, file = "data/q12.rda")
+save(q13, file = "data/q13.rda")
+save(q14, file = "data/q14.rda")
+save(q16, file = "data/q16.rda")
+save(q18, file = "data/q18.rda")
+save(q19, file = "data/q19.rda")
+save(q20, file = "data/q20.rda")
+save(q21, file = "data/q21.rda")
+save(q22, file = "data/q22.rda")
+save(q23, file = "data/q23.rda")
+```
+
+
+DELETE?? For all drifts
+```{r}
+# create new column to categorize times when TOL2kHz is over 90th percentile
+#d_all <- e_all %>%
+#  filter(species %in% c("PM", "ZC", NA)) %>% # filter out species other than sperm and Cuvier's
+#  mutate(BefDurAftLOUD = ifelse(TOL_2000 > q_all, "during", "bef/aft")) %>% #assign categories when TOL2kHz is above 90th percentile
+#  mutate(lengCalls_in_min = ifelse(is.na(lengCalls_in_min), 0, lengCalls_in_min)) # turn NAs into zeros in duration of calls column
+
+
+#fb <- e_all %>%
+  # filter out species other than sperm and Cuvier's
+#  filter(species %in% c("PM", "ZC", NA)) %>%
+  
+  #exclude first 48 hrs of every drift
+#  group_by(Deployment) %>%
+#  mutate(whereFirst = if_else(row_number()==1, 1, 0)) %>%
+#  mutate(tmpG = cumsum(c(FALSE, as.logical(diff(whereFirst))))) %>%
+#  mutate(tmp_a = c(0, diff(UTC)) * !whereFirst) %>%
+#  mutate(hrsSinceStart = cumsum(tmp_a)/3600) %>% # convert to hours
+#  ungroup() %>%
+#  select(-c(tmp_a, tmpG, whereFirst)) %>%
+  
+  ##assign categories when TOL2kHz is above 90th percentile
+#  mutate(BefDurAftLOUD = ifelse(TOL_2000 > q_all, 1, 0))  # if TOL_2000 > q_all, assign "during"
+```
+
+Assign_loud <- before/during/after function
+```{r}
+# create a function that assigns bef/dur/aft using drift (e_) and 90th percentile value for that drift (q_)
+
+assign_loud <- function(drift, loud_value){
+
+drift %>%
+  # identify hours elapsed since start (in order to exclude first 48 later)
+  arrange(UTC) %>%
+  mutate(whereFirst = if_else(row_number()==1, 1, 0),
+         tmpG = cumsum(c(FALSE, as.logical(diff(whereFirst)))),
+         tmp_a = c(0, diff(UTC)) * !whereFirst,
+         hrsSinceStart = cumsum(tmp_a)/3600) %>% # convert seconds to hours
+  select(-c(tmp_a, tmpG, whereFirst)) %>%
+  
+  ##assign categories when TOL2kHz is above 90th percentile
+  mutate(loud = ifelse(TOL_2000 > loud_value, 1, 0),
+         # Find hours since last and time to "loud" event.
+         tmpF = cumsum(c(FALSE, as.logical(diff(loud)))),
+         tmp_af = c(0, diff(UTC)) * !loud,
+         tmp_bef = as.numeric(c(diff(UTC), 0) * !loud)) %>%
+  group_by(tmpF) %>%
+  mutate(hrsSinceLoud = cumsum(tmp_af)/3600,
+         hrsToLoud = sort(cumsum(tmp_bef), decreasing = TRUE)/3600) %>% # convert seconds to hours
+  ungroup() %>%
+  select(-c(tmp_af, 
+            tmp_bef,
+            tmpF)) %>%
+  
+  # label rows as before/during/after or NA to omit 
+  mutate(BefDurAftLOUD = 
+                
+                #label "during" if loud = 1
+                ifelse(.$loud == 1, "during",
+                
+                    #label "after" if within 12 hrs after loud event and no upcoming loud event for 12 hrs
+                    ifelse(.$hrsSinceLoud <= 12 & .$hrsToLoud >= 12, "after",
+                       
+                       #label in-between loud event times as "during" if its within 6 hrs of last loud event
+                       # and the next loud event is within 6 hours
+                       ifelse(.$hrsSinceLoud < 6 & .$hrsToLoud < 6, "during",  
+                         
+                            #label "before" if within 12 hrs of loud event and if 12 hrs have passed since loud event
+                            ifelse(.$hrsToLoud < 12 & .$hrsSinceLoud > 12, "before", NA))))) %>%
+                                         
+      
+      #exclude first 48 hrs of every drift
+      subset(., .$hrsSinceStart > 48)
+}
+```
+
+Manually calculate drift 21
+```{r}
+labeled21 <- e21 %>%
+  # identify hours elapsed since start (in order to exclude first 48 later)
+  arrange(UTC) %>%
+  mutate(whereFirst = if_else(row_number()==1, 1, 0),
+         tmpG = cumsum(c(FALSE, as.logical(diff(whereFirst)))),
+         tmp_a = c(0, diff(UTC)) * !whereFirst,
+         hrsSinceStart = cumsum(tmp_a)/60) %>% # convert MIN to hours
+  select(-c(tmp_a, tmpG, whereFirst)) %>%
+  
+  ##assign categories when TOL2kHz is above 90th percentile
+  mutate(loud = ifelse(TOL_2000 > q21, 1, 0),
+         # Find hours since last and time to "loud" event.
+         tmpF = cumsum(c(FALSE, as.logical(diff(loud)))),
+         tmp_af = c(0, diff(UTC)) * !loud,
+         tmp_bef = as.numeric(c(diff(UTC), 0) * !loud)) %>%
+  group_by(tmpF) %>%
+  mutate(hrsSinceLoud = cumsum(tmp_af)/60,
+         hrsToLoud = sort(cumsum(tmp_bef), decreasing = TRUE)/60) %>% # convert MIN to hours
+  ungroup() %>%
+  select(-c(tmp_af, 
+            tmp_bef,
+            tmpF)) %>%
+  
+  # label rows as before/during/after or NA to omit 
+  mutate(BefDurAftLOUD = 
+                
+                #label "during" if loud = 1
+                ifelse(.$loud == 1, "during",
+                
+                    #label "after" if within 12 hrs after loud event and no upcoming loud event for 12 hrs
+                    ifelse(.$hrsSinceLoud < 12 & .$hrsToLoud >= 12, "after",
+                       
+                       #label in-between loud event times as "during" if its within 6 hrs of last loud event
+                       # and the next loud event is within 6 hours
+                       ifelse(.$hrsSinceLoud < 6 & .$hrsToLoud < 6, "during",  
+                         
+                            #label "before" if within 12 hrs of loud event and if 12 hrs have passed since loud event
+                            ifelse(.$hrsToLoud < 12 & .$hrsSinceLoud > 12, "before", NA))))) %>%
+                                         
+      
+      #exclude first 48 hrs of every drift
+      subset(., .$hrsSinceStart > 48)
+```
+
+
+Assign_loud function for each drift
+```{r}
+labeled7 <- assign_loud(e7, q7)
+labeled8 <- assign_loud(e8, q8)
+labeled10 <- assign_loud(e10, q10)
+labeled12 <- assign_loud(e12, q12)
+labeled13 <- assign_loud(e13, q13)
+labeled14 <- assign_loud(e14, q14)
+labeled16 <- assign_loud(e16, q16)
+labeled18 <- assign_loud(e18, q18)
+labeled19 <- assign_loud(e19, q19)
+labeled20 <- assign_loud(e20, q20)
+#labeled21 <- assign_loud(e21, q21) # has zero rows because tmp_a calculates time elapsed since start in min, not sec.
+# need to do manually (SEE ABOVE)
+labeled22 <- assign_loud(e22, q22)
+labeled23 <- assign_loud(e23, q23)
+
+#saveRDS(labeled7, file = "data/labeled7.rda")
+```
+
+```{r}
+# Example of where loud sound events occurred in time.
+ggplot(labeled7) + geom_line(aes(x = UTC, y = loud)) + 
+  scale_x_datetime(date_breaks = "1 day") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(labeled7) + geom_line(aes(x = UTC, y = TOL_2000)) + 
+  scale_x_datetime(date_breaks = "1 day") +
+  geom_hline(yintercept = q8, color = "yellow", linewidth = 1) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
+
+For reference:
+Drift number and duty cycle (on/off in min)
+7-2/18
+8-2/18
+10-2/18
+12-2/18
+13-2/18
+14-2/18
+16-2/8
+18-2/4
+19-2/8
+20-2/8
+21-2/4
+22-2/8
+23-2/3
+
+
+Calculate hourly probability for each drift
+```{r}
+hourly_prob_7 <- e7 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/6) # change the divisor based on the duty cycle (active min/hr)
+#saveRDS(hourly_prob_7, file = "data/hourly_prob_7.rda")
+
+hourly_prob_8 <- e8 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/6) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_10 <- e10 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/6) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_12 <- e12 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/6) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_13 <- e13 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/6) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_14 <- e14 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/6) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_16<- e16 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/15) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_18 <- e18 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/30) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_19 <- e19 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/15) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_20 <- e20 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/15) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_21 <- e21 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/30) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_22 <- e22 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/15) # change the divisor based on the duty cycle (active min/hr)
+
+hourly_prob_23 <- e23 %>%
+  group_by(UTC = floor_date(UTC, "1 hour")) %>%
+  summarize(totalCallmin = sum(na.omit(lengCalls_in_min))) %>%
+  add_column(hrProb = .$totalCallmin/40) # change the divisor based on the duty cycle (active min/hr)
+```
+
+Attach hourly probability of detection to before/during/after df and make preliminary plot
+```{r}
+# Join labeled_ with hourly_prob_ dfs
+plt7 <- labeled7 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_7, by = join_by("UTC_round"=="UTC"))
+
+plt8 <- labeled8 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_8, by = join_by("UTC_round"=="UTC"))
+
+plt10 <- labeled10 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_10, by = join_by("UTC_round"=="UTC"))
+
+plt12 <- labeled12 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_12, by = join_by("UTC_round"=="UTC"))
+
+plt13 <- labeled13 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_13, by = join_by("UTC_round"=="UTC"))
+
+plt14 <- labeled14 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_14, by = join_by("UTC_round"=="UTC"))
+
+plt16 <- labeled16 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_16, by = join_by("UTC_round"=="UTC"))
+
+plt18 <- labeled18 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_18, by = join_by("UTC_round"=="UTC"))
+
+plt19 <- labeled19 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_19, by = join_by("UTC_round"=="UTC"))
+
+plt20 <- labeled20 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_20, by = join_by("UTC_round"=="UTC"))
+
+plt21 <- labeled21 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_21, by = join_by("UTC_round"=="UTC"))
+
+plt22 <- labeled22 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_22, by = join_by("UTC_round"=="UTC"))
+
+plt23 <- labeled23 %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_23, by = join_by("UTC_round"=="UTC"))
+```
+
+Trim events w/in individual drifts that don't follow before/during/after pattern
+```{r, fig.width=13}
+plt7 <- plt7[1:1717,] #remove final before/during period
+plt8 <- plt8[35:3877,] # remove final "before" period and first "during" period
+plt10 <- plt10[1:4086,]
+plt12 <- plt12[1:2310,]
+plt13 <- plt13[92:2665,]
+plt14 <- plt14[59:2246,]
+plt16 <- plt16[31:809,]
+plt18 <- plt18[204:1369,]
+plt19 <- plt19[109:1460,]
+plt20 <- plt20[95:772,]
+plt21 <- plt21[20:127,] # very short!
+plt22 <- plt22[4:1022,]
+plt23 <- plt23[87:751,]
+
+# Bind
+plt_all <- bind_rows(plt7, plt8, plt10, plt12, plt13, plt14, plt16,
+                 plt18, plt19, plt20, plt21, plt22, plt23)
+
+plt23 %>%
+  distinct(UTC, .keep_all = TRUE) %>% #remove any duplicate UTC rows
+  drop_na(BefDurAftLOUD) %>%
+  ggplot() + geom_bar(aes(x = UTC, color = BefDurAftLOUD, fill = BefDurAftLOUD)) + 
+  scale_x_datetime(date_breaks = "1 day") +
+  scale_color_manual(values = c("red", "blue", "green")) +
+  scale_fill_manual(values = c("red", "blue", "green")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Time Series with Loud Sound Events - Buoy 23")
+```
+
+
+
+
+## Boxplots of Cuvier's and Sperm whales
+```{r}
+# When whales are detected, which category of loudness are they in?
+
+#Plot ZC AND PM
+plt_no_zeros <- plt_all %>% 
+  filter(hrProb != 0) %>% # remove zeros
+  filter(species %in% c("PM", "ZC", NA)) %>%
+  na.omit(BefDurAftLOUD)
+  
+ggplot(plt_no_zeros) + geom_boxplot(aes(x = BefDurAftLOUD, y = hrProb, fill = species)) +
+  scale_x_discrete(limits = c('before', 'during', 'after')) +
+  labs(title = "Hourly Probability of ZC and PM Presence Before, During,
+       and After Loud Sound Event - All Buoys",
+       x = "Category", y = "Hourly Probability") +
+  scale_fill_discrete(labels = c("Sperm", "Cuvier's")) +
+  theme_bw()
+
+# 60 PM calls
+# 196 ZC calls
+
+```
+
+##Testing Statistical Significance
+```{r}
+# Is it distributed normally? Histogram and Shapiro-Willks test to confirm.
+hist(plt_no_zeros$hrProb)
+shapiro.test(plt_no_zeros$hrProb)
+# no -- p-value is way less than 0.05, so given data is significantly different from the normal distribution.
+
+# Use Kruskal-Wallis test to test if hourly probability varies by period
+ZC_plt_no_zeros <- plt_no_zeros %>% filter(species %in% c("ZC", NA))
+kruskal.test(hrProb ~ BefDurAftLOUD, data = ZC_plt_no_zeros) #ZC only
+
+PM_plt_no_zeros <- plt_no_zeros %>% filter(species %in% c("PM", NA))
+kruskal.test(hrProb ~ BefDurAftLOUD, data = PM_plt_no_zeros) #PM only
+
+#p-value is more than 0.05 in both, so there is no significant differences between the groups
+
+```
+
+
+
+DELETE?? d_all_sum
+```{r}
+# Group by hour and summarize minutes of calls per hour. How to incorporate back?
+#d_all_sum <- d_all %>%
+#  mutate(hr = floor_date(UTC, unit = "hour")) %>%
+#  group_by(hr) %>%
+#  summarize(tot_min = sum(lengCalls_in_min),
+#            tot_dets = sum(Wpresence),
+#            avg_2000 = median(TOL_2000)) %>%
+#  mutate(BefDurAftLOUD = ifelse(avg_2000 > q_all, "during", "bef/aft"))
+
+# Plot to compare animal presence during loud sound levels vs the other times.
+
+# Loud events vs whale presence/absence for ALL DRIFTS
+#ggplot(d_all, aes(Loud_event, TOL_2000)) + 
+#  geom_boxplot(aes(x = as.factor(BefDurAftLOUD), y = TOL_2000, fill = as.factor(Wpresence))) +
+#  guides(fill=guide_legend(title="Whale presence"))
+
+# total whale call minutes/hr
+#ggplot(d_all_sum, aes(Sum_WhaleMinPerHr, TOL_2000_median)) + 
+#  geom_point(aes(x = tot_min, y = avg_2000))+
+#  geom_hline(yintercept = 87.24443, color = "red")#90th percentile line
+
+#ggplot(d_all, aes(Length_of_whl_calls_min, TOL_2000)) + 
+#  geom_point(aes(x = lengCalls_in_min, y = TOL_2000))+
+#  geom_hline(yintercept = 87.24443, color = "red")#90th percentile line
+
+```
+
+
+DELETE?? e_all_time
+```{r}
+#e_all_time <- e_all %>%
+#   mutate(BefDurAftLOUD = ifelse(TOL_2000 > q_all, 1, 0)) %>%
+#   arrange(Deployment, UTC) %>%
+#   mutate(tmpG = cumsum(c(FALSE, as.logical(diff(BefDurAftLOUD))))) %>%
+#   mutate(tmp_a = c(0, diff(UTC)) * !BefDurAftLOUD) %>%
+#  mutate(tmp_b = c(diff(UTC), 0) * !BefDurAftLOUD) %>%  
+#   group_by(tmpG) %>%
+#   mutate(timeFromLoud = cumsum(tmp_a)) %>%
+#  mutate(timeToLoud = rev(cumsum(rev(as.numeric(tmp_b))))) %>%
+#   ungroup() %>%
+#   select(-c(tmp_a,tmp_b, tmpG))
+  
+```
+
+
+
+
+#####################################################################################
+
+Playing with boundary conditions (zz)
+```{r}
+## Playing around with the following
+
+zz <- e23 %>%
+     #filter out species other than Cuvier's and PM
+     filter(species %in% c("ZC", "PM", NA)) %>%
+     
+     # identify hours elapsed since start (in order to exclude first 48 later)
+     arrange(UTC) %>%
+     mutate(whereFirst = if_else(row_number()==1, 1, 0),
+            tmpG = cumsum(c(FALSE, as.logical(diff(whereFirst)))),
+            tmp_a = c(0, diff(UTC)) * !whereFirst,
+            hrsSinceStart = cumsum(tmp_a)/3600) %>% # convert seconds to hours
+     select(-c(tmp_a, tmpG, whereFirst)) %>%
+     
+     ##assign categories when TOL2kHz is above 90th percentile
+     mutate(loud = ifelse(TOL_2000 > q23, 1, 0),
+            # Find hours since last and time to "loud" event.
+            tmpF = cumsum(c(FALSE, as.logical(diff(loud)))),
+            tmp_af = c(0, diff(UTC)) * !loud,
+            tmp_bef = as.double(c(diff(UTC), 0) * !loud)) %>%
+     group_by(tmpF) %>%
+     mutate(hrsSinceLoud = cumsum(tmp_af)/3600,
+            hrsToLoud = sort(cumsum(tmp_bef), decreasing = TRUE)/3600) %>% # convert seconds to hours
+     ungroup() %>%
+     select(-c(tmp_af, 
+               tmp_bef,
+               tmpF)) %>%
+    
+     # label rows as before/during/after or NA to omit 
+     mutate(BefDurAftLOUD = 
+                
+                #label "during" if loud = 1
+                ifelse(.$loud == 1, "during",
+                
+                    #label "after" if within 12 hrs after loud event and no upcoming loud event for 12 hrs
+                    ifelse(.$hrsSinceLoud < 12 & .$hrsToLoud >= 12, "after",
+                       
+                       #label in-between loud event times as "during" if its within 6 hrs of last loud event
+                       # and the next loud event is within 6 hours
+                       ifelse(.$hrsSinceLoud < 6 & .$hrsToLoud < 6, "during",  
+                         
+                            #label "before" if within 12 hrs of loud event and if 12 hrs have passed since loud event
+                            ifelse(.$hrsToLoud < 12 & .$hrsSinceLoud > 12, "before", NA))))) %>%
+                                         
+      
+      #exclude first 48 hrs of every drift
+      subset(., .$hrsSinceStart > 48)
+```
+
+
+Bef/Dur/Aft Boxplot
+```{r}
+# Example zz plot
+plt_zz <-  zz %>%
+  group_by(UTC_round = floor_date(UTC, "1 hour")) %>%
+  left_join(hourly_prob_23, by = join_by("UTC_round"=="UTC")) 
+
+plt_no_zeros <- plt_zz %>% filter(hrProb != 0) %>% # remove zeros
+  na.omit(BefDurAftLOUD)
+
+ggplot(plt_no_zeros) + 
+  geom_boxplot(aes(x = as.factor(BefDurAftLOUD), y = hrProb, fill = species)) +
+    scale_x_discrete(limits = c('before', 'during', 'after')) + 
+    labs(title = "Hourly Probability of Whale Presence Before, During,
+       and After Loud Sound Event - Buoy 23")
+
+#7 - 
+#8 - 
+#10 - similar to all buoys
+#12 - much higher "after" probability
+#13 - slightly lower "after" prob
+#14 - no plot?
+#16 - "after" is MUCH higher
+#18 - "after has lower prob than "during". "before" is lowest
+#19 - ideal! High "before", low "after"
+#20 - high "during" probability
+#21 - very few detections
+#22 - highest prob is "before". very few non-zero prob points
+#23 - highest prob is "during". very few non-zero prob points
+
+```
+
+Time Series. Example of where loud events and bef/after events occurred in time
+```{r, fig.width=13}
+# Just zz
+plt_zz %>%
+  distinct(UTC, .keep_all = TRUE) %>% #remove any duplicate UTC rows
+  drop_na(BefDurAftLOUD) %>%
+  ggplot() + geom_bar(aes(x = UTC, color = BefDurAftLOUD, fill = BefDurAftLOUD)) + 
+  scale_x_datetime(date_breaks = "1 day") +
+  scale_color_manual(values = c("red", "blue", "green")) +
+  scale_fill_manual(values = c("red", "blue", "green")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Time Series with Loud Sound Events - Buoy 23")
+```
