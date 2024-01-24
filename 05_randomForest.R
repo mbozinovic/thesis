@@ -9,12 +9,10 @@ library(rfPermute)
 
 # Load in main dataframe
 load(file = "data/allDrifts.rda")
+load(file = "D:/Buoy_dfs/drift_escarpment.rda")
 
 # Create new row with random samples, make sure to add to covariates list
-allDrifts$randSamp <- sample(10000, size = nrow(allDrifts), replace = TRUE)
-
-# Load in main dataframe with seafloor gradient(?)
-#load(file = "data/allDrifts_grad.rda")
+drift_escarp$randSamp <- sample(10000, size = nrow(drift_escarp), replace = TRUE)
 
 
 #Define response variable (presence/absence as 0/1)
@@ -85,6 +83,11 @@ save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 
 # Reload without ZC filter
 load(file = "data/allDrifts.rda")
+load(file = "D:Buoy_dfs/drift_escarpment.rda")
+
+# Create new row with random samples, make sure to add to covariates list
+allDrifts$randSamp <- sample(10000, size = nrow(allDrifts), replace = TRUE)
+
 
 #Descriptive label for analysis
 Dep<-'CCES_Pm'
@@ -101,6 +104,7 @@ covariate.list<-list(c('PmPresence','curl_mean', 'bathy_slope',
                        'chlorophyll_mean','mldDepth','ssh_mean',
                        'mldDepth', 'mldTemp', 'ttDepth','ttTemp', 'temp400', 'sal400',
                        'randSamp'))
+
 
 include.covars <- which(names(allDrifts) %in% covariate.list[[1]])
 
@@ -154,13 +158,15 @@ RF.model.ZC <- rfPermute(ZcPresence ~ ., data=DF.modelZC[,include.covars],
 
 
 #List all variables for evaluation
-covariate.list<-list(c('ZcPresence','curl_mean',
-                       'sst_mean','depth','mldTemp','ttTemp','randSamp'))
+covariate.list<-list(c('ZcPresence','curl_mean', 'chlorophyll_mean', 'dist2slope',
+                       'dist2escarp', 'bathy_slope', 
+                       'sst_mean','depth','mldDepth','ttTemp','randSamp'))
 
 include.covars <- which(names(allDrifts) %in% covariate.list[[1]])
 
 #make a text string of all covariates considered for a file name 
 string.covars.used <- paste0(names(allDrifts)[include.covars], sep="+", collapse="")
+
 
 # Use models that Anne ran with reduced covariates
 RF.model.ZC_reducedCovariates_10kTrees <- readRDS("data/RF.model.ZC_reducedCovariates_10kTrees.rds")
@@ -188,6 +194,37 @@ save.image(paste(Dep,"_", string.covars.used, ".RData", sep=""))
 ###################################################################
 
 ## Sperm whale
+
+#Descriptive label for analysis
+Dep<-'CCES_Pm'
+
+# For PM only
+drift_escarp$species<-as.factor(drift_escarp$species) %>%
+  droplevels(c("BB", "BW43", "ZC"))
+
+drift_escarp$PmPresence<-factor(ifelse(drift_escarp$species=='PM',1,0))
+
+#SELECT COVARIATES
+covariate.list<-list(c('PmPresence','curl_mean', 'chlorophyll_mean', 'dist2slope',
+                       'dist2escarp', 'bathy_slope', 
+                       'sst_mean','depth','mldDepth','ttTemp','randSamp'))
+
+include.covars <- which(names(drift_escarp) %in% covariate.list[[1]])
+
+#make a text string of all covariates considered for a file name 
+string.covars.used <- paste0(names(drift_escarp)[include.covars], sep="+", collapse="")
+
+#Create a dataframe for the RF model
+DF.modelPM <- na.omit(drift_escarp)
+
+# create balanced sample sizes of response for tree construction to 
+# avoid biases associated with imbalanced data
+# For PM only
+sampsizePM <- balancedSampsize(DF.modelPM$PmPresence)
+
+# set seed for reproducibility
+set.seed(123)
+
 
 # Use rfPermute
 RF.model.PM <- rfPermute(PmPresence ~ ., data=DF.modelPM[,include.covars],
