@@ -2,16 +2,14 @@
 title: "manuscript"
 editor: visual
 bibliography: references.bib
+header-includes:
+- \setlength{\parindent}{4em}
+- \usepackage{setspace}\spacing{2}
 output:
   word_document:
     reference_docx: "Masters-Thesis-and-Creative-Work-Template.docx"
 csl: "marine-mammal-science.csl"
-header-includes:
-- \setlength{\parindent}{4em}
-- \usepackage{setspace}\doublespacing
 ---
-
-# Manuscript Draft
 
 ## Introduction
 
@@ -99,11 +97,11 @@ We used a Random Forest (RF) model in R (R Core Team, 2023) using the package ()
 
 We built generalized additive models in R using the package *mcgv* to relate beaked and sperm whale detections to an environmental or acoustic variable.
 
-"The Tweedie is a family of exponential type distributions, which are tolerant to large numbers of zero observations (Candy 2004)." -- Lacey and Hammond 2023
+~~"The Tweedie is a family of exponential type distributions, which are tolerant to large numbers of zero observations (Candy 2004)." -- Lacey and Hammond 2023~~
 
 (Candy, S.G. 2004. Modeling catch and effort data using Generalised Linear Models, the Tweedie Distriution, Random Vessel Effects and Random Stratum-by-Year effects. CCAMLR Sci. 11: 59--80.)
 
-## Results
+## Results (moved to Google Drive)
 
 [Describe simple statistical relationships, correlations, exploratory data findings (highest, lowest, etc., time of day ( @ziegenhorn2023 ) , drift with most detections/day), where/when were most detections heard, number of species]
 
@@ -135,7 +133,7 @@ The band at 125 Hertz is often associated with shipping vessel noise and the 2-5
 
 AIC explanation @symonds2011
 
-## Discussion
+## Discussion (moved to Google Drive)
 
 Laws and Regulations
 
@@ -168,7 +166,7 @@ Can use non-parametric Kruskal-Wallis one-way analysis of variance test to exami
 
 Recommendations?
 
-## Acknowledgements
+## Acknowledgements (moved to Google Drive)
 
 Taiki - help with code!\
 Megan McKenna - guidance on AIS questions.
@@ -186,25 +184,50 @@ Add here.
 -   BWC, possibly ginkgo-toothed beaked whale *M. ginkgodens (IUCN status: data deficient)* @simonis2020a
 -   PM, sperm whale *(IUCN status: vulnerable)*
 
-2)  Environmental covariates (group by physiographic, oceanographic, etc)
+2)  List of environmental predictor covariates with resolution, data source, and justification. \
 
-| Covariate                          | Resolution       | Source                                                                                                                                            | Justification                           |
-|------------------------------------|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
-|                                    |                  |                                                                                                                                                   |                                         |
-| Distance to shore (m)              | 0.01-Degree Grid | ERDAPP                                                                                                                                            |                                         |
-| Distance to continental slope (m)  | 15 arc sec       | Derived from General Bathymetric Chart of the Oceans (GEBCO) @weatherall2015                                                                      | @barlow2009                             |
-| Bathymetric slope (°)              | 15 arc sec       | Derived from GEBCO tif                                                                                                                            | @becker2010 @virgili2022                |
-| Depth (m)                          | 15 arc sec       | ERDAPP                                                                                                                                            | @forney2012 @becker2010 @virgili2022    |
-| Wind curl stress                   | 1°, 6-hourly     | ERDDAP                                                                                                                                            | @mannocci2015                           |
-| Mixed layer depth (m)              | 0.08°, 3-hourly  | HYCOM + NCODA, GLBy0.08/expt 93.0, calculated with variable representative isotherm method (Fiedler 2010), as described in McCullough et al 2021. | @mccullough2021, @forney2012 @moore2021 |
-| Thermocline temperature (°C)       | 0.08°, 3-hourly  | HYCOM + NCODA, GLBy0.08/expt 93.0, calculated with variable representative isotherm method (Fiedler 2010), as described in McCullough et al 2021. | @mccullough2021                         |
-| Thermocline depth (m)              | 0.08°, 3-hourly  | HYCOM + NCODA, GLBy0.08/expt 93.0, calculated with variable representative isotherm method (Fiedler 2010), as described in McCullough et al 2021. |                                         |
-| Mixed layer depth Temperature (°C) | 0.08°, 3-hourly  | Calculated from HYCOM                                                                                                                             | @mccullough2021                         |
-| Salinity at 400m                   | 0.08°, 3-hourly  | HYCOM + NCODA, GLBy0.08/expt 93.0                                                                                                                 |                                         |
-| Temperature at 400m (°C)           | 0.08°, 3-hourly  | HYCOM + NCODA, GLBy0.08/expt 93.0                                                                                                                 |                                         |
-| SST mean                           | 0.01° , daily    | ERDAPP                                                                                                                                            | Becker 2007, @forney2012 @virgili2022   |
-| CHL                                | 4 km, monthly    | ERDAPP                                                                                                                                            | @forney2012 @virgili2019                |
-| Sea Surface Height Anomalies (m)   | daily            | ERDAPP                                                                                                                                            | @virgili2019                            |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Covariate                           | Resolution       | Source                                                                                                                                                | Justification                           |
++=====================================+==================+=======================================================================================================================================================+=========================================+
+|                                     |                  |                                                                                                                                                       |                                         |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Distance to escarpment (m)          | 30 arc sec       | (D) Calculated from : Global Seafloor Geomorphic Features Map\                                                                                        | Lacey and Hammond, 2023                 |
+|                                     |                  | P.T. Harris, M. Macmillan-Lawler, J. Rupp, E.K. Baker, Geomorphology of the oceans, #Marine Geology, Volume 352, 2014, Pages 4-24, ISSN 0025-3227,    |                                         |
+|                                     |                  |                                                                                                                                                       |                                         |
+|                                     |                  | <https://doi.org/10.1016/j.margeo.2014.01.011>.                                                                                                       |                                         |
+|                                     |                  |                                                                                                                                                       |                                         |
+|                                     |                  | (<https://www.sciencedirect.com/science/article/pii/S0025322714000310>)                                                                               |                                         |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Distance to shore (m)               | 0.01-Degree Grid | (A) ERDAPP                                                                                                                                            |                                         |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Distance to continental slope (m)   | 15 arc sec       | (C) Derived from General Bathymetric Chart of the Oceans (GEBCO) @weatherall2015                                                                      | @barlow2009                             |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Bathymetric slope (°)               | 15 arc sec       | (C) Derived from General Bathymetric Chart of the Oceans (GEBCO) @weatherall2015                                                                      | @becker2010 @virgili2022                |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Depth (m)                           | 15 arc sec       | (A) ERDAPP                                                                                                                                            | @forney2012 @becker2010 @virgili2022    |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Wind curl stress                    | 1°, 6-hourly     | (A) ERDDAP                                                                                                                                            | @mannocci2015                           |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Mixed layer depth (m)               | 0.08°, 3-hourly  | (B) HYCOM + NCODA, GLBy0.08/expt 93.0, calculated with variable representative isotherm method (Fiedler 2010), as described in McCullough et al 2021. | @mccullough2021, @forney2012 @moore2021 |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Thermocline temperature (°C)        | 0.08°, 3-hourly  | (B) HYCOM + NCODA, GLBy0.08/expt 93.0, calculated with variable representative isotherm method (Fiedler 2010), as described in McCullough et al 2021. | @mccullough2021                         |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Thermocline depth (m)               | 0.08°, 3-hourly  | (B) HYCOM + NCODA, GLBy0.08/expt 93.0, calculated with variable representative isotherm method (Fiedler 2010), as described in McCullough et al 2021. |                                         |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Mixed layer depth Temperature (°C)  | 0.08°, 3-hourly  | Calculated from HYCOM                                                                                                                                 | @mccullough2021                         |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Salinity at 400m                    | 0.08°, 3-hourly  | (B) HYCOM + NCODA, GLBy0.08/expt 93.0                                                                                                                 |                                         |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Temperature at 400m (°C)            | 0.08°, 3-hourly  | (B) HYCOM + NCODA, GLBy0.08/expt 93.0                                                                                                                 |                                         |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Sea Surface Temperature (mean) (°C) | 0.01° , daily    | (A) ERDAPP                                                                                                                                            | Becker 2007, @forney2012 @virgili2022   |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Chlorophyll-a (mean) (mg m-3)       | 4 km, monthly    | (A) ERDAPP                                                                                                                                            | @forney2012 @virgili2019                |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+| Sea Surface Height Anomalies (m)    | daily            | (A) ERDAPP                                                                                                                                            | @virgili2019                            |
++-------------------------------------+------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------+
+
+\*\* Distances were calculated in R. Source A: ERDAPP (add link); Source B: HYCOM + NCODA, GLBy0.08/expt 93.0 (add link); Source C: General Bathymetric Chart of the Oceans (GEBCO, add link); Source D: Global Seafloor Geomorphic Features Map (add link).
 
 Can show table of variables and justification by papers (Virgili et al. 2022 and Virgili et al 2019)
 
