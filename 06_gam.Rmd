@@ -15,14 +15,17 @@ library(mgcv)
 library(car)
 ```
 
-Load allDrifts object, split out Cuvier's and Sperm whales
+Load drift_escarp object, split out Cuvier's and Sperm whales
 ```{r}
-load(file = "data/allDrifts.rda")
+load(file = "D:/Buoy_dfs/drift_escarpment.rda")
 
-ZC_filt <- allDrifts %>% 
+drift_escarp <- drift_escarp %>%
+  st_drop_geometry()
+
+ZC_filt <- drift_escarp %>% 
   filter(species %in% c("ZC", NA))
 
-PM_filt <- allDrifts %>% 
+PM_filt <- drift_escarp %>% 
   filter(species %in% c("PM", NA))
 
 ```
@@ -34,64 +37,26 @@ PM_filt <- allDrifts %>%
 
 ```{r}
 # Environ only - binomial
-ZC_GAM1 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean),
-              data = ZC_filt, family = binomial, method = "REML")
+ZC_GAM1 <- gam(Wpresence>0 ~ s(depth) + s(ttTemp) + s(ssh_mean),
+              data = ZC_filt, family = binomial, 
+              method = "REML")
 summary(ZC_GAM1)
 gam.check(ZC_GAM1)
 
 # Environ + noise - binomial
-ZC_GAM2<- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
-                      data = ZC_filt, family = binomial, method = "REML")
+ZC_GAM2<- gam(Wpresence>0 ~ s(depth) + s(ttTemp) + s(ssh_mean) + 
+                s(TOL_125) + s(TOL_2000),
+                      data = ZC_filt, family = binomial, 
+              method = "REML")
 summary(ZC_GAM2)
 gam.check(ZC_GAM2)
 
-# Environ only - poisson
-ZC_GAM3 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean),
-              data = ZC_filt, family = poisson, method = "REML")
-summary(ZC_GAM3)
-gam.check(ZC_GAM3)
-
-# Environ + noise - poisson
-ZC_GAM4<- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
-                      data = ZC_filt, family = poisson, method = "REML")
-summary(ZC_GAM4)
-gam.check(ZC_GAM4)
-plot(ZC_GAM4, all.terms = TRUE, scale = 0)
-
-# Environ only - gaussian
-ZC_GAM5 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean),
-                  data = ZC_filt, method = "REML")
-summary(ZC_GAM5)
-gam.check(ZC_GAM5)
-
-# Environ + noise - gaussian
-ZC_GAM6 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
-                  data = ZC_filt, method = "REML")
-summary(ZC_GAM6)
-gam.check(ZC_GAM6)
-
-# Environ only - Tweedie
-ZC_GAM7 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean),
-                  data = ZC_filt, family = tw(link = "log"), method = "REML")
-summary(ZC_GAM7)
-gam.check(ZC_GAM7)
-
-# Environ + noise - Tweedie
-ZC_GAM8 <- gam(Wpresence>0 ~ s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
-                  data = ZC_filt, family = tw(link = "log"), method = "REML")
-summary(ZC_GAM8)
-gam.check(ZC_GAM8)
-
 
 plot(ZC_GAM1, all.terms = TRUE, scale = 0, pages = 1)
-plot(ZC_GAM2, all.terms = TRUE, scale = 0, pages = 2)
-plot(ZC_GAM3, all.terms = TRUE, scale = 0, pages = 1)
-plot(ZC_GAM4, all.terms = TRUE, scale = 0, pages = 2)
-plot(ZC_GAM5, all.terms = TRUE, scale = 0, pages = 1)
-plot(ZC_GAM6, all.terms = TRUE, scale = 0, pages = 2)
-plot(ZC_GAM7, all.terms = TRUE, scale = 0, pages = 1)
-plot(ZC_GAM8, all.terms = TRUE, scale = 0, pages = 2)
-AIC(ZC_GAM4, ZC_GAM8)
+plot(ZC_GAM2, all.terms = TRUE, scale = 0, pages = 3)
+
+# Compare AIC scores
+AIC(ZC_GAM1, ZC_GAM2)
 ```
 
 # GAM by PM
@@ -99,67 +64,24 @@ AIC(ZC_GAM4, ZC_GAM8)
 ```{r}
 # Environ only - binomial
 PM_GAM1 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + 
-                    s(sst_mean),
+                    s(dist2escarp),
               data = PM_filt, family = binomial, method = "REML")
 summary(PM_GAM1)
 gam.check(PM_GAM1)
 
 # Environ + noise - binomial
 PM_GAM2 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + 
-                 s(sst_mean) + s(TOL_125) + s(TOL_2000),
+                 s(dist2escarp) + s(TOL_125) + s(TOL_2000),
               data = PM_filt, family = binomial, method = "REML")
 summary(PM_GAM2)
 gam.check(PM_GAM2)
 
-# Environ only - poisson
-PM_GAM3 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean),
-              data = PM_filt, family = poisson, method = "REML")
-summary(PM_GAM3)
-gam.check(PM_GAM3)
+# Plot
+plot(PM_GAM1, all.terms = TRUE, scale = 0, pages = 1)
+plot(PM_GAM2, all.terms = TRUE, scale = 0, pages = 1)
 
-# Environ + noise - poisson
-PM_GAM4 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) 
-               + s(sst_mean) + s(TOL_125) + s(TOL_2000),
-              data = PM_filt, family = poisson, method = "REML")
-summary(PM_GAM4)
-gam.check(PM_GAM4)
-
-# Environ only - gaussian
-PM_GAM5 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean),
-              data = PM_filt, method = "REML")
-summary(PM_GAM5)
-gam.check(PM_GAM5)
-
-# Environ + noise - gaussian
-PM_GAM6 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean)
-               + s(TOL_125) + s(TOL_2000),
-              data = PM_filt, method = "REML")
-summary(PM_GAM6)
-gam.check(PM_GAM6)
-
-# Environ only - Tweedie
-PM_GAM7 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean),
-              data = PM_filt, family = tw(link = "log"), method = "REML")
-summary(PM_GAM7)
-gam.check(PM_GAM7)
-
-# Environ + noise - Tweedie
-PM_GAM8 <- gam(Wpresence>0 ~ s(dist2slope) + s(mldDepth) + s(sst_mean)
-               + s(TOL_125) + s(TOL_2000),
-              data = PM_filt, family = tw(link = "log"), method = "REML")
-summary(PM_GAM8)
-gam.check(PM_GAM8)
-
-
-plot(PM_GAM1, all.terms = TRUE, scale = 0)
-plot(PM_GAM2, all.terms = TRUE, scale = 0)
-plot(PM_GAM3, all.terms = TRUE, scale = 0)
-plot(PM_GAM4, all.terms = TRUE, scale = 0)
-plot(PM_GAM5, all.terms = TRUE, scale = 0)
-plot(PM_GAM6, all.terms = TRUE, scale = 0)
-plot(PM_GAM7, all.terms = TRUE, scale = 0)
-plot(PM_GAM8, all.terms = TRUE, scale = 0)
-AIC(PM_GAM4, PM_GAM8)
+# compare AIC scores
+AIC(PM_GAM1, PM_GAM2)
 
 ```
 
@@ -276,33 +198,8 @@ ZC_filt2 <- drift_escarp %>%
 PM_filt2 <- drift_escarp %>% 
   filter(species %in% c("PM", NA))
 #####
-
-# Poisson
-ZC_GAM_escarp <- gam(Wpresence>0 ~ s(dist2escarp) + s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
-              data = ZC_filt2, family = poisson, method = "REML")
-summary(ZC_GAM_escarp)
-plot(ZC_GAM_escarp, all.terms = TRUE)
-
-# Tweedie (family = tw(link = "log"))
-ZC_GAM_escarp <- gam(Wpresence>0 ~ s(dist2escarp) + s(depth) + s(temp400) + s(sst_mean) + s(TOL_125) + s(TOL_2000),
-              data = ZC_filt2, family = tw(link = "log"), method = "REML")
-summary(ZC_GAM_escarp)
-plot(ZC_GAM_escarp, all.terms = TRUE)
-
-# Poisson
-PM_GAM_escarp <- gam(Wpresence>0 ~ s(dist2escarp) + s(dist2slope) + s(mldDepth) + s(sst_mean)
-               + s(TOL_125) + s(TOL_2000),
-              data = PM_filt2, family = poisson, method = "REML")
-summary(PM_GAM_escarp)
-plot(PM_GAM_escarp, all.terms = TRUE)
-plot.gam(PM_GAM_escarp)
-
-# Tweedie
-PM_GAM_escarp <- gam(Wpresence>0 ~ s(dist2escarp) + s(dist2slope) + s(mldDepth) + s(sst_mean)
-               + s(TOL_125) + s(TOL_2000),
-              data = PM_filt2, family = tw(link = "log"), method = "REML")
-summary(PM_GAM_escarp)
 ```
+
 
 With TOL2000 included
 ```{r}
