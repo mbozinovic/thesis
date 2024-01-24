@@ -194,10 +194,12 @@ Points to line loop
 ```{r}
 # Make a fishnet grid over AIS area
 # What size cells are these?
-grid <- st_make_grid(bnd, cellsize = 0.4, square = FALSE) %>%
+grid <- st_make_grid(bnd, cellsize = 0.4, square = FALSE) %>% 
   st_set_crs(4326)
 
+
 shipList <- dir("D:/AIS/AIS_West", recursive=TRUE, full.names=TRUE, pattern=".rda")
+# be sure to remove AIS_grid.rda from this list (shipList[120])
 
 for (i in shipList) {
   p <- readRDS(i) %>%
@@ -224,8 +226,10 @@ for (i in shipList) {
   
   assign(paste0("AIS_", substr(i,21,25), "_grid"), m)
   
-  print(paste0("Completed", substr(i,21,25)))
+  print(paste0("Completed ", substr(i,21,25)))
 }
+
+# shipList contains AIS_grid.rda which does not have MMSI! Will generate an error, but can ignore.
 ```
 
 Sum up all ships on all days per grid
@@ -278,7 +282,13 @@ AISgrd <- st_make_valid(f[f_pts_intersect,]) %>%
 
 #What is area of these grid cells?
 st_area(grid)
+st_crs(grid)
+st_distance(grid)
+st_is_longlat(grid)
 st_area(AISgrd)
+
+#0.1385641 (area)
+
 ```
 Final AIS maps
 ```{r fig.width=10}
@@ -291,29 +301,56 @@ ggplot(AISgrd) +
 
 # tmap
 #tm_basemap(leaflet::providers$Esri.WorldTopoMap) +
-  tm_shape(AISgrd) + tm_fill(fill = 'total', 
-                             col = 'lightgrey', 
-                             fill.legend = tm_legend("Ship Counts"),
-                             fill.scale = tm_scale_continuous()) + 
-  tm_shape(west) + tm_borders(col = "black", 
-                              fill = "papayawhip")+
-  tm_shape(detsOnly_sf) + tm_dots(size = 0.2, 
+  tm_shape(AISgrd) + tm_fill(col = 'total', style = 'cont', title = "Ship Counts", palette = "Blues") +
+  tm_borders(col = 'lightgrey') +
+  tm_shape(west) + tm_fill(col = "papayawhip") + tm_borders(col = "black") +
+  tm_shape(detsOnly_sf) + tm_dots(size = 0.1, 
                                   legend.show = TRUE) +
   tm_layout(legend.outside = TRUE) +
   tm_grid(alpha = 0.2, 
           col = "grey") +
-  tm_scalebar() +
+  tm_scale_bar(position = "center") +
   tm_compass(type = "arrow", 
              position = c(0.05, 0.05), 
              color.light = "blue") +
-  tm_add_legend('symbol',
-                fill = "black",
+  tm_add_legend(type = 'symbol',
+                col = "black",
                 labels = "Whale Detections",
                 size = 0.5,
                 lwd = 2) +
-  tm_place_legends_right(width = 0.2) +
-  tm_title("Daily Counts of Unique AIS Vessels")
+  tm_layout(main.title = "Daily Counts of Unique AIS Vessels",
+            main.title.position = 'left') +
+    tmap_style("white")
 
+# Time frame is from 8-6-18 to 12-2-18, duration of drifts in the water.
+# Hexagonal cells are 0.4 degrees across (~43 km)
+```
+Measure cell distance across
+```{r}
+measure <- function(lon1,lat1,lon2,lat2) {
+    R <- 6378.137                                # radius of earth in Km
+    dLat <- (lat2-lat1)*pi/180
+    dLon <- (lon2-lon1)*pi/180
+    a <- sin((dLat/2))^2 + cos(lat1*pi/180)*cos(lat2*pi/180)*(sin(dLon/2))^2
+    c <- 2 * atan2(sqrt(a), sqrt(1-a))
+    d <- R * c
+    return (d)                            # distance in kilometers
+}
+
+#AISgrd[25]
+measure(-128.4902, 30.02285, -128.8902, 30.25379)
+
+#AISgrd[801]
+measure(-118.8902, 30.71567, -119.2902, 30.94661)
+
+#AISgrd[400]
+measure(-125.0902, 36.60464, -125.4902, 36.83558)
+
+library(geosphere)
+p1 <- c(-128.4902, 30.02285)
+p2 <- c(-128.8902, 30.25379)
+#distance in meters
+distHaversine(p1,p2)
 ```
 
 
