@@ -59,6 +59,7 @@ pct90_07_select <- pct90_07 %>% select(UTC, TOL_125, TOL_2000) %>%
 pct07 <- cbind(pct10_07_select, pct50_07_select, pct90_07_select)
 
 # Join GPS points with the three percentiles
+GPSwhale7 <- readRDS(file = "D:Buoy_dfs/GPSwhale7.rda")
 pct07_whl <- timeJoin(GPSwhale7, pct07, thresh = 3600, interpolate = FALSE)
 
 #Summarize
