@@ -19,6 +19,8 @@ for (ft in ftlist) {
   df <- readRDS(ft)
   assign(paste0("GPSwhaleAISenvSS", substr(ft, 29, 30)), df)
 }
+
+GPSwhaleAISSS20.alt <- readRDS("D:Buoy_dfs/GPSwhaleAISSS20_alt.rda")
 ```
 
 Bind ALL DRIFTS into one dataframe
@@ -27,20 +29,23 @@ dlist <- grep(pattern = "GPSwhaleAISenvSS", names(.GlobalEnv), value = T)
 
 # Create a new column that specifies the drift number before the bind.
 for (col in dlist){
-  data <- get(col) %>% mutate(Deployment = substr(col,17,18))
-  data <- data[data$species %in% c(NA, "ZC", "PM", "BB", "BW43"),]    # Remove BW37V and BWC from analysis as there are too few detections.
+  data <- get(col) %>% mutate(Deployment = as.numeric(substr(col,17,18)))
+  data <- data[data$species %in% c(NA, "ZC", "PM"),]    # Remove all but ZC and PM from analysis as there are too few detections.
   assign(paste0("GPSwhaleAISenvSS", substr(col,17,18)), data)
 }
+
+# Remove points where buoy is on the shelf - 300 meters
+#Only occurs with buoy 7
+GPSwhaleAISenvSS07 <- GPSwhaleAISenvSS07 %>%
+  filter(depth > 300)
+saveRDS(GPSwhaleAISenvSS07, file = "data/GPSwhaleAISenvSS07.rda")
+saveRDS(GPSwhaleAISenvSS07, 'D:/Buoy_dfs/GPSwhaleAISenv07.rda')
 
 # Bind and save allDrifts dataframe
 allDrifts <- rbind(GPSwhaleAISenvSS07, GPSwhaleAISenvSS08, GPSwhaleAISenvSS10, GPSwhaleAISenvSS12,
                    GPSwhaleAISenvSS13, GPSwhaleAISenvSS14, GPSwhaleAISenvSS16, GPSwhaleAISenvSS18,
-                   GPSwhaleAISenvSS19, GPSwhaleAISenvSS20, GPSwhaleAISenvSS21, GPSwhaleAISenvSS22,
+                   GPSwhaleAISenvSS19, GPSwhaleAISSS20.alt, GPSwhaleAISenvSS21, GPSwhaleAISenvSS22,
                    GPSwhaleAISenvSS23)
-
-# Remove points where buoy is on the shelf - 300 meters
-allDrifts <- allDrifts %>%
-  filter(depth > 300)
 
 
 save(allDrifts, file = "data/allDrifts.rda")
@@ -341,64 +346,11 @@ ggplot(PM_pivot, aes(x = UTC, y = value, color = avg)) + geom_smooth() +
 ```
 
 
-
-
-
-Compare overall TOL2000sound levels when whales are absent vs. present
+Compare overall TOL2000sound levels when ALL whales are absent vs. present
 ```{r}
 ggplot(allDrifts, aes(factor(Wpresence), TOL_2000)) + geom_boxplot()
 ```
 
-
-
-
-Scatterplots
-
-```{r}
-# SST vs TOL 2000
-ggplot(data = allDrifts, aes(x = sst_mean, y = `TOL_2000`)) +
-  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
-
-# SST over time (strange plot)
-ggplot(allDrifts, aes(x = UTC, y = sst_mean)) +
-  #geom_line() +
-  geom_point(aes(color = species)) +
-  scale_color_discrete(na.translate=FALSE)
-  #geom_smooth(method = "loess")
-
-
-# Depth vs TOL 125
-ggplot(data = allDrifts, aes(x = `TOL_125`, y = depth *(-1))) +
-  #geom_line() +
-  geom_point(aes(color = species)) +
-  scale_color_discrete(na.translate=FALSE)
-
-
-# Chlorophyll vs TOL 125
-ggplot(data = allDrifts, aes(x = chlorophyll_mean, y = `TOL_125`)) +
-  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
-
-# CHl over time
-ggplot(allDrifts, aes(x = UTC, y = chlorophyll_mean)) +
-  geom_line() +
-  geom_point(aes(color = species)) +
-  scale_color_discrete(na.translate=FALSE)
-  #geom_smooth(method = "loess")
-
-# Mixed Layer Depth vs TOL125 with species
-ggplot(data = allDrifts, aes(x = mldDepth, y = `TOL_125`)) +
-  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
-
-# Mixed Layer Depth over time
-ggplot(allDrifts, aes(x = UTC, y = mldDepth*(-1))) +
-  geom_line() +
-  geom_point(aes(color = species)) +
-  scale_color_discrete(na.translate=FALSE)
-
-ggplot(data = allDrifts, aes(x = `TOL_125`, y = bathy_slope)) +
-  geom_point(aes(color = species)) + scale_color_discrete(na.translate=FALSE)
-  
-```
 
 
 
