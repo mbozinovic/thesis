@@ -396,6 +396,11 @@ env23 <- cbind(env23, thermData)
 
 Save final df 'GPSwhaleAISenv' to add soundscape metrics next.
 ```{r}
+# Remove points where buoy is on the shelf - 300 meters
+#Only occurs with buoy 7
+env07 <- env07 %>%
+  filter(depth > 300)
+
 saveRDS(env10, 'data/GPSwhaleAISenv10.rda')
 saveRDS(env12, 'data/GPSwhaleAISenv12.rda')
 saveRDS(env13, 'data/GPSwhaleAISenv13.rda')
@@ -409,6 +414,7 @@ saveRDS(env22, 'data/GPSwhaleAISenv22.rda')
 saveRDS(env23, 'data/GPSwhaleAISenv23.rda')
 saveRDS(env07, 'data/GPSwhaleAISenv07.rda')
 saveRDS(env08, 'data/GPSwhaleAISenv08.rda')
+
 
 # also saves to external hard drive
 saveRDS(env10, 'D:/Buoy_dfs/GPSwhaleAISenv10.rda')
